@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@1.20.0/dist/full.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-900 text-white p-6">
+  <div id="checkout-page" class="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold text-center mb-6">Checkout</h1>
+    <p class="text-center mb-6"><i><strong>After</strong></i> <strong>Confirm Order </strong> Please click this <a
+        class="text-blue-200 underline" href="./index.html">Home</a>👈</p>
+
+    <!-- User Information Form -->
+    <div id="user-info" class="mb-6">
+      <h2 class="text-xl font-semibold mb-4">Enter Your Information</h2>
+      <form id="info-form" class="space-y-4" onsubmit="handleSubmit(event)">
+        <div>
+          <label for="name" class="label">Name:</label>
+          <input type="text" id="name" class="input input-bordered w-full bg-gray-700 text-white" required>
+        </div>
+        <div>
+          <label for="phone" class="label">Phone Number:</label>
+          <input type="tel" id="phone" class="input input-bordered w-full bg-gray-700 text-white" required>
+        </div>
+        <div>
+          <label for="address" class="label">Address:</label>
+          <input type="text" id="address" class="input input-bordered w-full bg-gray-700 text-white" required>
+        </div>
+        <div>
+          <label for="email" class="label">Email:</label>
+          <input type="email" id="email" class="input input-bordered w-full bg-gray-700 text-white" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-full bg-blue-600 hover:bg-blue-700">Confirm Order</button>
+      </form>
+    </div>
+
+    <div id="checkout-details" class="mb-6"></div>
+  </div>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || []; // Load the cart from localStorage
+    const delivery = 110; // Same delivery fee
+
+    function loadCheckout() {
+      const checkoutDetails = document.getElementById("checkout-details");
+      if (cart.length === 0) {
+        checkoutDetails.innerHTML = "<p>Your cart is empty.</p>";
+      } else {
+        const totalPriceWithoutDelivery = cart.reduce((total, item) => {
+          const discount = calculateDiscount(item.quantity || 1, item.price);
+          return total + (item.price * (item.quantity || 1) - discount);
+        }, 0);
+        const totalPrice = totalPriceWithoutDelivery + delivery; // Add delivery fee only once
+
+        checkoutDetails.innerHTML =
+          cart
+            .map((item) => {
+              const discount = calculateDiscount(item.quantity || 1, item.price);
+              return `
+                            <div class="border p-4 rounded-lg mb-4 bg-gray-700">
+                                <h3 class="font-semibold">${item.name} (Quantity: ${item.quantity || 1})</h3>
+                                <p>Price: BDT ${item.price.toFixed(2)}</p>
+                                <p>Discount: BDT ${discount.toFixed(2)}</p>
+                            </div>`;
+            })
+            .join("") +
+          `<p class="font-bold text-lg">Total (including delivery): BDT ${totalPrice.toFixed(2)}</p>`;
+      }
+    }
+
+    async function handleSubmit(event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      // Get user information
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const address = document.getElementById("address").value;
+      const email = document.getElementById("email").value;
+
+      // Check if all fields are filled
+      if (!name || !phone || !address || !email) {
+        alert("Please fill out all fields.");
+        return;
+      }
+
+      // Prepare the data to be sent
+      const formData = {
+        access_key: "263c1df5-fd55-4f57-8704-15a2659d3cee",
+        name: name,
+        phone: phone,
+        address: address,
+        email: email,
+        cartItems: cart.map(item => {
+          const totalPrice = (item.price * (item.quantity || 1)).toFixed(2);
+          return `${item.quantity || 1}x ${item.name} - BDT ${item.price} - Total: BDT ${totalPrice}`;
+        }).join(", ")
+        ,
+      };
+
+      // Send the data to the specified API
+      try {
+        const response = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (response.ok) {
+          alert(`Thank you for your order, ${name}! It has been confirmed.`);
+          // Optionally, clear the cart
+          localStorage.removeItem("cart");
+          cart = [];
+          loadCheckout();
+        } else {
+          throw new Error("Failed to submit the form.");
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    function calculateDiscount(quantity, price) {
+      let discountPercentage = 0;
+
+      // Find the appropriate discount based on quantity
+      for (let i = discountConfig.length - 1; i >= 0; i--) {
+        if (quantity >= discountConfig[i].quantity) {
+          discountPercentage = discountConfig[i].discount;
+          break;
+        }
+      }
+
+      return price * discountPercentage;
+    }
+
+    // Load checkout details when the page is loaded
+    window.onload = function () {
+      loadCheckout(); // Load the checkout details
+    };
+  </script>
+</body>
+
+</html>

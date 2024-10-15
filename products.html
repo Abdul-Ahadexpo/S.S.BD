@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spin-Strike - Products</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@1.14.1/dist/full.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header class="bg-gray-800 text-white p-4">
+    <h1 class="text-3xl text-center">Spin-Strike Product Listings</h1>
+    <nav class="flex justify-center mt-2">
+      <ul class="flex space-x-4">
+        <li><a href="index.html" class="btn btn-primary">Home</a></li>
+        <li><a href="products.html" class="btn btn-primary">Products</a></li>
+        <li><a href="cart.html" class="btn btn-primary">Cart</a></li>
+      </ul>
+    </nav>
+
+
+
+    <!-- Category Buttons -->
+    <div id="category-buttons" class="mt-4 mb-4">
+
+      <button value="0" class="btn btn-outline" onclick="filterProducts(1)">Beyblade X</button>
+
+      <button value="1" class="btn btn-outline" onclick="filterProducts(2)">Metal Fight</button>
+
+      <button value="2" class="btn btn-outline" onclick="filterProducts(3)">Burst</button>
+    </div>
+
+
+
+
+
+
+
+    <div class="flex justify-center mt-2">
+      <input type="text" id="search-bar" placeholder="Search products..." class="input input-bordered" />
+      <button onclick="searchProducts()" class="btn btn-secondary">Search</button>
+    </div>
+  </header>
+
+  <main class="p-4">
+    <section id="product-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Products will be dynamically loaded here -->
+    </section>
+  </main>
+
+  <footer class="bg-gray-800 text-white text-center p-4">
+    <p>© 2024 Spin-Strike BD. All Rights Reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

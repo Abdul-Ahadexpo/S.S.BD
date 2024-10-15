@@ -1,0 +1,51 @@
+/* style.css */
+body {
+  font-family: Arial, sans-serif;
+}
+
+header {
+  text-align: center;
+  background-color: #f4f4f4;
+  padding: 10px;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+nav ul li {
+  display: inline;
+  margin-right: 20px;
+}
+
+main {
+  padding: 20px;
+}
+
+.product-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+img {
+  max-width: 450px;
+}
+.fb {
+  position: relative;
+  top: -20px;
+  left: 65%;
+}
+/* Responsive Design */
+@media (max-width: 768px) {
+  .product-item {
+    width: 100%;
+  }
+  .fb {
+    position: relative;
+    top: 0px;
+    left: 85%;
+  }
+}
