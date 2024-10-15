@@ -4,7 +4,7 @@ let cart = [];
 const products = [
   {
     id: 1,
-    name: "Phoenix Wing 9-60GF",
+    name: "Phoenix Wing 9-60GF BX-23",
     description: "Best Attack X Beyblade",
     price: 450,
     image:
@@ -13,7 +13,7 @@ const products = [
 
   {
     id: 2,
-    name: "UX Bey Hells Hammer 3-70H",
+    name: "Hells Hammer 3-70H (UX-02)",
     description: "Heard hitting X Bey",
     price: 450,
     image:
@@ -22,7 +22,7 @@ const products = [
 
   {
     id: 3,
-    name: "X Bey Unicorn Sting 5-60GP",
+    name: "Unicorn Sting 5-60GP (BX-26)",
     description: "",
     price: 400,
     image:
@@ -38,7 +38,7 @@ const products = [
   },
   {
     id: 5,
-    name: "BX-08 Wizard Arrow 4-80B(Yellow)",
+    name: "Wizard Arrow 4-80B (BX-08)",
     description: "",
     price: 300,
     image:
@@ -46,7 +46,7 @@ const products = [
   },
   {
     id: 6,
-    name: "UX-03 Booster Wizard Rod 5-70DB",
+    name: "Booster Wizard Rod 5-70DB (UX-03)",
     description: "",
     price: 450,
     image:
