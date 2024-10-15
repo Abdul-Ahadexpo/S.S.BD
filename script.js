@@ -4,7 +4,7 @@ let cart = [];
 const products = [
   {
     id: 1,
-    name: "Phoenix Wing 9-60GF BX-23",
+    name: "Phoenix Wing 9-60GF",
     description: "Best Attack X Beyblade",
     price: 450,
     image:
@@ -13,7 +13,7 @@ const products = [
 
   {
     id: 2,
-    name: "Hells Hammer 3-70H (UX-02)",
+    name: "UX Bey Hells Hammer 3-70H",
     description: "Heard hitting X Bey",
     price: 450,
     image:
@@ -22,7 +22,7 @@ const products = [
 
   {
     id: 3,
-    name: "Unicorn Sting 5-60GP (BX-26)",
+    name: "X Bey Unicorn Sting 5-60GP",
     description: "",
     price: 400,
     image:
@@ -38,7 +38,7 @@ const products = [
   },
   {
     id: 5,
-    name: "Wizard Arrow 4-80B (BX-08)",
+    name: "BX-08 Wizard Arrow 4-80B(Yellow)",
     description: "",
     price: 300,
     image:
@@ -46,7 +46,7 @@ const products = [
   },
   {
     id: 6,
-    name: "Booster Wizard Rod 5-70DB (UX-03)",
+    name: "UX-03 Booster Wizard Rod 5-70DB",
     description: "",
     price: 450,
     image:
@@ -54,16 +54,24 @@ const products = [
   },
   {
     id: 7,
-    name: "BX-18 X String Launcher (Pre Order)",
-    description: "Pre Order, It will take 10-25 Days To deliver",
-    price: 300,
+    name: "BX-18 X String Launcher",
+    description: "",
+    price: 400,
     image:
       "https://th.bing.com/th/id/OIP.pRZBwx1ca5dpY_2YPF79jwHaHa?w=1200&h=1200&rs=1&pid=ImgDetMain",
   },
   {
     id: 8,
-    name: "BX-00 X Ripcord-Launcher (Pre Order)",
-    description: "Pre Order, It will take 10-25 Days To deliver",
+    name: "BX-00 X Ripcord-Launcher",
+    description: "",
+    price: 250,
+    image:
+      "https://takaratomyasia.com/img/product/910398/product-910398-A02.jpg?20230724_091221",
+  },
+  {
+    id: 9,
+    name: "BX-00 X Ripcord-Launcher",
+    description: "",
     price: 250,
     image:
       "https://takaratomyasia.com/img/product/910398/product-910398-A02.jpg?20230724_091221",
