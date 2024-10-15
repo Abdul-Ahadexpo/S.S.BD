@@ -26,7 +26,7 @@ function loadCheckout() {
 
 // Function to calculate total price
 function calculateTotal() {
-  const delivery = 110; // Delivery fee
+  const delivery = 120; // Delivery fee
   const totalPrice = cart.reduce(
     (total, item) => total + item.price * (item.quantity || 1),
     0
