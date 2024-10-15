@@ -70,11 +70,20 @@ const products = [
   },
   {
     id: 9,
-    name: "BX-00 X Ripcord-Launcher",
-    description: "",
+    name: "Bey logger (BX-09)",
+    description: "A Beyblade Accessory. It also can be used as a launcher Grip",
     price: 250,
     image:
-      "https://takaratomyasia.com/img/product/910398/product-910398-A02.jpg?20230724_091221",
+      "https://th.bing.com/th/id/OIP.9Vv5ethvnFQkhAq5IpnJVQHaHa?w=800&h=800&rs=1&pid=ImgDetMain",
+  },
+
+  {
+    id: 10,
+    name: "Beyblade X Launcher Grip",
+    description: "A Beyblade X Accessory. It's a launcher Grip",
+    price: 250,
+    image:
+      "https://scontent.fdac138-2.fna.fbcdn.net/v/t1.15752-9/462639111_1931297604016044_2676344296671439481_n.png?_nc_cat=105&ccb=1-7&_nc_sid=9f807c&_nc_ohc=WygLdblYY4EQ7kNvgEZb8C1&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=AxOm45Q447snH4xCVCOBrAh&oh=03_Q7cD1QHViB2AdRuFGmSZ7j70dGbzBGWKkQD96H34ITe5Eqhhuw&oe=67361065",
   },
 ];
 
