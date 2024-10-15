@@ -18,6 +18,9 @@ nav ul li {
   display: inline;
   margin-right: 20px;
 }
+.mraa {
+  margin-right: -15px;
+}
 
 main {
   padding: 20px;
