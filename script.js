@@ -6,7 +6,7 @@ const products = [
     id: 1,
     name: "Phoenix Wing 9-60GF",
     description: "Best Attack X Beyblade",
-    price: 450,
+    price: 480,
     image:
       "https://th.bing.com/th/id/OIP.7Vlwn3_Ru7iwhjRfTEPWIAHaGg?rs=1&pid=ImgDetMai",
   },
