@@ -54,16 +54,16 @@ const products = [
   },
   {
     id: 7,
-    name: "BX-18 X String Launcher",
-    description: "",
+    name: "BX-18 X String Launcher (Pre order)",
+    description: "Pre order, It will take 15-25 days to be delivered",
     price: 400,
     image:
       "https://th.bing.com/th/id/OIP.pRZBwx1ca5dpY_2YPF79jwHaHa?w=1200&h=1200&rs=1&pid=ImgDetMain",
   },
   {
     id: 8,
-    name: "BX-00 X Ripcord-Launcher",
-    description: "",
+    name: "BX-00 X Ripcord-Launcher (Pre order)",
+    description: "Pre order, It will take 15-25 days to be delivered",
     price: 250,
     image:
       "https://takaratomyasia.com/img/product/910398/product-910398-A02.jpg?20230724_091221",
