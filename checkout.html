@@ -35,6 +35,14 @@
           <label for="email" class="label">Email:</label>
           <input type="email" id="email" class="input input-bordered w-full bg-gray-700 text-white" required>
         </div>
+
+
+        <div>
+          <label for="email" class="label">Coupon code(If you have any):</label>
+          <input type="text" id="c_code" class="input input-bordered w-full bg-gray-700 text-white">
+        </div>
+
+
         <button type="submit" class="btn btn-primary w-full bg-blue-600 hover:bg-blue-700">Confirm Order</button>
       </form>
     </div>
@@ -81,6 +89,7 @@
       const phone = document.getElementById("phone").value;
       const address = document.getElementById("address").value;
       const email = document.getElementById("email").value;
+      const c_code = document.getElementById("c_code").value;
 
       // Check if all fields are filled
       if (!name || !phone || !address || !email) {
@@ -91,6 +100,7 @@
       // Prepare the data to be sent
       const formData = {
         access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
+        Coupon_code: c_code,
         name: name,
         phone: phone,
         address: address,
