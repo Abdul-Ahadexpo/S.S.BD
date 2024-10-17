@@ -34,7 +34,6 @@ main {
 
 img {
   max-width: 450px;
-  margin: 0 auto;
 }
 .fb {
   position: relative;
@@ -156,7 +155,7 @@ h2 {
   .modal-content {
     width: 100%;
   }
-  img {
+  #featured-products img {
     max-width: 250px;
     margin: 0 auto;
   }
