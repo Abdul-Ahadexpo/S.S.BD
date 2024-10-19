@@ -85,6 +85,49 @@ const products = [
     image:
       "https://scontent.fdac138-2.fna.fbcdn.net/v/t1.15752-9/462639111_1931297604016044_2676344296671439481_n.png?_nc_cat=105&ccb=1-7&_nc_sid=9f807c&_nc_ohc=WygLdblYY4EQ7kNvgEZb8C1&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=AxOm45Q447snH4xCVCOBrAh&oh=03_Q7cD1QHViB2AdRuFGmSZ7j70dGbzBGWKkQD96H34ITe5Eqhhuw&oe=67361065",
   },
+
+  {
+    id: 11,
+    name: "Gatling Dragon",
+    description: "Flame brand Gatling Dragon Rapid Charge' Metal-10",
+    price: 520,
+    image:
+      "https://th.bing.com/th/id/OIP.Qd6oZIu2UZ2JyDl8OKXDuAHaHa?rs=1&pid=ImgDetMain",
+  },
+
+  {
+    id: 12,
+    name: "Imperial Dragon",
+    description: "Flame brand Imperial Dragon Ignition'",
+    price: 500,
+    image:
+      "https://vignette.wikia.nocookie.net/beyblade/images/2/2c/Imperial_Dragon_Bey.jpg/revision/latest?cb=20191015123208",
+  },
+  {
+    id: 13,
+    name: "Ultimate Valkyrie",
+    description: "Flame brand Ultimate Valkyrie Legacy Variable'-9",
+    price: 500,
+    image:
+      "https://th.bing.com/th/id/OIP._makEXYOpLStcyVIRfj61wHaHa?rs=1&pid=ImgDetMain",
+  },
+  {
+    id: 14,
+    name: "Vanish Fafnir",
+    description: "Full rubber Vanish Fafnir Tapered Kick-3",
+    price: 500,
+    image:
+      "https://th.bing.com/th/id/OIP.nx0indHJS37xKmwlMftJKAHaHa?rs=1&pid=ImgDetMain",
+  },
+
+  {
+    id: 15,
+    name: "L-Drago Destructor",
+    description: "L-Drago Destructor F:S. A Metal Fight Bey",
+    price: 350,
+    image:
+      "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/140/405/s_l1600_50__79330.1448225384.jpg?c=2?imbypass=on",
+  },
 ];
 
 // Delivery Fee
@@ -291,9 +334,14 @@ function filterProducts(categoryId) {
       (product) => product.id >= 1 && product.id <= 10
     );
   } else if (categoryId === 2) {
-    // Filter only bookmark products (IDs 11 and 12)
+    // Filter only bookmark products (IDs 11 and 14)
     filteredProducts = products.filter(
-      (product) => product.id >= 11 && product.id <= 30
+      (product) => product.id >= 11 && product.id <= 14
+    );
+  } else if (categoryId === 3) {
+    // Filter only bookmark products (IDs 15 and 18)
+    filteredProducts = products.filter(
+      (product) => product.id >= 15 && product.id <= 18
     );
   } else {
     // Show all products for the "All Products" category
