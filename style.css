@@ -57,7 +57,7 @@ img {
 .review-img {
   width: 100px;
   height: auto;
-  border-radius: 5px;
+  border-radius: 10px;
   margin-right: 10px;
   cursor: pointer;
 }
