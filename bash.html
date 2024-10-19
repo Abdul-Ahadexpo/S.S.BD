@@ -29,30 +29,40 @@
         </div>
         <div>
           <label for="address" class="label">Address:</label>
-          <input type="text" id="address" class="input input-bordered w-full bg-gray-700 text-white" required>
+          <input type="text" id="address" class="input input-bordered w-full bg-gray-700 text-white" required
+            placeholder="give your full address">
         </div>
+
+
         <div>
           <label for="email" class="label">Email:</label>
           <input type="email" id="email" class="input input-bordered w-full bg-gray-700 text-white" required>
         </div>
 
-
         <div>
-          <label for="email" class="label">Coupon code(If you have any):</label>
-          <input type="text" id="c_code" class="input input-bordered w-full bg-gray-700 text-white">
+          <label for="email" class="label">Send total BDT to this Number (01722786111) and give your transaction
+            number here:
+          </label>
+          <input type="text" id="money" class="input input-bordered w-full bg-gray-700 text-white" required
+            placeholder="If you don't send the money, your order will not be confirmed">
         </div>
 
 
+        <div>
+          <label for="c_code" class="label">Coupon code (If you have any):</label>
+          <input type="text" id="c_code" class="input input-bordered w-full bg-gray-700 text-white">
+        </div>
         <button type="submit" class="btn btn-primary w-full bg-blue-600 hover:bg-blue-700">Confirm Order</button>
       </form>
     </div>
 
+    <!-- Checkout Details -->
     <div id="checkout-details" class="mb-6"></div>
   </div>
 
   <script>
     let cart = JSON.parse(localStorage.getItem("cart")) || []; // Load the cart from localStorage
-    const delivery = 110; // Same delivery fee
+    const delivery = 110; // Delivery fee
 
     function loadCheckout() {
       const checkoutDetails = document.getElementById("checkout-details");
@@ -91,8 +101,10 @@
       const email = document.getElementById("email").value;
       const c_code = document.getElementById("c_code").value;
 
+      const money = document.getElementById("money").value;
+
       // Check if all fields are filled
-      if (!name || !phone || !address || !email) {
+      if (!name || !phone || !address || !email || !money) {
         alert("Please fill out all fields.");
         return;
       }
@@ -105,6 +117,7 @@
         phone: phone,
         address: address,
         email: email,
+        money: money,
         cartItems: cart.map(item => {
           const totalPrice = (item.price * (item.quantity || 1)).toFixed(2);
           return `${item.quantity || 1}x ${item.name} - BDT ${item.price} - Total: BDT ${totalPrice}`;

@@ -26,7 +26,13 @@
     <section id="cart-items" class="mb-4">
       <!-- Cart items will be dynamically loaded here -->
     </section>
-    <button onclick="checkout()" class="btn btn-primary">Proceed to Checkout</button>
+
+    <!-- Two buttons as requested -->
+    <div class="flex space-x-4">
+      <button onclick="location.href='checkout.html'" class="btn btn-primary">Checkout (COD)</button>
+      <button onclick="location.href='bash.html'" class="btn btn-primary">Checkout
+        (Bkash)</button>
+    </div>
   </main>
 
   <footer class="bg-gray-800 text-white text-center p-4">
