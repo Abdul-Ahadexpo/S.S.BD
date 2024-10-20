@@ -28,18 +28,44 @@
     </section>
 
     <!-- Two buttons as requested -->
-    <div class="flex space-x-4">
+    <div id="bashcod" class="flex space-x-4">
+
       <button onclick="location.href='checkout.html'" class="btn btn-primary">Checkout (COD)</button>
-      <button onclick="location.href='bash.html'" class="btn btn-primary">Checkout
+
+      <button id="bash" onclick="location.href='bash.html'" class="btn btn-primary">Checkout_with
         (Bkash)</button>
     </div>
   </main>
 
-  <footer class="bg-gray-800 text-white text-center p-4">
+
+
+
+
+  <!-- -----------------ADSSSSSSS -->
+
+
+  <section>
+    <div id="ads">
+      <span class="close-btn" onclick="hideAds()">AD ✖</span>
+    </div>
+  </section>
+
+
+
+
+  <!-- -----------------ADSSSSSSS -->
+
+
+  <footer id="footer" class="bg-gray-800 text-white text-center p-4">
     <p>© 2024 Spin-Strike. All Rights Reserved.</p>
   </footer>
 
   <script src="script.js"></script>
+  <script>
+    function hideAds() {
+      document.getElementById("ads").style.display = "none";
+    }
+  </script>
 </body>
 
 </html>
