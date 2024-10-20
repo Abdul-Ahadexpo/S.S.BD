@@ -35,6 +35,12 @@ main {
 img {
   max-width: 450px;
 }
+
+/* card body */
+#ppd {
+  border: 2px solid rgb(91, 255, 70);
+}
+/* card body */
 .fb {
   position: relative;
   top: -20px;
@@ -186,8 +192,8 @@ h2 {
 }
 
 .close-btn:hover {
-  color: white;
-  background-color: red;
+  color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 255);
 }
 
 /* -----------------ADS */
@@ -236,3 +242,19 @@ h2 {
   }
 }
 /* </style> */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px;
+  background-color: #131313;
+  color: white;
+  border-radius: 25px;
+  border: 2px solid greenyellow;
+  z-index: 1000;
+  transition: opacity 0.5s ease;
+}
+
+.hidden {
+  display: none;
+}

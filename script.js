@@ -4,8 +4,9 @@ let cart = [];
 const products = [
   {
     id: 1,
-    name: "Phoenix Wing 9-60GF",
-    description: "Best Attack X Beyblade",
+    name: "Phoenix Wing 9-60GF (Per-Order)",
+    description: `Best Attack X Beyblade. <br>
+    <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 480,
     image:
       "https://th.bing.com/th/id/OIP.7Vlwn3_Ru7iwhjRfTEPWIAHaGg?rs=1&pid=ImgDetMai",
@@ -148,7 +149,7 @@ function loadProducts() {
   productList.innerHTML = products
     .map(
       (product) => `
-        <div class="card bg-base-100 shadow-xl">
+        <div id="ppd" class="card bg-base-100 shadow-xl">
             <figure><img src="${product.image}" alt="${
         product.name
       }" /></figure>
@@ -175,8 +176,17 @@ function addToCart(productId) {
     product.quantity = 1; // Initialize quantity to 1
     cart.push(product);
     localStorage.setItem("cart", JSON.stringify(cart));
-    alert(`${product.name} has been added to your cart!`);
+    showNotification(`1. ${product.name} has been added to your cart!`);
   }
+}
+// Popup u added a product to your cart
+function showNotification(message) {
+  const notification = document.getElementById("notification");
+  notification.textContent = message;
+  notification.classList.remove("hidden");
+  setTimeout(() => {
+    notification.classList.add("hidden");
+  }, 5000); // Hide after 5 seconds
 }
 
 // Function to calculate the discount based on quantity
@@ -303,7 +313,7 @@ function loadFilteredProducts(filteredProducts) {
       ? filteredProducts
           .map(
             (product) => `
-        <div class="card bg-base-100 shadow-xl">
+        <div id="ppd" class="card bg-base-100 shadow-xl">
             <figure><img src="${product.image}" alt="${
               product.name
             }" /></figure>
