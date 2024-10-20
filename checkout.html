@@ -49,6 +49,9 @@
 
     <div id="checkout-details" class="mb-6"></div>
   </div>
+  <div id="notification"
+    class="fixed bottom-3/4 right-5 hidden bg-black border-solid border-2 border-green-400 text-white p-4 rounded-lg shadow-lg z-50">
+  </div>
 
   <script>
     let cart = JSON.parse(localStorage.getItem("cart")) || []; // Load the cart from localStorage
@@ -123,17 +126,28 @@
         });
 
         if (response.ok) {
-          alert(`Thank you for your order, ${name}! It has been confirmed.`);
+          showNotification(`Thank you for your order, ${name}! It has been confirmed.`);
           // Optionally, clear the cart
           localStorage.removeItem("cart");
           cart = [];
           loadCheckout();
-        } else {
+        }
+        else {
           throw new Error("Failed to submit the form.");
         }
       } catch (error) {
         alert(error.message);
       }
+    }
+    function showNotification(message) {
+      const notification = document.getElementById("notification");
+      notification.textContent = message;
+      notification.classList.remove("hidden");
+
+      // Automatically hide the notification after 3 seconds
+      setTimeout(() => {
+        notification.classList.add("hidden");
+      }, 3000);
     }
 
     function calculateDiscount(quantity, price) {
