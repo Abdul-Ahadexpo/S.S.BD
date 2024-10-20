@@ -41,19 +41,15 @@
 
 
 
-  <!-- -----------------ADSSSSSSS -->
-
+  <!-- --------------------------------------ADSSSSSSS -->
 
   <section>
-    <div id="ads">
-      <span class="close-btn" onclick="hideAds()">AD ✖</span>
+    <div class="cursor-pointer" onclick="goPage()" id="ads">
+      <span class="close-btn" onclick="hideAds(event)">ADs ✖</span>
     </div>
   </section>
 
-
-
-
-  <!-- -----------------ADSSSSSSS -->
+  <!-- --------------------------------------ADSSSSSSS -->
 
 
   <footer id="footer" class="bg-gray-800 text-white text-center p-4">
@@ -61,11 +57,21 @@
   </footer>
 
   <script src="script.js"></script>
+
+
   <script>
-    function hideAds() {
+    function hideAds(event) {
+      event.stopPropagation();  // Prevent the click event from bubbling up to the parent div
       document.getElementById("ads").style.display = "none";
     }
+
+    function goPage() {
+      window.location.href = "https://www.facebook.com/pixelax";
+    }
   </script>
+
+
+
 </body>
 
 </html>
