@@ -1,260 +1,78 @@
-/* style.css */
+.header-section {
+  background-image: linear-gradient(180deg, #1b3682, #100574);
+}
 body {
-  font-family: Arial, sans-serif;
+  opacity: 0;
+  transition: opacity 1s ease;
 }
-
-header {
-  text-align: center;
-  background-color: #f4f4f4;
-  padding: 10px;
+.donation-amount {
+  opacity: 0;
+  transform: translateY(31px);
+  transition: opacity 1s, transform 4s;
 }
-
-nav ul {
-  list-style-type: none;
-  padding: 0;
+.fade-in {
+  opacity: 1;
+  transform: translateY(0);
 }
-
-nav ul li {
-  display: inline;
-  margin-right: 20px;
-}
-.mraa {
-  margin-right: -15px;
-}
-main {
-  padding: 20px;
-}
-
-.product-item {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-img {
-  max-width: 450px;
-}
-
-/* card body */
-#ppd {
-  border: 2px solid rgb(91, 255, 70);
-}
-/* card body */
-.fb {
+.mirror-bg {
   position: relative;
-  top: -20px;
-  left: 65%;
-}
-/* Responsive Design */
-@media (max-width: 768px) {
-  .product-item {
-    width: 100%;
-  }
-  .fb {
-    position: relative;
-    top: 0px;
-    left: 85%;
-  }
-}
-
-/* <style> */
-/* Style for the image */
-.review-img {
-  width: 100px;
-  height: auto;
-  border-radius: 10px;
-  margin-right: 10px;
-  cursor: pointer;
-  border: 2px solid #b4b4b4;
-}
-
-/* Container for each review */
-.review-container {
-  display: flex;
-  flex-direction: row;
-  border: 3px dotted rgb(174, 88, 255);
-  padding: 16px;
-  border-radius: 16px;
-  margin-bottom: 16px;
-  transition: 0.3s;
-  overflow: scroll;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.review-text strong i {
-  font-size: 18px;
-  text-decoration: underline;
-}
-.review-container::-webkit-scrollbar {
-  display: none;
-}
-/* Style for hover effect */
-.review-container:hover {
-  box-shadow: 0 4px 8px rgba(156, 81, 255, 0.651);
-}
-
-/* Text styling for reviews */
-.review-text {
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* Strong element for customer names */
-.review-text strong {
-  font-weight: bold;
-}
-
-/* Section styling */
-section {
-  max-width: 800px;
-  margin: auto;
-}
-
-h2 {
-  font-size: 24px;
-  margin-bottom: 16px;
-}
-
-/* Modal styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-}
-
-.modal-content {
-  margin: auto;
-  display: block;
-  width: 80%;
-  max-width: 700px;
-}
-
-.close {
-  position: absolute;
-  top: 15px;
-  right: 35px;
-  color: #fff;
-  font-size: 40px;
-  cursor: pointer;
-}
-
-/* Animation */
-.modal-content {
-  animation: zoom 0.6s;
-}
-
-#about h2 {
-  border-top: 2px solid rgb(156, 81, 255);
-  border-bottom: 2px solid rgb(156, 81, 255);
-  text-align: center;
-}
-#about {
-  border-bottom: 2px solid rgb(156, 81, 255);
-  border-right: 2px solid rgb(156, 81, 255);
-  border-left: 2px solid rgba(156, 81, 255, 0.651);
-  margin-bottom: 30px;
-  margin-top: 35px;
-}
-#about p {
-  margin-left: 10px;
-}
-
-/* -----------------ADS */
-#ads {
-  border: 2px solid transparent;
-  width: 70%;
-  height: 150px;
-  margin-top: 400px;
-  background-image: url(https://scontent.fdac138-2.fna.fbcdn.net/v/t39.30808-6/337521238_601395738509943_3312970657536751349_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=Epc7wXUIXBEQ7kNvgGmnXVv&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=AUqGZYwE0A4Os9AEyvZzb61&oh=00_AYCVwG1rKrYqUvdTyP2qiKEr85oIU23s3xteTwJSUUpCVw&oe=671A99D7);
-  background-size: contain;
+  height: 100vh;
+  background-image: url("lol.jpg");
+  background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-  position: relative; /* Needed to position the close button */
+  filter: brightness(0.8);
 }
-/* -----------------ADS */
-.close-btn {
+.mirror-bg::after {
+  content: "";
   position: absolute;
-  top: 5px;
-  right: 10px;
-  font-size: 12px;
-  font-weight: bold;
-  color: rgb(165, 165, 165);
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-image: inherit;
+  background-size: cover;
+  background-position: center;
+  transform: scaleY(-1);
+  filter: brightness(0.3);
+  opacity: 0.6;
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.donation-text {
+  max-height: 7rem;
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.5s ease;
+}
+.show {
+  max-height: 20rem;
+}
+.see-more {
+  color: #c4c4c4;
   cursor: pointer;
-  background-color: rgba(0, 0, 0, 0.411);
-  border-radius: 50%;
-  padding: 2px 6px;
+  text-align: center;
+  margin-top: 10px;
 }
-
-.close-btn:hover {
-  color: rgb(0, 0, 0);
-  background-color: rgb(255, 255, 255);
+#donationText {
+  width: 800px;
 }
-
-/* -----------------ADS */
-
-@keyframes zoom {
-  from {
-    transform: scale(0);
-  }
-  to {
-    transform: scale(1);
-  }
+.ShowOnPhone {
+  display: none;
 }
-
-/* Responsive for mobile */
 @media only screen and (max-width: 600px) {
-  .review-container {
-    flex-direction: column;
-  }
-
-  .review-img {
-    margin-bottom: 10px;
-  }
-
-  .modal-content {
+  #donationText {
     width: 100%;
+    text-align: justify;
   }
-  #featured-products img {
-    max-width: 250px;
-    margin: 0 auto;
-  }
-  #bashcod {
-    flex-direction: column;
-    gap: 30px;
-  }
-
-  /* -----------------ADS */
-  #ads {
-    width: 100%;
-    height: 150px;
-    margin-top: 44%;
-  }
-
-  /* -----------------ADS */
-  #footer {
+  .HideOnPhone {
     display: none;
   }
-}
-/* </style> */
-.notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 15px;
-  background-color: #131313;
-  color: white;
-  border-radius: 25px;
-  border: 2px solid greenyellow;
-  z-index: 1000;
-  transition: opacity 0.5s ease;
-}
-
-.hidden {
-  display: none;
+  .ShowOnPhone {
+    display: block;
+  }
 }
