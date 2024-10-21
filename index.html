@@ -4,115 +4,220 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Anuronan- Valo~</title>
+  <title>SpinStrike - Home</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@2.17.0/dist/full.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@1.14.1/dist/full.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-
 </head>
 
-<body class="bg-gray-100">
-  <header class="header-section text-white py-6">
-    <nav class="container mx-auto flex flex-col">
-      <div class="text-4xl font-bold mx-auto text-center md:text-5xl">
-        <h1>অনুরণন</h1>
-      </div>
+<body>
+  <header class="bg-gray-800 text-white p-4">
+    <h1 class="text-3xl text-center">Welcome to Spin-Strike</h1>
+
+    <nav class="flex justify-center mt-2">
+      <ul class="flex space-x-4">
+
+        <li><a href="index.html" class="btn btn-primary mraa">Home</a></li>
+
+        <li><a href="products.html" class="btn btn-primary">Products</a></li>
+
+        <li><a href="cart.html" class="btn btn-primary">Cart</a></li>
+      </ul>
     </nav>
+
+
+
+
+
+    <!-- Category Buttons -->
+    <div id="category-buttons" class="mt-4 mb-4">
+
+      <button value="0" class="btn btn-outline" onclick="filterProducts(1)">Beyblade X</button>
+
+      <button value="1" class="btn btn-outline" onclick="filterProducts(2)">Burst Beys</button>
+
+      <button value="2" class="btn btn-outline" onclick="filterProducts(3)">Metal Beys</button>
+
+      <a href="#customer-reviews" class="btn btn-outline btn-info">Reviews <svg xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg></a>
+    </div>
+
+
+
+
+
+    <div class="flex justify-center mt-2">
+      <input type="text" id="search-bar" placeholder="Search products..." class="input input-bordered" />
+      <button onclick="searchProducts()" class="btn btn-secondary">Search</button>
+    </div>
   </header>
 
-  <style>
+  <main class="p-4">
+    <!-- Featured Products Section -->
+    <section id="featured-products" class="mb-8">
+      <h2 class="text-2xl mb-4">Featured Products</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="product-list">
+        <!-- Featured Products will be dynamically loaded here -->
+      </div>
+    </section>
 
-  </style>
 
-  <section class="relative flex items-center justify-center h-screen mirror-bg">
-    <div class="overlay"></div>
-    <div class="text-center relative z-10">
-      <h1 class="text-3xl md:text-5xl font-bold text-cyan-50 mb-8">Total Donations Collected</h1>
-      <div id="donationAmount" class="donation-amount text-5xl md:text-7xl font-extrabold text-green-300">
-        ৳1,234,567
+
+
+
+
+    <!-- Customer Reviews Section -->
+    <section id="customer-reviews">
+      <h2>Customer Reviews</h2>
+      <div class="reviews">
+        <!-- Review_Starts -->
+        <div class="review-container">
+
+          <div class="flex ">
+            <img onclick="openInNewTab(this.src)" class="review-img"
+              src="https://scontent.fdac138-2.fna.fbcdn.net/v/t39.30808-6/461463052_896448405927826_4888219088806326465_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=t6vceiC8-B4Q7kNvgFkUt3H&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=A0_NxUbFaEoJVOUtmB17BYd&oh=00_AYBgUt4KOP61eEUKmaR9osTx9dl1m3q4spuQ2fOW1KBs_w&oe=6716F59D"
+              alt="Review 1 Image">
+
+            <img onclick="openInNewTab(this.src)" class="review-img"
+              src="https://scontent.fdac138-2.fna.fbcdn.net/v/t39.30808-6/461439905_896448449261155_9185985605612170416_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=4WiA_KmxnsUQ7kNvgE9c3vn&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=AN6mEkj02xwK5hDGbwx4Orx&oh=00_AYDeAlGhI_5fMU8XyrFqBEMEOz-p1D5t4vF6ENOecvBsqQ&oe=6716E722"
+              alt="Review 2 Image">
+          </div>
+
+
+
+          <p class="review-text">"Real guilty longinus. brother. It was from flame brand and price was pretty much
+            affordable." - <strong><i>Mahmud Sahol</i></strong></p>
+        </div>
+
+        <!--  -->
+        <div class="review-container">
+
+          <div class="flex ">
+            <img onclick="openInNewTab(this.src)" class="review-img"
+              src="https://scontent.fdac138-1.fna.fbcdn.net/v/t39.30808-6/461426837_1612653289326947_4329593920255218340_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=HqZnNsYUH-QQ7kNvgG3P19o&_nc_zt=23&_nc_ht=scontent.fdac138-1.fna&_nc_gid=Am8Cu8a4RsUWP59Y2Vkm5it&oh=00_AYDSDOvXFvpEI6WjulnHKx8LSTcxX5IitK1nmAtgHabqOQ&oe=6716DA69"
+              alt="Review 3 Image">
+
+            <img onclick="openInNewTab(this.src)" class="review-img"
+              src="https://scontent.fdac138-2.fna.fbcdn.net/v/t39.30808-6/461294859_1612653235993619_6114829643263457941_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=O7u4bL2gFR0Q7kNvgH-XMiu&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=AhR-_TH0fyH7tYxfowvyxs5&oh=00_AYCaC2vBJz3fDa1zExAWAD8wl9vGBff9XLTmmdw5vxUKVw&oe=6716E88F"
+              alt="Review 4 Image">
+
+            <img onclick="openInNewTab(this.src)" class="review-img"
+              src="https://scontent.fdac138-2.fna.fbcdn.net/v/t39.30808-6/461340196_1612653182660291_1667109975825595956_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=aPHTcf_zp_cQ7kNvgG8ZnLQ&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=Aph0brDqbrwchFks4QlZ2nD&oh=00_AYD4m5d6mCKIOtbh72r0WL5QtMMbyeVQQH-xxMy-exqrXA&oe=67170A92"
+              alt="Review 5 Image">
+          </div>
+
+          <p class="review-text">"New beyblade X kinlam from here. also, vanish Fafnir tar <strong>layer full
+              rubber</strong> er-- shathe
+            free bey o pichi. onek perfect hoise ar onek cheap price abar o kinbo
+            future e" - <strong><i>Ksm Addoy</i></strong></p>
+        </div>
+
+
+
+        <!--  -->
+        <div class="review-container">
+
+          <div class="flex ">
+            <img onclick="openInNewTab(this.src)" class="review-img"
+              src="https://scontent.fdac138-1.fna.fbcdn.net/v/t39.30808-6/462165898_1619116028680673_3960964762659708052_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=G3VOhotwVMgQ7kNvgHnY2P6&_nc_zt=23&_nc_ht=scontent.fdac138-1.fna&_nc_gid=A4cbKKIZKm3M2tM5JZcvuDq&oh=00_AYBxmqC_jbIE1tkT_uulS81d9XE89jjuOlyWBJJV3ZPcKg&oe=6716DAF4"
+              alt="Review 6 Image">
+
+            <img onclick="openInNewTab(this.src)" class="review-img"
+              src="https://scontent.fdac138-2.fna.fbcdn.net/v/t39.30808-6/462228868_1619116075347335_8765569175062330970_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=5swEx7eHXeMQ7kNvgEk8I0F&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=AB-DqeQ8F91CfDDUcYAi5tC&oh=00_AYDkcCGRGb9430TUK5puAiWSwkNQ6UYQQW5XNNfF59KbRA&oe=6716EB53"
+              alt="Review 7 Image">
+          </div>
+
+
+
+          <p class="review-text">"Egula matro pick korsi ar eigula onek best hoise ami agula shob SpinStrike theke kina
+            hoise,and got a free valkyrie 😮‍💨😮‍💨😮‍💨 (My money was Worth it)" - <strong><i>Ksm Addoy</i></strong>
+          </p>
+        </div>
+
+
+        <!--  -->
+        <div class="review-container">
+          <div class="flex "> <img onclick="openInNewTab(this.src)" onclick="Display()" class="review-img"
+              src="https://scontent.xx.fbcdn.net/v/t1.15752-9/455851520_527007999725550_2773858786609402174_n.jpg?stp=dst-jpg_p720x720&_nc_cat=111&ccb=1-7&_nc_sid=0024fc&_nc_ohc=fCcipLjtyH0Q7kNvgHmQ9tP&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&_nc_gid=AyflTLikEopvtCyaUVWcqRp&oh=03_Q7cD1QG0B7zN0uU7lPov7eoYkORxPVkZPA8Rx2BhLglWkdaPdw&oe=673880AE"
+              alt="Review 8 Image">
+
+            <img onclick="openInNewTab(this.src)" class="review-img"
+              src="https://scontent.xx.fbcdn.net/v/t1.15752-9/455943675_807913464887158_8252506899955654761_n.jpg?stp=dst-jpg_p720x720&_nc_cat=103&ccb=1-7&_nc_sid=0024fc&_nc_ohc=3PwHZ00y04gQ7kNvgEnoRIN&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&_nc_gid=AyflTLikEopvtCyaUVWcqRp&oh=03_Q7cD1QF3KlORxD_3j9vRVyNSSP0UAN3-izo53V9b9yTkV0jjMA&oe=6738910C"
+              alt="Review 9 Image">
+          </div>
+          <p class="review-text">"Thanks vaiya. onek valo hoyeche.
+            Beyblade er quality o onek valo. well, Flame brand bole kotha!. ami r o kinbo Insha Allah." -
+            <strong><i>Sunjeda Toky</i></strong>
+          </p>
+        </div>
+
+
+
+
+        <!--  -->
+        <div class="review-container">
+          <img class="review-img" src="" alt="Review 3 Image">
+          <p class="review-text">"N/A" - <strong><i>N/A</i></strong></p>
+        </div>
+
+
+
+        <!-- Review_ends -->
       </div>
 
 
-
-      <div class="text-white mt-6 donation-text" id="donationText">
-        <p class="HideOnPhone">অনুরণন একটি অরাজনৈতিক, কল্যাণমূলক ও স্বেচ্ছাসেবী সংগঠন... শিশুর সেবা প্রদান করে এমন
-          সংস্থাগুলোর মাধ্যমে তারা
-          যে সহায়তা পেতে পারে সে সম্পর্কে প্রায় ৭৯ শতাংশ পথশিশুই অবগত ছিলো না...</p>
-
-        <p class="ShowOnPhone text-center">
-          অনুরণন বাংলাদেশকে দারিদ্রমুক্ত করতে, অসহায় পথশিশু ও অভাবী অনাহারীদের পাশে দাঁড়াতে এবং দুর্যোগকালীন সময়ে সেবা
-          দিতে কাজ করে যাচ্ছে। আসুন আমরা সাহায্যের হাত এগিয়ে দিয়ে একে অপরের পাশে দাঁড়াই।
-        </p>
       </div>
-      <span class="see-more" id="seeMoreBtn">See more...</span>
+    </section>
 
-      <div class="contribute-section">
+    <script>
+      function openInNewTab(url) {
+        window.open(url, '_self').focus(); // Opens the image URL in a new tab
+      }
+    </script>
 
-        <button onclick="GoToThePage('https://www.facebook.com/anuranan.2024')" id="cont-btn" class="contribute-button">
-          Contribute Now
-        </button>
+    <!-- About Section -->
+    <section id="about">
+      <h2>About Us</h2>
+      <p><strong><i>Spin strike BD</i></strong> is a Beyblade selling group in Bangladesh. We import Beyblades straight
+        from
+        <b>Indonesia</b>
+        and <b>Malaysia.</b>
+      </p>
+    </section>
 
-        <p class="contribute-text">Your <i>generosity</i> can make a <strong>Change</strong></p>
+
+
+
+
+
+
+
+
+
+    <!-- Promotional Banner -->
+    <section class="mb-8">
+      <div ref="" class="bg-blue-500 text-white p-4 text-center rounded-lg">
+        <h2 class="text-xl font-bold">Special Offer!</h2>
+        <p>Get 20% off on your first purchase~ form our Face Book Page
+        <h3>Spin-Strike BD</h3><a href=""><img class="fb" src="./Facebook.png" alt="">
+          </p>
       </div>
-
-
-      <!-- Styles for the cont-btn -->
-      <style>
-        .contribute-section {
-          margin-top: 1rem;
-        }
-
-        .contribute-button {
-          background-color: #008cff;
-          font-weight: 500;
-          border-radius: 50px;
-          color: white;
-          padding: 0.5rem 1.5rem;
-          border: none;
-          transform: translateZ(0);
-          cursor: pointer;
-          transition: background-color 0.3s ease-in-out, transform 0.2s;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 0 15px rgba(135, 191, 255, 0.7);
-        }
-
-        .contribute-button:hover {
-          transform: translateY(-3px);
-          background-color: #00a2ff;
-          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 0 20px rgba(53, 122, 189, 0.8);
-        }
-
-        .contribute-button:focus {
-          box-shadow: 0 0 0 4px rgba(0, 153, 255, 0.2), 0 0 20px rgba(53, 122, 189, 0.8);
-          outline: none;
-        }
-
-        .contribute-text {
-          margin-top: 0.5rem;
-          font-size: 0.875rem;
-          color: #b0c4de;
-        }
-      </style>
-
-
-      <script>
-        function GoToThePage(url) {
-          window.open(url, '_self').focus();
-        }
-      </script>
+    </section>
 
 
 
-    </div>
-  </section>
+    <div id="notification" class="notification hidden"></div>
 
-  <footer class="bg-gray-900 text-white py-8">
-    <div class="container mx-auto text-center">
-      <p>&copy; 2024 অনুরণন. All Rights Reserved.</p>
-    </div>
+  </main>
+
+  <footer class="bg-gray-800 text-white text-center p-4">
+    <p>© 2024 Spin-Strike. All Rights Reserved.</p>
   </footer>
 
-  <script src="./script.js"></script>
+  <script src="script.js"></script>
 </body>
 
 </html>
