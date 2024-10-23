@@ -8,6 +8,9 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/daisyui@1.14.1/dist/full.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
+
 </head>
 
 <body>
@@ -74,6 +77,7 @@
       <h2>Customer Reviews</h2>
       <div class="reviews">
         <!-- Review_Starts -->
+        <!-- 1 -->
         <div class="review-container">
 
           <div class="flex ">
@@ -92,7 +96,7 @@
             affordable." - <strong><i>Mahmud Sahol</i></strong></p>
         </div>
 
-        <!--  -->
+        <!-- 2 -->
         <div class="review-container">
 
           <div class="flex ">
@@ -117,7 +121,7 @@
 
 
 
-        <!--  -->
+        <!-- 3 -->
         <div class="review-container">
 
           <div class="flex ">
@@ -138,15 +142,33 @@
         </div>
 
 
-        <!--  -->
+
+
+        <!-- 4 -->
+        <div class="review-container">
+          <div class="flex "> <img onclick="openInNewTab(this.src)" onclick="Display()" class="review-img db"
+              src="https://ae-pic-a1.aliexpress-media.com/kf/A328f5bb6dd244cc597e486a802417b15o.jpg_.webp"
+              alt="Review 8 Image">
+
+
+          </div>
+          <p class="review-text">"very nice beys and good quality❤. Must buy from them." -
+            <strong><i>Muhammad Abdullah </i></strong>
+          </p>
+        </div>
+
+
+
+
+        <!-- 5 -->
         <div class="review-container">
           <div class="flex "> <img onclick="openInNewTab(this.src)" onclick="Display()" class="review-img"
               src="https://scontent.xx.fbcdn.net/v/t1.15752-9/455851520_527007999725550_2773858786609402174_n.jpg?stp=dst-jpg_p720x720&_nc_cat=111&ccb=1-7&_nc_sid=0024fc&_nc_ohc=fCcipLjtyH0Q7kNvgHmQ9tP&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&_nc_gid=AyflTLikEopvtCyaUVWcqRp&oh=03_Q7cD1QG0B7zN0uU7lPov7eoYkORxPVkZPA8Rx2BhLglWkdaPdw&oe=673880AE"
-              alt="Review 8 Image">
+              alt="Review 9 Image">
 
             <img onclick="openInNewTab(this.src)" class="review-img"
               src="https://scontent.xx.fbcdn.net/v/t1.15752-9/455943675_807913464887158_8252506899955654761_n.jpg?stp=dst-jpg_p720x720&_nc_cat=103&ccb=1-7&_nc_sid=0024fc&_nc_ohc=3PwHZ00y04gQ7kNvgEnoRIN&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&_nc_gid=AyflTLikEopvtCyaUVWcqRp&oh=03_Q7cD1QF3KlORxD_3j9vRVyNSSP0UAN3-izo53V9b9yTkV0jjMA&oe=6738910C"
-              alt="Review 9 Image">
+              alt="Review 10 Image">
           </div>
           <p class="review-text">"Thanks vaiya. onek valo hoyeche.
             Beyblade er quality o onek valo. well, Flame brand bole kotha!. ami r o kinbo Insha Allah." -
@@ -157,12 +179,16 @@
 
 
 
-        <!--  -->
+        <!-- 6~ -->
         <div class="review-container">
-          <img class="review-img" src="" alt="Review 3 Image">
-          <p class="review-text">"N/A" - <strong><i>N/A</i></strong></p>
-        </div>
+          <div class="flex "> <img onclick="openInNewTab(this.src)" class="review-img " src="N/A" alt="Review 11 Image">
 
+
+          </div>
+          <p class="review-text">"N/A" -
+            <strong><i>N/A~ </i></strong>
+          </p>
+        </div>
 
 
         <!-- Review_ends -->
@@ -171,7 +197,12 @@
 
       </div>
     </section>
-
+    <style>
+      .db {
+        width: auto;
+        height: 180px;
+      }
+    </style>
     <script>
       function openInNewTab(url) {
         window.open(url, '_self').focus(); // Opens the image URL in a new tab
