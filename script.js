@@ -272,11 +272,32 @@ function addOneMore(productId) {
   }
 
   localStorage.setItem("cart", JSON.stringify(cart));
-  alert(
-    `Added one more of ${
-      productInCart ? productInCart.name : product.name
-    } to your cart!`
-  );
+  // Create a div for the popup
+  const popup = document.createElement("div");
+  popup.className = "popup";
+  popup.innerText = `Added one more ${
+    productInCart ? productInCart.name : product.name
+  } to your cart!`;
+
+  // Add popup to the body
+  document.body.appendChild(popup);
+
+  // Style and animate the popup
+  popup.style.position = "fixed";
+  popup.style.top = "20px"; // Change this to top for top-right
+  popup.style.right = "20px";
+  popup.style.padding = "10px";
+  popup.style.backgroundColor = "#000";
+  popup.style.color = "#fff";
+  popup.style.borderRadius = "16px";
+  popup.style.border = "2px solid greenyellow";
+  popup.style.zIndex = "1000";
+
+  // Remove popup after 3 seconds
+  setTimeout(() => {
+    popup.remove();
+  }, 3000);
+  localStorage.setItem("cart", JSON.stringify(cart));
 
   loadCart();
 }
