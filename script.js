@@ -40,7 +40,7 @@ const products = [
 
   // Original TT
   {
-    id: 3,
+    id: 1.5,
     name: "Takara Tomy Beyblade X Random Booster (Pre-Order)",
     description: `Original Random Booster Vol. 4 BX-35. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -49,7 +49,7 @@ const products = [
       "https://th.bing.com/th/id/OIP.7ncb8aYMnFMRJFi-SS3bTQHaHa?rs=1&pid=ImgDetMain",
   },
   {
-    id: 4,
+    id: 1.5,
     name: "Takara Tomy UX-08 Silver Wolf (Pre-Order)",
     description: `Original UX-08 Silver Wolf 3-80FB. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -59,7 +59,7 @@ const products = [
   },
 
   {
-    id: 5,
+    id: 1.5,
     name: "Takara Tomy Random Booster Shinobi Shadow Select (Pre-Order)",
     description: `Original UX-05 Random Booster. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -69,7 +69,7 @@ const products = [
   },
 
   {
-    id: 5,
+    id: 1.6,
     name: "Takara Tomy BX-33 Weiss Tiger  (Pre-Order)",
     description: `Original UX-33 Beyblade X Booster Weiss Tiger 3-60U. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -426,6 +426,11 @@ function filterProducts(categoryId) {
     // Filter only bookmark products (IDs 15 and 18)
     filteredProducts = products.filter(
       (product) => product.id >= 15 && product.id <= 18
+    );
+  } else if (categoryId === 4) {
+    // Filter only bookmark products (IDs 1.5 and 1.6)
+    filteredProducts = products.filter(
+      (product) => product.id >= 1.5 && product.id <= 1.6
     );
   } else {
     // Show all products for the "All Products" category
