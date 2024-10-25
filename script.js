@@ -4,16 +4,6 @@ let cart = [];
 const products = [
   {
     id: 1,
-    name: "TAKARA TOMY Beyblade X Random Booster (Pre-Order)",
-    description: `Original Random Booster Vol. 4 BX-35. <br>
-    <i>It will take 15-25 days<br> to be delivered</i>`,
-    price: 1480,
-    image:
-      "https://ae-pic-a1.aliexpress-media.com/kf/Abbba4588d6744e98ab8cd1fb33b4cefbU.jpeg_.webp",
-  },
-
-  {
-    id: 1,
     name: "Phoenix Wing 9-60GF (Pre-Order)",
     description: `Best Attack X Beyblade. <br>
     <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -47,6 +37,49 @@ const products = [
     image:
       "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/2127/9339/BX-21-HC-TT_copy__53930.1700174025.jpg?c=2",
   },
+
+  // Original TT
+  {
+    id: 3,
+    name: "Takara Tomy Beyblade X Random Booster (Pre-Order)",
+    description: `Original Random Booster Vol. 4 BX-35. <br>
+  <i>It will take 15-25 days<br> to be delivered</i>`,
+    price: 1480,
+    image:
+      "https://th.bing.com/th/id/OIP.7ncb8aYMnFMRJFi-SS3bTQHaHa?rs=1&pid=ImgDetMain",
+  },
+  {
+    id: 4,
+    name: "Takara Tomy UX-08 Silver Wolf (Pre-Order)",
+    description: `Original UX-08 Silver Wolf 3-80FB. <br>
+  <i>It will take 15-25 days<br> to be delivered</i>`,
+    price: 4000,
+    image:
+      "https://media3.nin-nin-game.com/464324/beyblade-x-ux-08-starter-silver-wolf-3-80fb-takara-tomy-.jpg",
+  },
+
+  {
+    id: 5,
+    name: "Takara Tomy Random Booster Shinobi Shadow Select (Pre-Order)",
+    description: `Original UX-05 Random Booster. <br>
+  <i>It will take 15-25 days<br> to be delivered</i>`,
+    price: 1480,
+    image:
+      "https://malloftoys.com/cdn/shop/files/TakaraTomyBeybladeXUX-05RandomBoosterShinobiShadow.webp?v=1713220230g",
+  },
+
+  {
+    id: 5,
+    name: "Takara Tomy BX-33 Weiss Tiger  (Pre-Order)",
+    description: `Original UX-33 Beyblade X Booster Weiss Tiger 3-60U. <br>
+  <i>It will take 15-25 days<br> to be delivered</i>`,
+    price: 2900,
+    image:
+      "https://th.bing.com/th/id/OIP.vUV_FV_GZ6PIu6fTbTyD7gHaHa?w=1280&h=1280&rs=1&pid=ImgDetMain",
+  },
+
+  // Original TT Ends
+
   {
     id: 5,
     name: "BX-08 Wizard Arrow 4-80B(Yellow)",
@@ -129,6 +162,15 @@ const products = [
     price: 500,
     image:
       "https://th.bing.com/th/id/OIP.nx0indHJS37xKmwlMftJKAHaHa?rs=1&pid=ImgDetMain",
+  },
+
+  {
+    id: 14,
+    name: "Burst Stadium SB Brand",
+    description: "Full rubber Vanish Fafnir Tapered Kick-3",
+    price: 2280,
+    image:
+      "https://ae-pic-a1.aliexpress-media.com/kf/H0b6d5eeee5bc4bf7bc1d68e8eedc50bda.jpg_640x640.jpg_.webp",
   },
 
   {
