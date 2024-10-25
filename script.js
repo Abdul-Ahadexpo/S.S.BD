@@ -4,6 +4,16 @@ let cart = [];
 const products = [
   {
     id: 1,
+    name: "TAKARA TOMY Beyblade X Random Booster (Per-Order)",
+    description: `Original Random Booster Vol. 4 BX-35. <br>
+    <i>It will take 15-25 days<br> to be delivered</i>`,
+    price: 1480,
+    image:
+      "https://ae-pic-a1.aliexpress-media.com/kf/Abbba4588d6744e98ab8cd1fb33b4cefbU.jpeg_.webp",
+  },
+
+  {
+    id: 1,
     name: "Phoenix Wing 9-60GF (Per-Order)",
     description: `Best Attack X Beyblade. <br>
     <i>It will take 15-25 days<br> to be delivered</i>`,
