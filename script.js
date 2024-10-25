@@ -4,7 +4,7 @@ let cart = [];
 const products = [
   {
     id: 1,
-    name: "TAKARA TOMY Beyblade X Random Booster (Per-Order)",
+    name: "TAKARA TOMY Beyblade X Random Booster (Pre-Order)",
     description: `Original Random Booster Vol. 4 BX-35. <br>
     <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 1480,
@@ -14,7 +14,7 @@ const products = [
 
   {
     id: 1,
-    name: "Phoenix Wing 9-60GF (Per-Order)",
+    name: "Phoenix Wing 9-60GF (Pre-Order)",
     description: `Best Attack X Beyblade. <br>
     <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 480,
@@ -146,11 +146,12 @@ const delivery = 120;
 
 // Discount configuration
 const discountConfig = [
-  { quantity: 3, discount: 1 },
-  { quantity: 6, discount: 2 },
-  { quantity: 8, discount: 3 },
-  { quantity: 10, discount: 4 },
-  { quantity: 30, discount: 10 },
+  { quantity: 3, discount: 0.2 },
+  { quantity: 6, discount: 0.5 },
+  { quantity: 8, discount: 0.6 },
+  { quantity: 10, discount: 0.7 },
+  { quantity: 20, discount: 0.9 },
+  { quantity: 30, discount: 1 },
 ];
 
 // Load products
