@@ -77,6 +77,15 @@ const products = [
     image:
       "https://th.bing.com/th/id/OIP.vUV_FV_GZ6PIu6fTbTyD7gHaHa?w=1280&h=1280&rs=1&pid=ImgDetMain",
   },
+  {
+    id: 1.6,
+    name: "Takara Tomy XTREME STADIUM  (Pre-Order)",
+    description: `Original BX-10 XTREME STADIUM. <br>
+  <i>It will take 15-25 days<br> to be delivered</i>`,
+    price: 4400,
+    image:
+      "https://opensesame.com.bd/wp-content/uploads/2024/08/910596-2.jpg",
+  },
 
   // Original TT Ends
 
