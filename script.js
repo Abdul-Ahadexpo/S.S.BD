@@ -100,7 +100,7 @@ const products = [
   {
     id: 6,
     name: "UX-03 Booster Wizard Rod 5-70DB",
-    description: "G.O.A.T at defiance",
+    description: "G.O.A.T at defence",
     price: 450,
     image:
       "https://toysonejapan.com/cdn/shop/files/s-l1600_4_9bc991d6-8200-4b36-93a8-52e9abc499fe_1059x959.jpg?v=1711513033",
