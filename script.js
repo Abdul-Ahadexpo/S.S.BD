@@ -176,7 +176,7 @@ const products = [
   {
     id: 14,
     name: "Burst Stadium SB Brand",
-    description: "Full rubber Vanish Fafnir Tapered Kick-3",
+    description: "SB Brand Stadium",
     price: 2280,
     image:
       "https://ae-pic-a1.aliexpress-media.com/kf/H0b6d5eeee5bc4bf7bc1d68e8eedc50bda.jpg_640x640.jpg_.webp",
