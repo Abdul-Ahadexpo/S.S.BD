@@ -127,7 +127,7 @@ const products = [
     description: "A Beyblade Accessory. It is longer than yours",
     price: 80,
     image:
-      "https://scontent.fdac177-1.fna.fbcdn.net/v/t1.15752-9/462540093_1105282477633154_1302044829396154388_n.png?_nc_cat=106&ccb=1-7&_nc_sid=9f807c&_nc_ohc=k3a4dNW2pGsQ7kNvgHWktxA&_nc_zt=23&_nc_ht=scontent.fdac177-1.fna&oh=03_Q7cD1QHD1Khr6ObncPIYE0_SQl9YGqJQmrjG7P8t31ECkqMjVw&oe=67544C2F",
+      "https://scontent.fdac177-1.fna.fbcdn.net/v/t1.15752-9/462560285_1402990494199003_3905187240646547333_n.png?_nc_cat=103&ccb=1-7&_nc_sid=9f807c&_nc_ohc=rBsP4Z0gpB0Q7kNvgGzIWxl&_nc_zt=23&_nc_ht=scontent.fdac177-1.fna&oh=03_Q7cD1QEHe0WbS9A45zRRcxNTch7EVdIcB4aetcCvkt_LSKCPFA&oe=67544C91",
   },
 
   {
