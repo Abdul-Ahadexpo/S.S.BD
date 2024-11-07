@@ -70,7 +70,7 @@ const products = [
 
   {
     id: 1.6,
-    name: "Takara Tomy BX-33 Weiss Tiger  (Pre-Order)",
+    name: "Takara Tomy BX-33 Weiss Tiger <I>With launcher</i> (Pre-Order)",
     description: `Original UX-33 Beyblade X Booster Weiss Tiger 3-60U. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 2900,
