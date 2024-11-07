@@ -32,7 +32,7 @@ const products = [
   {
     id: 4,
     name: "Hells Chain 5-60HT (BX-21)",
-    description: "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T ",
+    description: "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T<br><i>It will take 15-25 days<br> to be delivered</i>",
     price: 400,
     image:
       "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/2127/9339/BX-21-HC-TT_copy__53930.1700174025.jpg?c=2",
@@ -100,23 +100,23 @@ const products = [
   {
     id: 6,
     name: "UX-03 Booster Wizard Rod 5-70DB",
-    description: "G.O.A.T at defence",
+    description: "G.O.A.T at defense",
     price: 450,
     image:
       "https://toysonejapan.com/cdn/shop/files/s-l1600_4_9bc991d6-8200-4b36-93a8-52e9abc499fe_1059x959.jpg?v=1711513033",
   },
   {
     id: 7,
-    name: "BX-18 X String Launcher (Pre order)",
-    description: "Pre order, It will take 15-25 days to be delivered",
+    name: "BX-18 X String Launcher (Pre-order)",
+    description: "Pre-order, It will take 15-25 days to be delivered",
     price: 400,
     image:
       "https://th.bing.com/th/id/OIP.pRZBwx1ca5dpY_2YPF79jwHaHa?w=1200&h=1200&rs=1&pid=ImgDetMain",
   },
   {
     id: 8,
-    name: "BX-00 X Ripcord-Launcher (Pre order)",
-    description: "Pre order, It will take 15-25 days to be delivered",
+    name: "BX-00 X Ripcord-Launcher (Pre-order)",
+    description: "Pre-order, It will take 15-25 days to be delivered",
     price: 250,
     image:
       "https://takaratomyasia.com/img/product/910398/product-910398-A02.jpg?20230724_091221",
