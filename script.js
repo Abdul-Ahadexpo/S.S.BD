@@ -32,7 +32,7 @@ const products = [
   {
     id: 4,
     name: "Hells Chain 5-60HT (BX-21)",
-    description: "",
+    description: "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T ",
     price: 400,
     image:
       "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/2127/9339/BX-21-HC-TT_copy__53930.1700174025.jpg?c=2",
