@@ -7,7 +7,7 @@ const products = [
     name: "Phoenix Wing 9-60GF (Pre-Order)",
     description: `Best Attack X Beyblade. <br>
     <i>It will take 15-25 days<br> to be delivered</i>`,
-    price: 480,
+    price: 400,
     image:
       "https://th.bing.com/th/id/OIP.7Vlwn3_Ru7iwhjRfTEPWIAHaGg?rs=1&pid=ImgDetMai",
   },
@@ -31,9 +31,9 @@ const products = [
   },
   {
     id: 4,
-    name: "Hells Chain 5-60HT (BX-21)",
+    name: "Hells Chain 5-60HT (BX-21) (Pre-Order)",
     description: "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T<br><i>It will take 15-25 days<br> to be delivered</i>",
-    price: 400,
+    price: 350,
     image:
       "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/2127/9339/BX-21-HC-TT_copy__53930.1700174025.jpg?c=2",
   },
@@ -123,11 +123,11 @@ const products = [
   },
   {
     id: 9,
-    name: "Bey logger (BX-09)",
-    description: "A Beyblade Accessory. It also can be used as a launcher Grip",
-    price: 250,
+    name: "Extra Long Ripcord",
+    description: "A Beyblade Accessory. It is longer than yours",
+    price: 80,
     image:
-      "https://th.bing.com/th/id/OIP.9Vv5ethvnFQkhAq5IpnJVQHaHa?w=800&h=800&rs=1&pid=ImgDetMain",
+      "https://scontent.fdac177-1.fna.fbcdn.net/v/t1.15752-9/462540093_1105282477633154_1302044829396154388_n.png?_nc_cat=106&ccb=1-7&_nc_sid=9f807c&_nc_ohc=k3a4dNW2pGsQ7kNvgHWktxA&_nc_zt=23&_nc_ht=scontent.fdac177-1.fna&oh=03_Q7cD1QHD1Khr6ObncPIYE0_SQl9YGqJQmrjG7P8t31ECkqMjVw&oe=67544C2F",
   },
 
   {
