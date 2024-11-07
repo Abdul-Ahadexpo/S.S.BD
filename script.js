@@ -127,7 +127,7 @@ const products = [
     description: "A Beyblade Accessory. It is longer than yours",
     price: 80,
     image:
-      "https://scontent.fdac177-1.fna.fbcdn.net/v/t1.15752-9/462560285_1402990494199003_3905187240646547333_n.png?_nc_cat=103&ccb=1-7&_nc_sid=9f807c&_nc_ohc=rBsP4Z0gpB0Q7kNvgGzIWxl&_nc_zt=23&_nc_ht=scontent.fdac177-1.fna&oh=03_Q7cD1QEHe0WbS9A45zRRcxNTch7EVdIcB4aetcCvkt_LSKCPFA&oe=67544C91",
+      "https://scontent.fdac177-1.fna.fbcdn.net/v/t1.15752-9/462560401_1339523370752029_7841569566300198144_n.png?_nc_cat=105&ccb=1-7&_nc_sid=9f807c&_nc_ohc=bFJtn2t1bvsQ7kNvgEKmlve&_nc_zt=23&_nc_ht=scontent.fdac177-1.fna&oh=03_Q7cD1QHhwhXD-fh5iSpa9cJvdBAf-rZ334Rw5E97acbB4yJZMQ&oe=675449B5",
   },
 
   {
@@ -136,7 +136,7 @@ const products = [
     description: "A Beyblade X Accessory. It's a launcher Grip",
     price: 100,
     image:
-      "https://scontent.fdac177-1.fna.fbcdn.net/v/t1.15752-9/462560401_1339523370752029_7841569566300198144_n.png?_nc_cat=105&ccb=1-7&_nc_sid=9f807c&_nc_ohc=bFJtn2t1bvsQ7kNvgEKmlve&_nc_zt=23&_nc_ht=scontent.fdac177-1.fna&oh=03_Q7cD1QHhwhXD-fh5iSpa9cJvdBAf-rZ334Rw5E97acbB4yJZMQ&oe=675449B5",
+      "https://scontent.fdac138-2.fna.fbcdn.net/v/t1.15752-9/462639111_1931297604016044_2676344296671439481_n.png?_nc_cat=105&ccb=1-7&_nc_sid=9f807c&_nc_ohc=WygLdblYY4EQ7kNvgEZb8C1&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=AxOm45Q447snH4xCVCOBrAh&oh=03_Q7cD1QHViB2AdRuFGmSZ7j70dGbzBGWKkQD96H34ITe5Eqhhuw&oe=67361065",
   },
 
   {
