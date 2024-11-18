@@ -1,4 +1,4 @@
-let cart = [];
+document.documentElement.setAttribute("data-theme", "dark");let cart = [];
 
 // Sample product data
 const products = [
