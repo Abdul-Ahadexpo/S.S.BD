@@ -54,6 +54,8 @@
   </div>
 
   <script>
+    document.documentElement.setAttribute("data-theme", "dark");
+
     let cart = JSON.parse(localStorage.getItem("cart")) || []; // Load the cart from localStorage
     const delivery = 110; // Same delivery fee
 
