@@ -1,3 +1,4 @@
+document.documentElement.setAttribute("data-theme", "dark");
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 // Function to load cart items on the checkout page
