@@ -284,27 +284,51 @@ function loadCart() {
     }, 0);
     const totalPrice = totalPriceWithoutDelivery + delivery;
 
+   
     cartItems.innerHTML =
       cart
         .map((item) => {
           const discount = calculateDiscount(item.quantity || 1, item.price);
           return `
-            <div class="flex justify-between items-center border-b py-2">
-                <div>
-                    <h3>${item.name} (Quantity: ${item.quantity || 1})</h3>
-                    <p>Price: BDT ${item.price.toFixed(2)}</p>
-                    <p>Discount: BDT ${discount.toFixed(2)}</p>
-                    <p>Delivery Fee: BDT ${delivery} (All Over BD)</p>
-                </div>
-                <div class="flex space-x-2">
-                    <button onclick="addOneMore(${
-                      item.id
-                    })" class="btn btn-primary">+</button>
-                    <button onclick="removeFromCart(${
-                      item.id
-                    })" class="btn btn-secondary">Remove</button>
-                </div>
-            </div>
+   <div class="flex flex-col md:flex-row justify-between items-center border-b py-4  shadow-sm rounded-md">
+
+  <!-- Product Image -->
+
+  <div class="w-24 h-24 md:w-32 md:h-32">
+    <img class="w-full h-full object-cover rounded-md" src="${
+      item.image
+    }" alt="${item.name}" />
+  </div>
+
+  <!-- Product Details -->
+  
+  <div class="flex-1 px-4 mt-4">
+    <h3 class="text-lg font-semibold text-gray-100">${
+      item.name
+    } <span class="text-sm font-normal text-gray-400">(Quantity: ${
+            item.quantity || 1
+          })</span></h3>
+    <p class="text-sm text-gray-300">Price: <span class="text-blue-100">BDT ${item.price.toFixed(
+      2
+    )}</span></p>
+    <p class="text-sm text-gray-300">Discount: <span class="text-green-400">BDT ${discount.toFixed(
+      2
+    )}</span></p>
+    <p class="text-sm text-gray-300">Delivery Fee: <span class="text-yellow-400">BDT ${delivery}</span> (All Over BD)</p>
+  </div>
+
+  <!-- Action Buttons -->
+
+  <div class="flex flex-col mt-4 md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+    <button onclick="addOneMore(${
+      item.id
+    })" class="btn btn-outline btn-info btn-sm md:btn-md">+</button>
+    <button onclick="removeFromCart(${
+      item.id
+    })" class="btn btn-outline btn-error btn-sm md:btn-md">Remove</button>
+  </div>
+</div>
+
         `;
         })
         .join("") +
