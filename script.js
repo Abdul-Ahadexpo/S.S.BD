@@ -1,12 +1,12 @@
-document.documentElement.setAttribute("data-theme", "dark");let cart = [];
+document.documentElement.setAttribute("data-theme", "dark");
+let cart = [];
 
 // Sample product data
 const products = [
   {
     id: 1,
     name: "Phoenix Wing 9-60GF (Pre-Order)",
-    description: `Best Attack X Beyblade. <br>
-    <i>It will take 15-25 days<br> to be delivered</i>`,
+    description: `Soar Phoenix (Japanese: PhoenixWing) is a three-sided Attack Type Blade with three blades acting as the main contact points.`,
     price: 400,
     image:
       "https://th.bing.com/th/id/OIP.7Vlwn3_Ru7iwhjRfTEPWIAHaGg?rs=1&pid=ImgDetMai",
@@ -15,16 +15,57 @@ const products = [
   {
     id: 2,
     name: "UX Bey Hells Hammer 3-70H",
-    description: "Heard hitting X Bey",
+    description:
+      "Hells Hammer is a right-spin Balance Type Blade with three <b>Smash Blades</b> acting as the main contact points.",
     price: 450,
     image:
       "https://cdn11.bigcommerce.com/s-lsouzjo20i/images/stencil/1280x1280/products/2512/5372/Beyblade_UX-02_03__11434.1708526001.jpg?c=2",
   },
 
   {
+    id: 2.1,
+    name: "BX-34 Cobalt Dragoon 2-60C",
+    description:
+      "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
+    price: 450,
+    image:
+      "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+  },
+
+  // {
+  //   id: 2.2,
+  //   name: "Black Shell 4-60D",
+  //   description:
+  //     "Black Shell is a Defense Type Blade with an overall diamond shape with eight protrusions as the main points of contact.",
+  //   price: 450,
+  //   image:
+  //     "https://beybladepremier.com/cdn/shop/files/BX-3501BlackShell4-60D_BeybladeX_BACKORDERJuly31st.jpg?v=1721582044",
+  // },
+  {
+    id: 2.3,
+    name: "Cobalt Drake 4-60F",
+    description:
+      "Cobalt Drake is a four-sided Attack Type Blade with four upward slanting blades acting as the main contact points. The blades are similar to those of Dran Sword, albeit smaller in size.",
+    price: 450,
+    image:
+      "https://th.bing.com/th/id/OIP._db41qhqY7Cj6M-cQLflwQHaHa?rs=1&pid=ImgDetMain",
+  },
+
+  {
+    id: 2.4,
+    name: "Weiss Tiger 3-60U",
+    description:
+      "<b>Weiss Tiger</b> is a Balance Type Blade with three different sets of three types of blades. The three types of blades are the Attack Type <b>Upper Blades</b>, the Defense Type Damper Blades, and the Stamina Type <b>Smash Blades</b>.",
+    price: 450,
+    image:
+      "https://th.bing.com/th/id/OIP.LX-pjn8-PzrjcHWl_QSipwHaG9?rs=1&pid=ImgDetMain",
+  },
+
+  {
     id: 3,
     name: "X Bey Unicorn Sting 5-60GP",
-    description: "",
+    description:
+      "Sting Unicorn (Japanese: UnicornSting) is a Balance Type Blade with an asymmetrical shape.",
     price: 400,
     image:
       "https://th.bing.com/th/id/OIP.JfM8kxGWhTDQLyFToWd9mAHaHa?rs=1&pid=ImgDetMain",
@@ -32,12 +73,39 @@ const products = [
   {
     id: 4,
     name: "Hells Chain 5-60HT (BX-21) (Pre-Order)",
-    description: "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T<br><i>It will take 15-25 days<br> to be delivered</i>",
+    description:
+      "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T<br><i>It will take 15-25 days<br> to be delivered</i>",
     price: 350,
     image:
       "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/2127/9339/BX-21-HC-TT_copy__53930.1700174025.jpg?c=2",
   },
-
+  {
+    id: 9,
+    name: "Dran Dagger 4-60R",
+    description:
+      "Dagger Dran (Japanese: DranDagger) is an Attack Type Blade with six small blades acting as the main contact points.",
+    price: 400,
+    image:
+      "https://th.bing.com/th/id/OIP.AVUEtziRnBOUYX7G-teWbQHaHu?rs=1&pid=ImgDetMain",
+  },
+  {
+    id: 5,
+    name: "BX-08 Wizard Arrow 4-80B(Yellow)",
+    description:
+      "Arrow Wizard (Japanese: WizardArrow) is a round Stamina Type Blade with two large blades acting as the main contact points.",
+    price: 300,
+    image:
+      "https://img4.dhresource.com/webp/m/0x0/f3/albu/km/o/14/e42c932b-7a4c-4bd7-b639-55b94642ac3d.jpg",
+  },
+  {
+    id: 6,
+    name: "UX-03 Booster Wizard Rod 5-70DB",
+    description:
+      "Wizard Rod is a Stamina Type Blade with a wide circular shape.",
+    price: 450,
+    image:
+      "https://toysonejapan.com/cdn/shop/files/s-l1600_4_9bc991d6-8200-4b36-93a8-52e9abc499fe_1059x959.jpg?v=1711513033",
+  },
   // Original TT
   {
     id: 1.5,
@@ -49,7 +117,7 @@ const products = [
       "https://th.bing.com/th/id/OIP.7ncb8aYMnFMRJFi-SS3bTQHaHa?rs=1&pid=ImgDetMain",
   },
   {
-    id: 1.5,
+    id: 1.6,
     name: "Takara Tomy UX-08 Silver Wolf (Pre-Order)",
     description: `Original UX-08 Silver Wolf 3-80FB. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -59,7 +127,7 @@ const products = [
   },
 
   {
-    id: 1.5,
+    id: 1.7,
     name: "Takara Tomy Random Booster Shinobi Shadow Select (Pre-Order)",
     description: `Original UX-05 Random Booster. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -69,7 +137,7 @@ const products = [
   },
 
   {
-    id: 1.6,
+    id: 1.8,
     name: "Takara Tomy BX-33 Weiss Tiger <I>With launcher</i> (Pre-Order)",
     description: `Original UX-33 Beyblade X Booster Weiss Tiger 3-60U. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -78,33 +146,16 @@ const products = [
       "https://th.bing.com/th/id/OIP.vUV_FV_GZ6PIu6fTbTyD7gHaHa?w=1280&h=1280&rs=1&pid=ImgDetMain",
   },
   {
-    id: 1.6,
-    name: "Takara Tomy XTREME STADIUM  (Pre-Order)",
-    description: `Original BX-10 XTREME STADIUM. <br>
+    id: 1.9,
+    name: "Takara Tomy Xtreme Stadium (Pre-Order)",
+    description: `Original BX-10 Xtreme Stadium. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 4400,
-    image:
-      "https://opensesame.com.bd/wp-content/uploads/2024/08/910596-2.jpg",
+    image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910596-2.jpg",
   },
 
   // Original TT Ends
 
-  {
-    id: 5,
-    name: "BX-08 Wizard Arrow 4-80B(Yellow)",
-    description: "",
-    price: 300,
-    image:
-      "https://img4.dhresource.com/webp/m/0x0/f3/albu/km/o/14/e42c932b-7a4c-4bd7-b639-55b94642ac3d.jpg",
-  },
-  {
-    id: 6,
-    name: "UX-03 Booster Wizard Rod 5-70DB",
-    description: "G.O.A.T at defense",
-    price: 450,
-    image:
-      "https://toysonejapan.com/cdn/shop/files/s-l1600_4_9bc991d6-8200-4b36-93a8-52e9abc499fe_1059x959.jpg?v=1711513033",
-  },
   {
     id: 7,
     name: "BX-18 X String Launcher (Pre-order)",
@@ -117,26 +168,19 @@ const products = [
     id: 8,
     name: "BX-00 X Ripcord-Launcher (Pre-order)",
     description: "Pre-order, It will take 15-25 days to be delivered",
-    price: 250,
+    price: 300,
     image:
       "https://takaratomyasia.com/img/product/910398/product-910398-A02.jpg?20230724_091221",
-  },
-  {
-    id: 9,
-    name: "Extra Long Ripcord",
-    description: "A Beyblade Accessory. It is longer than yours",
-    price: 80,
-    image:
-      "https://scontent.fdac177-1.fna.fbcdn.net/v/t1.15752-9/462560401_1339523370752029_7841569566300198144_n.png?_nc_cat=105&ccb=1-7&_nc_sid=9f807c&_nc_ohc=bFJtn2t1bvsQ7kNvgEKmlve&_nc_zt=23&_nc_ht=scontent.fdac177-1.fna&oh=03_Q7cD1QHhwhXD-fh5iSpa9cJvdBAf-rZ334Rw5E97acbB4yJZMQ&oe=675449B5",
   },
 
   {
     id: 10,
     name: "Beyblade X Launcher Grip",
-    description: "A Beyblade X Accessory. It's a launcher Grip",
-    price: 100,
+    description:
+      "The Launcher Grip (ランチャーグリップ, Ranchā Gurippu) is an Accessory released as part of the Beyblade X series. It was released in Japan on July 15th, 2023 for 700円.",
+    price: 200,
     image:
-      "https://scontent.fdac138-2.fna.fbcdn.net/v/t1.15752-9/462639111_1931297604016044_2676344296671439481_n.png?_nc_cat=105&ccb=1-7&_nc_sid=9f807c&_nc_ohc=WygLdblYY4EQ7kNvgEZb8C1&_nc_zt=23&_nc_ht=scontent.fdac138-2.fna&_nc_gid=AxOm45Q447snH4xCVCOBrAh&oh=03_Q7cD1QHViB2AdRuFGmSZ7j70dGbzBGWKkQD96H34ITe5Eqhhuw&oe=67361065",
+      "https://beybladepremier.com/cdn/shop/files/TAKARATOMYBeybladeXLauncherGripBX-11er.jpg?height=940&v=1684358727",
   },
 
   {
@@ -165,7 +209,7 @@ const products = [
       "https://th.bing.com/th/id/OIP._makEXYOpLStcyVIRfj61wHaHa?rs=1&pid=ImgDetMain",
   },
   {
-    id: 14,
+    id: 14.1,
     name: "Vanish Fafnir",
     description: "Full rubber Vanish Fafnir Tapered Kick-3",
     price: 500,
@@ -211,21 +255,33 @@ function loadProducts() {
   productList.innerHTML = products
     .map(
       (product) => `
-        <div id="ppd" class="card bg-base-100 shadow-xl">
-            <figure><img src="${product.image}" alt="${
-        product.name
-      }" /></figure>
-            <div class="card-body">
-                <h2 class="card-title">${product.name}</h2>
-                <p>${product.description}</p>
-                <p class="font-bold">Price: BDT ${product.price.toFixed(2)}</p>
-                <div class="card-actions justify-end">
-                    <button onclick="addToCart(${
-                      product.id
-                    })" class="btn btn-primary">Add to Cart</button>
-                </div>
-            </div>
-        </div>
+<div id="ppd" class="card w-full bg-gradient-to-b from-gray-800 to-gray-900 text-white shadow-2xl transition-transform transform hover:scale-105">
+  <figure>
+    <img
+      src="${product.image}"
+      alt="${product.name}"
+      class="rounded-t-xl"
+    />
+  </figure>
+  <div class="card-body p-6">
+    <h2 class="card-title text-2xl font-bold mb-2">${product.name}</h2>
+    <p class="text-sm text-gray-400 mb-4">${product.description}</p>
+    <p class="text-lg font-semibold mb-4">Price: <span class="text-green-400">BDT ${product.price.toFixed(
+      2
+    )}</span></p>
+    <div class="card-actions mt-4 flex justify-between items-center">
+      <button
+        onclick="addToCart(${product.id})"
+        class="btn btn-primary bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-md hover:from-blue-700 hover:to-blue-500 transition duration-200"
+      >
+        Add to Cart
+      </button>
+     
+    </div>
+  </div>
+</div>
+
+
     `
     )
     .join("");
@@ -284,7 +340,6 @@ function loadCart() {
     }, 0);
     const totalPrice = totalPriceWithoutDelivery + delivery;
 
-   
     cartItems.innerHTML =
       cart
         .map((item) => {
@@ -463,7 +518,7 @@ function filterProducts(categoryId) {
   } else if (categoryId === 4) {
     // Filter only bookmark products (IDs 1.5 and 1.6)
     filteredProducts = products.filter(
-      (product) => product.id >= 1.5 && product.id <= 1.6
+      (product) => product.id >= 1.5 && product.id <= 1.9
     );
   } else {
     // Show all products for the "All Products" category
