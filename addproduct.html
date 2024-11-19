@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Link to SpinStrike BD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Initialize Tailwind CSS with DaisyUI
+    tailwind.config = {
+      plugins: [require('daisyui')],
+      daisyui: {
+        themes: ["light", "dark"], // Enable light and dark mode
+      },
+    };
+  </script>
+</head>
+
+<body class="flex justify-center items-center h-screen bg-gradient-to-br from-indigo-500 to-purple-700 text-white">
+
+  <div class="text-center">
+    <h1 class="text-3xl font-bold mb-6">Contact SpinStrike BD To Add your Products</h1>
+    <p class="text-lg mb-4">Quickly send product details to our email 📧</p>
+    <button class="btn-outline btn-warning btn btn-lg shadow-lg hover:shadow-xl" onclick="sendEmail()">
+      📩 Send Product
+    </button>
+  </div>
+
+  <script>
+    function sendEmail() {
+      const email = "spinstrikebd@gmail.com";
+      const subject = encodeURIComponent("Want to send a product");
+      const body = encodeURIComponent(`
+       Add all the product details
+
+1. Your Store Name:
+2. Email:
+3. Number:
+4. Product Name:
+5. Product Price:
+6. Product Quantity:
+
+<Add a Product Image Via Attach File>
+`);
+      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    }
+  </script>
+</body>
+
+</html>
