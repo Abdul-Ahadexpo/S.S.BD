@@ -13,18 +13,81 @@
 
 </head>
 
-  <!-- Avatar in Top Right Corner, Clickable -->
-  <div class="absolute top-2 right-1">
-    <a href="addproduct.html">
-      <div class="avatar">
-        <div class="ring-primary ring-offset-base-100 w-12 md:w-16 rounded-full ring ring-offset-2">
-          <img
-            src="https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=612x612&w=0&k=20&c=dhV2p1JwmloBTOaGAtaA3AW1KSnjsdMt7-U_3EZElZ0="
-            alt="Avatar" />
+   <!-- ddddddddddddddddddddddddddddddddd -->
+
+  <!-- Avatar with Dropdown -->
+  <div class="absolute top-2 right-2 ">
+    <div class="dropdown dropdown-end">
+      <label tabindex="0" class="cursor-pointer">
+        <div class="avatar">
+          <div class="ring-primary ring-offset-base-100 w-14 md:w-20 rounded-full ring ring-offset-2">
+            <img id="profile-pic"
+              src="https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=612x612&w=0&k=20&c=dhV2p1JwmloBTOaGAtaA3AW1KSnjsdMt7-U_3EZElZ0="
+              alt="Avatar" />
+          </div>
         </div>
-      </div>
-    </a>
+      </label>
+      <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+        <li><a href="addproduct.html">Add Your Products</a></li>
+        <li><a href="#" onclick="openProfileModal()">Change Profile</a></li>
+        <li><a href="https://online-chato-appo.onrender.com/">Chat</a></li>
+      </ul>
+    </div>
   </div>
+
+  <!-- Profile Modal -->
+  <div id="profile-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-10">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+      <h2 class="text-lg font-bold mb-4">Change Profile Picture</h2>
+      <input id="profile-input" type="file" accept="image/*"
+        class="mb-4 block w-full p-2 border border-gray-300 rounded" />
+      <button onclick="saveProfilePicture()" class="btn btn-primary w-full">Save</button>
+      <button onclick="closeProfileModal()" class="btn btn-secondary w-full mt-2">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // Function to open the modal
+    function openProfileModal() {
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+
+    // Function to close the modal
+    function closeProfileModal() {
+      document.getElementById('profile-modal').classList.add('hidden');
+    }
+
+    // Function to save the new profile picture
+    function saveProfilePicture() {
+      const fileInput = document.getElementById('profile-input');
+      const file = fileInput.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const profilePicUrl = e.target.result;
+          // Save to local storage
+          localStorage.setItem('profilePicture', profilePicUrl);
+          // Update the avatar image
+          document.getElementById('profile-pic').src = profilePicUrl;
+          // Close the modal
+          closeProfileModal();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('Please select an image file.');
+      }
+    }
+
+    // Load the profile picture from local storage on page load
+    window.onload = function () {
+      const savedProfilePic = localStorage.getItem('profilePicture');
+      if (savedProfilePic) {
+        document.getElementById('profile-pic').src = savedProfilePic;
+      }
+    };
+  </script>
+  <!-- eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee -->
 
 <body>
   <header class="bg-gray-800 text-white p-4">
