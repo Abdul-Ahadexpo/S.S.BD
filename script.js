@@ -255,33 +255,37 @@ function loadProducts() {
   productList.innerHTML = products
     .map(
       (product) => `
-<div id="ppd" class="card w-full bg-gradient-to-b from-gray-800 to-gray-900 text-white shadow-2xl transition-transform transform hover:scale-105">
-  <figure>
+      <div
+  id="ppd"
+  class="card w-full bg-gradient-to-b from-gray-900 to-gray-800 text-white shadow-xl transition-transform transform hover:scale-105 hover:shadow-2xl rounded-xl overflow-hidden relative group"
+>
+  <figure class="overflow-hidden">
     <img
       src="${product.image}"
       alt="${product.name}"
       class="rounded-t-xl"
     />
   </figure>
-  <div class="card-body p-6">
-    <h2 class="card-title text-2xl font-bold mb-2">${product.name}</h2>
-    <p class="text-sm text-gray-400 mb-4">${product.description}</p>
-    <p class="text-lg font-semibold mb-4">Price: <span class="text-green-400">BDT ${product.price.toFixed(
-      2
-    )}</span></p>
+  <div class="card-body p-6 bg-opacity-80 backdrop-blur-sm bg-gradient-to-b from-black via-gray-800 to-transparent">
+    <h2 class="card-title text-3xl font-extrabold mb-3 group-hover:text-green-400 transition duration-200">
+      ${product.name}
+    </h2>
+    <p class="text-sm text-gray-400 mb-4 line-clamp-3">
+      ${product.description}
+    </p>
+    <p class="text-lg font-bold mb-4">
+      Price: <span class="text-green-400">BDT ${product.price.toFixed(2)}</span>
+    </p>
     <div class="card-actions mt-4 flex justify-between items-center">
       <button
         onclick="addToCart(${product.id})"
-        class="btn btn-primary bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-md hover:from-blue-700 hover:to-blue-500 transition duration-200"
+        class="btn bg-gradient-to-r from-green-500 to-green-700 text-black font-bold px-6 py-3 rounded-lg shadow-lg hover:from-green-700 hover:to-green-500 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
       >
         Add to Cart
       </button>
-     
     </div>
   </div>
 </div>
-
-
     `
     )
     .join("");
@@ -475,21 +479,38 @@ function loadFilteredProducts(filteredProducts) {
       ? filteredProducts
           .map(
             (product) => `
-        <div id="ppd" class="card bg-base-100 shadow-xl">
-            <figure><img src="${product.image}" alt="${
-              product.name
-            }" /></figure>
-            <div class="card-body">
-                <h2 class="card-title">${product.name}</h2>
-                <p>${product.description}</p>
-                <p class="font-bold">Price: BDT ${product.price.toFixed(2)}</p>
-                <div class="card-actions justify-end">
-                    <button onclick="addToCart(${
-                      product.id
-                    })" class="btn btn-primary">Add to Cart</button>
-                </div>
-            </div>
-        </div>
+      <div
+  id="ppd"
+  class="card w-full bg-gradient-to-b from-gray-900 to-gray-800 text-white shadow-xl transition-transform transform hover:scale-105 hover:shadow-2xl rounded-xl overflow-hidden relative group"
+>
+  <figure class="overflow-hidden">
+    <img
+      src="${product.image}"
+      alt="${product.name}"
+      class="rounded-t-xl"
+    />
+  </figure>
+  <div class="card-body p-6 bg-opacity-80 backdrop-blur-sm bg-gradient-to-b from-black via-gray-800 to-transparent">
+    <h2 class="card-title text-3xl font-extrabold mb-3 group-hover:text-green-400 transition duration-200">
+      ${product.name}
+    </h2>
+    <p class="text-sm text-gray-400 mb-4 line-clamp-3">
+      ${product.description}
+    </p>
+    <p class="text-lg font-bold mb-4">
+      Price: <span class="text-green-400">BDT ${product.price.toFixed(2)}</span>
+    </p>
+    <div class="card-actions mt-4 flex justify-between items-center">
+      <button
+        onclick="addToCart(${product.id})"
+        class="btn bg-gradient-to-r from-green-500 to-green-700 text-black font-bold px-6 py-3 rounded-lg shadow-lg hover:from-green-700 hover:to-green-500 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
+      >
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</div>
+
     `
           )
           .join("")
