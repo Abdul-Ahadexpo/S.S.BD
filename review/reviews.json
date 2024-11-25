@@ -1,0 +1,69 @@
+[
+  {
+    "id": 1,
+    "buyerName": "Mahmud Sahol",
+    "productName": "Flame Guilty Longinus",
+    "purchaseDate": "2024-11-22",
+    "images": [
+      "https://i.postimg.cc/nLjhVrPp/461463052-896448405927826-4888219088806326465-n.jpg",
+      "https://i.postimg.cc/DwYzKL5x/461439905-896448449261155-9185985605612170416-n.jpg"
+    ],
+    "reviewText": "Real guilty longinus. brother. It was from Flame brand and the price was affordable."
+  },
+  {
+    "id": 2,
+    "buyerName": "Ksm Addoy",
+    "productName": "Beyblade X",
+    "purchaseDate": "2024-11-20",
+    "images": [
+      "https://i.postimg.cc/D0Fvcgyw/l5kfxehm.png",
+      "https://i.postimg.cc/zBTDWMNQ/ie763a6d.png",
+      "https://i.postimg.cc/3wsJkhsp/3nvzz14q.png"
+    ],
+    "reviewText": "New beyblade X kinlam from here. also, vanish Fafnir tar layer full rubber er shathe free bey o pichi."
+  },
+  {
+    "id": 3,
+    "buyerName": "Ksm Addoy",
+    "productName": "SpinStrike Products",
+    "purchaseDate": "2024-11-19",
+    "images": [
+      "https://i.postimg.cc/sxcVHhv9/lx58erar.png",
+      "https://i.postimg.cc/NG7fjWp9/nos64477.png"
+    ],
+    "reviewText": "Egula matro pick korsi ar eigula onek best hoise ami agula shob SpinStrike theke kina hoise."
+  },
+  {
+    "id": 4,
+    "buyerName": "Muhammad Abdullah",
+    "productName": "Flame Beyblades",
+    "purchaseDate": "2024-11-18",
+    "images": [
+      "https://ae-pic-a1.aliexpress-media.com/kf/A328f5bb6dd244cc597e486a802417b15o.jpg_.webp"
+    ],
+    "reviewText": "Very nice beys and good quality❤. Must buy from them."
+  },
+  {
+    "id": 5,
+    "buyerName": "Sunjeda Toky",
+    "productName": "Flame Beyblades",
+    "purchaseDate": "2024-11-17",
+    "images": [
+      "https://i.postimg.cc/xT5CtWmD/455943675-807913464887158-8252506899955654761-n.jpg",
+      "https://i.postimg.cc/vZmmj371/455851520-527007999725550-2773858786609402174-n.jpg"
+    ],
+    "reviewText": "Thanks vaiya. onek valo hoyeche. Beyblade er quality o onek valo. well, Flame brand bole kotha!"
+  },
+  {
+    "id": 6,
+    "buyerName": "Farhan Sami",
+    "productName": "SpinStrike Beyblades",
+    "purchaseDate": "2024-11-16",
+    "images": [
+      "https://scontent.fdac177-1.fna.fbcdn.net/v/t1.15752-9/462570661_579757114470114_7816279889480168604_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=9f807c&_nc_ohc=vsv_lEXTChQQ7kNvgGDH_1e&_nc_zt=23&_nc_ht=scontent.fdac177-1.fna&_nc_gid=ASl9wi77l9LJQFNuq8-YNEr&oh=03_Q7cD1QHqS9oLA0GUf563LVkiHDkRNrEPpUsjAIvzDx8YP-AjGQ&oe=674C30A1",
+
+      "https://scontent.fdac177-1.fna.fbcdn.net/v/t1.15752-9/462554381_1263932491694048_9129550719581954263_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=9f807c&_nc_ohc=qDMiQXVq9O4Q7kNvgES5j4v&_nc_zt=23&_nc_ht=scontent.fdac177-1.fna&_nc_gid=ASl9wi77l9LJQFNuq8-YNEr&oh=03_Q7cD1QGMae6aRPzs4tZuJNT36U6l9zhot0NYc-naCQfrLR0oZg&oe=674C0ED8"
+    ],
+    "reviewText": "Thanks a lot bro. onk joss."
+  }
+]
