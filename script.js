@@ -209,7 +209,7 @@ const products = [
       "https://th.bing.com/th/id/OIP._makEXYOpLStcyVIRfj61wHaHa?rs=1&pid=ImgDetMain",
   },
   {
-    id: 14.1,
+    id: 13.5,
     name: "Vanish Fafnir",
     description: "Full rubber Vanish Fafnir Tapered Kick-3",
     price: 500,
