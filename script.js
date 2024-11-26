@@ -3,6 +3,33 @@ let cart = [];
 
 // Sample product data
 const products = [
+    {
+    id: 2.1,
+    name: "BX-34 Cobalt Dragoon 2-60C",
+    description:
+      "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
+    price: 450,
+    image:
+      "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
+  },
+  {
+    id: 2.4,
+    name: "Weiss Tiger 3-60U",
+    description:
+      "<b>Weiss Tiger</b> is a Balance Type Blade with three different sets of three types of blades. The three types of blades are the Attack Type <b>Upper Blades</b>, the Defense Type Damper Blades, and the Stamina Type <b>Smash Blades</b>.",
+    price: 450,
+    image:
+      "https://th.bing.com/th/id/OIP.LX-pjn8-PzrjcHWl_QSipwHaG9?rs=1&pid=ImgDetMain",
+  },
+  {
+    id: 2.2,
+    name: "Black Shell 4-60D",
+    description:
+      "Black Shell is a Defense Type Blade with an overall diamond shape with eight protrusions as the main points of contact.",
+    price: 450,
+    image:
+      "https://beybladepremier.com/cdn/shop/files/BX-3501BlackShell4-60D_BeybladeX_BACKORDERJuly31st.jpg?v=1721582044",
+  },
   {
     id: 1,
     name: "Phoenix Wing 9-60GF (Pre-Order)",
@@ -21,26 +48,6 @@ const products = [
     image:
       "https://cdn11.bigcommerce.com/s-lsouzjo20i/images/stencil/1280x1280/products/2512/5372/Beyblade_UX-02_03__11434.1708526001.jpg?c=2",
   },
-
-  {
-    id: 2.1,
-    name: "BX-34 Cobalt Dragoon 2-60C",
-    description:
-      "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
-    price: 450,
-    image:
-      "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
-  },
-
-  // {
-  //   id: 2.2,
-  //   name: "Black Shell 4-60D",
-  //   description:
-  //     "Black Shell is a Defense Type Blade with an overall diamond shape with eight protrusions as the main points of contact.",
-  //   price: 450,
-  //   image:
-  //     "https://beybladepremier.com/cdn/shop/files/BX-3501BlackShell4-60D_BeybladeX_BACKORDERJuly31st.jpg?v=1721582044",
-  // },
   {
     id: 2.3,
     name: "Cobalt Drake 4-60F",
@@ -51,15 +58,6 @@ const products = [
       "https://th.bing.com/th/id/OIP._db41qhqY7Cj6M-cQLflwQHaHa?rs=1&pid=ImgDetMain",
   },
 
-  {
-    id: 2.4,
-    name: "Weiss Tiger 3-60U",
-    description:
-      "<b>Weiss Tiger</b> is a Balance Type Blade with three different sets of three types of blades. The three types of blades are the Attack Type <b>Upper Blades</b>, the Defense Type Damper Blades, and the Stamina Type <b>Smash Blades</b>.",
-    price: 450,
-    image:
-      "https://th.bing.com/th/id/OIP.LX-pjn8-PzrjcHWl_QSipwHaG9?rs=1&pid=ImgDetMain",
-  },
 
   {
     id: 3,
