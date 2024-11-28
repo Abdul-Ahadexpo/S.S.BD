@@ -324,6 +324,17 @@ function calculateDiscount(quantity, price) {
   return price * discountPercentage;
 }
 
+
+
+
+//
+//
+//
+//
+//
+//
+//
+//
 // Load cart items on the cart page
 function loadCart() {
   cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -332,66 +343,126 @@ function loadCart() {
   if (cart.length === 0) {
     cartItems.innerHTML = "<p>Your cart is empty.</p>";
   } else {
-    const totalItems = cart.reduce(
-      (total, item) => total + (item.quantity || 1),
-      0
-    );
     const totalPriceWithoutDelivery = cart.reduce((total, item) => {
       const discount = calculateDiscount(item.quantity || 1, item.price);
       return total + (item.price * (item.quantity || 1) - discount);
     }, 0);
-    const totalPrice = totalPriceWithoutDelivery + delivery;
+    let totalPrice = totalPriceWithoutDelivery + delivery;
 
     cartItems.innerHTML =
       cart
         .map((item) => {
           const discount = calculateDiscount(item.quantity || 1, item.price);
           return `
-   <div class="flex flex-col md:flex-row justify-between items-center border-b py-4  shadow-sm rounded-md">
-
-  <!-- Product Image -->
-
-  <div class="w-24 h-24 md:w-32 md:h-32">
-    <img class="w-full h-full object-cover rounded-md" src="${
-      item.image
-    }" alt="${item.name}" />
-  </div>
-
-  <!-- Product Details -->
-  
-  <div class="flex-1 px-4 mt-4">
-    <h3 class="text-lg font-semibold text-gray-100">${
-      item.name
-    } <span class="text-sm font-normal text-gray-400">(Quantity: ${
+            <div class="flex flex-col md:flex-row justify-between items-center border-b py-4 shadow-sm rounded-md">
+              <div class="w-24 h-24 md:w-32 md:h-32">
+                <img class="w-full h-full object-cover rounded-md" src="${
+                  item.image
+                }" alt="${item.name}" />
+              </div>
+              <div class="flex-1 px-4 mt-4">
+                <h3 class="text-lg font-semibold text-gray-100">${
+                  item.name
+                } <span class="text-sm font-normal text-gray-400">(Quantity: ${
             item.quantity || 1
           })</span></h3>
-    <p class="text-sm text-gray-300">Price: <span class="text-blue-100">BDT ${item.price.toFixed(
-      2
-    )}</span></p>
-    <p class="text-sm text-gray-300">Discount: <span class="text-green-400">BDT ${discount.toFixed(
-      2
-    )}</span></p>
-    <p class="text-sm text-gray-300">Delivery Fee: <span class="text-yellow-400">BDT ${delivery}</span> (All Over BD)</p>
-  </div>
-
-  <!-- Action Buttons -->
-
-  <div class="flex flex-col mt-4 md:flex-row space-y-2 md:space-y-0 md:space-x-2">
-    <button onclick="addOneMore(${
-      item.id
-    })" class="btn btn-outline btn-info btn-sm md:btn-md">+</button>
-    <button onclick="removeFromCart(${
-      item.id
-    })" class="btn btn-outline btn-error btn-sm md:btn-md">Remove</button>
-  </div>
-</div>
-
-        `;
+                <p class="text-sm text-gray-300">Price: <span class="text-blue-100">BDT ${item.price.toFixed(
+                  2
+                )}</span></p>
+                <p class="text-sm text-gray-300">Discount: <span class="text-green-400">BDT ${discount.toFixed(
+                  2
+                )}</span></p>
+                <p class="text-sm text-gray-300">Delivery Fee: <span class="text-yellow-400">BDT ${delivery}</span></p>
+              </div>
+              <div class="flex flex-col mt-4 md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                <button onclick="addOneMore(${
+                  item.id
+                })" class="btn btn-outline btn-info btn-sm md:btn-md">+</button>
+                <button onclick="removeFromCart(${
+                  item.id
+                })" class="btn btn-outline btn-error btn-sm md:btn-md">Remove</button>
+              </div>
+            </div>
+          `;
         })
         .join("") +
-      `<p class="font-bold">Total: BDT ${totalPrice.toFixed(2)} approx </p>`;
+      `
+      <!-- Coupon Section -->
+      <div id="coupon-section" class="mt-6">
+        <input type="text" id="coupon-code" placeholder="Enter your coupon code" class="input input-bordered input-success w-full max-w-xs" />
+        <button id="apply-coupon" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2">Apply Discount</button>
+      </div>
+      <!-- Total Price -->
+      <p id="total-cost" class="font-bold text-lg mt-4">Total: BDT ${totalPrice.toFixed(
+        2
+      )} approx</p>
+      `;
+
+    const coupons = {
+      WHAT10: 0.1,
+      YEAHS10: 0.1,
+      OKAPIS20: 0.2,
+      AAVE20: 0.2,
+      MYFREEDEL: "free_delivery",
+    };
+
+    // Track used coupons
+    const usedCoupons = JSON.parse(localStorage.getItem("usedCoupons")) || [];
+
+    document.getElementById("apply-coupon").addEventListener("click", () => {
+      const couponInput = document
+        .getElementById("coupon-code")
+        .value.trim()
+        .toUpperCase();
+
+      if (usedCoupons.includes(couponInput)) {
+        alert("This coupon code has already been used! 😢");
+        return;
+      }
+
+      const couponDiscount = coupons[couponInput];
+      if (!couponDiscount) {
+        alert("Invalid discount code 😢. Try again!");
+        return;
+      }
+
+      let deliveryCost = delivery;
+      let newTotalCost = totalPriceWithoutDelivery;
+
+      if (couponDiscount === "free_delivery") {
+        deliveryCost = 0;
+        alert("🎉 Free delivery applied!");
+      } else {
+        const discountAmount = newTotalCost * couponDiscount;
+        newTotalCost -= discountAmount;
+        alert(
+          `🎉 ${
+            couponDiscount * 100
+          }% discount applied! You saved BDT ${discountAmount.toFixed(2)}`
+        );
+      }
+
+      // Add the coupon to used list
+      usedCoupons.push(couponInput);
+      localStorage.setItem("usedCoupons", JSON.stringify(usedCoupons));
+
+      document.getElementById("total-cost").innerHTML = `Total: BDT ${(
+        newTotalCost + deliveryCost
+      ).toFixed(2)} approx`;
+    });
   }
 }
+
+//
+//
+//
+//
+//
+//
+
+
+
+
 
 // Function to remove an item from the cart
 function removeFromCart(productId) {
