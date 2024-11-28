@@ -398,7 +398,27 @@ function loadCart() {
       )} approx</p>
       `;
 
-    const coupons = {
+ const coupons = {
+      WINNER10: 0.1,
+      FLASHSALE25: 0.25,
+      EXTRA30OFF: 0.3,
+      SUPERDISCOUNT50: 0.5,
+      MEGADEAL40: 0.4,
+      QUICK5OFF: 0.05,
+      COOLVIBES10: 0.1,
+      LUCKYDAY20: 0.2,
+      ZOOMDEAL30: 0.3,
+      POWERUP60: 0.6,
+      JUMPSTART70: 0.7,
+      SMARTBUY80: 0.8,
+      FREEDELIVERY100: 1.0,
+      FASTTRACK35: 0.35,
+      BIGSAVINGS45: 0.45,
+      NEWUSER10: 0.1,
+      RETURNING20: 0.2,
+      WEEKENDSPECIAL25: 0.25,
+      FESTIVEOFFER30: 0.3,
+      BIRTHDAYGIFT50: 0.5,
       WHAT10: 0.1,
       YEAHS10: 0.1,
       OKAPIS20: 0.2,
