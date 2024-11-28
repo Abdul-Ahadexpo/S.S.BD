@@ -458,7 +458,8 @@ function loadCart() {
         alert(
           `🎉 ${
             couponDiscount * 100
-          }% discount applied! You saved BDT ${discountAmount.toFixed(2)}.Please use it in Checkout 🛒`
+          }% discount applied! You saved BDT ${discountAmount.toFixed(2)}. 
+          Please use it in Checkout 🛒`
         );
       }
 
