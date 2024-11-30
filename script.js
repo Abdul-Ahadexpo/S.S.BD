@@ -194,7 +194,7 @@ const products = [
     name: "Takara Tomy Xtreme Stadium (Pre-Order)",
     description: `Original BX-10 Xtreme Stadium. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
-    price: 3575,
+    price: 3800,
     pcs: "Pre-order",
     image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910596-2.jpg",
   },
