@@ -397,9 +397,9 @@ function loadCart() {
     Stock: <i><span class="text-red-100">${item.pcs}</span>.</i>
     </p>
                 <p class="text-sm text-gray-300">Price: <span class="text-blue-100"> ${item.price.toFixed(2)}TK</span></p>
-                <p class="text-sm text-gray-300">Discount: <span class="text-green-400">BDT ${discount.toFixed(
+                <p class="text-sm text-gray-300">Discount: <span class="text-green-400"> ${discount.toFixed(
                   2
-                )}</span></p>
+                )}TK</span></p>
                 <p class="text-sm text-gray-300">Delivery Fee: <span class="text-yellow-400"> ${delivery}TK</span></p>
               </div>
               <div class="flex flex-col mt-4 md:flex-row space-y-2 md:space-y-0 md:space-x-2">
