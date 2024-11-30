@@ -614,7 +614,7 @@ function loadFilteredProducts(filteredProducts) {
       ${product.description}
     </p>
     <p class="text-lg font-bold mb-4">
-      Price: <span class="text-green-400">BDT ${product.price.toFixed(2)}</span>
+      Price: <span class="text-green-400"> ${product.price.toFixed(2)}TK</span>
     </p>
 
 
