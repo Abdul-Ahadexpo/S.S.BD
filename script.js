@@ -162,7 +162,7 @@ const products = [
     name: "Takara Tomy Xtreme Stadium (Pre-Order)",
     description: `Original BX-10 Xtreme Stadium. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
-    price: 4400,
+    price: 3575,
     pcs: "Pre-order",
     image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910596-2.jpg",
   },
@@ -295,7 +295,7 @@ function loadProducts() {
       ${product.description}
     </p>
     <p class="text-lg font-bold mb-4">
-      Price: <span class="text-green-400">BDT ${product.price}</span>
+      Price: <span class="text-green-400"> ${product.price.toFixed(2)}TK</span>
     </p>
 
     <p class="font-thin mb-0 text-gray-400">
@@ -423,9 +423,9 @@ function loadCart() {
         <button id="apply-coupon" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2">Apply Discount</button>
       </div>
       <!-- Total Price -->
-      <p id="total-cost" class="font-bold text-lg mt-4">Total: BDT ${totalPrice.toFixed(
+      <p id="total-cost" class="font-bold text-lg mt-4">Total: ${totalPrice.toFixed(
         2
-      )} approx</p>
+      )}TK approx</p>
       `;
 
     const coupons = {
@@ -497,9 +497,9 @@ function loadCart() {
       usedCoupons.push(couponInput);
       localStorage.setItem("usedCoupons", JSON.stringify(usedCoupons));
 
-      document.getElementById("total-cost").innerHTML = `Total: BDT ${(
+      document.getElementById("total-cost").innerHTML = `Total: ${(
         newTotalCost + deliveryCost
-      ).toFixed(2)} approx`;
+      ).toFixed(2)}TK approx`;
     });
   }
 }
