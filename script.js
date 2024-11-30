@@ -125,6 +125,29 @@ const products = [
       "https://opensesame.com.bd/wp-content/uploads/2024/08/910381-4.jpg",
   },
   {
+    id: 1.6,
+    name: "BX-02 STARTER HELLS SCYTHE 4-60T",
+    description: `Hells Scythe Four Sixty Taper) is a Balance Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on June 10th, 2023 during the CoroCoro Spirit Festival for 1980円.`,
+    price: 1700,
+    pcs: "Pre-order",
+    image:
+      "https://opensesame.com.bd/wp-content/uploads/2024/08/910398-4.jpg",
+  },
+
+
+  
+  {
+    id: 1.6,
+    name: "BX-03 STARTER WIZARD ARROW 4-80B",
+    description: `Wizard Arrow Four Eighty Ball) is a Stamina Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on July 15th, 2023 for 1980円.`,
+    price: 1700,
+    pcs: "Pre-order",
+    image:
+      "https://opensesame.com.bd/wp-content/uploads/2024/08/910473-4.jpg",
+  },
+
+  
+  {
     id: 1.5,
     name: "Takara Tomy Beyblade X Random Booster (Pre-Order)",
     description: `Original Random Booster Vol. 4 BX-35. <br>
