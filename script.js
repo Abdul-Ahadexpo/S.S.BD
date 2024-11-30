@@ -117,6 +117,15 @@ const products = [
   // Original TT
   {
     id: 1.5,
+    name: "BX-01 STARTER DRAN SWORD 3-60F",
+    description: `Dran Sword Three Sixty Flat) is an Attack Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on June 10th, 2023 during the CoroCoro Spirit Festival for 1980円.`,
+    price: 1700,
+    pcs: "Pre-order",
+    image:
+      "https://opensesame.com.bd/wp-content/uploads/2024/08/910381-4.jpg",
+  },
+  {
+    id: 1.5,
     name: "Takara Tomy Beyblade X Random Booster (Pre-Order)",
     description: `Original Random Booster Vol. 4 BX-35. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
