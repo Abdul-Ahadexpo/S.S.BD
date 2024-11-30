@@ -3,12 +3,13 @@ let cart = [];
 
 // Sample product data
 const products = [
-    {
+  {
     id: 2.1,
     name: "BX-34 Cobalt Dragoon 2-60C",
     description:
       "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
     price: 450,
+    pcs: 69,
     image:
       "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
   },
@@ -18,6 +19,7 @@ const products = [
     description:
       "<b>Weiss Tiger</b> is a Balance Type Blade with three different sets of three types of blades. The three types of blades are the Attack Type <b>Upper Blades</b>, the Defense Type Damper Blades, and the Stamina Type <b>Smash Blades</b>.",
     price: 450,
+    pcs: 53,
     image:
       "https://th.bing.com/th/id/OIP.LX-pjn8-PzrjcHWl_QSipwHaG9?rs=1&pid=ImgDetMain",
   },
@@ -27,6 +29,7 @@ const products = [
     description:
       "Black Shell is a Defense Type Blade with an overall diamond shape with eight protrusions as the main points of contact.",
     price: 450,
+    pcs: 37,
     image:
       "https://beybladepremier.com/cdn/shop/files/BX-3501BlackShell4-60D_BeybladeX_BACKORDERJuly31st.jpg?v=1721582044",
   },
@@ -35,6 +38,7 @@ const products = [
     name: "Phoenix Wing 9-60GF (Pre-Order)",
     description: `Soar Phoenix (Japanese: PhoenixWing) is a three-sided Attack Type Blade with three blades acting as the main contact points.`,
     price: 400,
+    pcs: 3,
     image:
       "https://th.bing.com/th/id/OIP.7Vlwn3_Ru7iwhjRfTEPWIAHaGg?rs=1&pid=ImgDetMai",
   },
@@ -45,6 +49,7 @@ const products = [
     description:
       "Hells Hammer is a right-spin Balance Type Blade with three <b>Smash Blades</b> acting as the main contact points.",
     price: 450,
+    pcs: 123,
     image:
       "https://cdn11.bigcommerce.com/s-lsouzjo20i/images/stencil/1280x1280/products/2512/5372/Beyblade_UX-02_03__11434.1708526001.jpg?c=2",
   },
@@ -54,10 +59,10 @@ const products = [
     description:
       "Cobalt Drake is a four-sided Attack Type Blade with four upward slanting blades acting as the main contact points. The blades are similar to those of Dran Sword, albeit smaller in size.",
     price: 450,
+    pcs: 28,
     image:
       "https://th.bing.com/th/id/OIP._db41qhqY7Cj6M-cQLflwQHaHa?rs=1&pid=ImgDetMain",
   },
-
 
   {
     id: 3,
@@ -65,6 +70,7 @@ const products = [
     description:
       "Sting Unicorn (Japanese: UnicornSting) is a Balance Type Blade with an asymmetrical shape.",
     price: 400,
+    pcs: 11,
     image:
       "https://th.bing.com/th/id/OIP.JfM8kxGWhTDQLyFToWd9mAHaHa?rs=1&pid=ImgDetMain",
   },
@@ -74,6 +80,7 @@ const products = [
     description:
       "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T<br><i>It will take 15-25 days<br> to be delivered</i>",
     price: 350,
+    pcs: 11,
     image:
       "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/2127/9339/BX-21-HC-TT_copy__53930.1700174025.jpg?c=2",
   },
@@ -83,6 +90,7 @@ const products = [
     description:
       "Dagger Dran (Japanese: DranDagger) is an Attack Type Blade with six small blades acting as the main contact points.",
     price: 400,
+    pcs: 2,
     image:
       "https://th.bing.com/th/id/OIP.AVUEtziRnBOUYX7G-teWbQHaHu?rs=1&pid=ImgDetMain",
   },
@@ -92,6 +100,7 @@ const products = [
     description:
       "Arrow Wizard (Japanese: WizardArrow) is a round Stamina Type Blade with two large blades acting as the main contact points.",
     price: 300,
+    pcs: 9,
     image:
       "https://img4.dhresource.com/webp/m/0x0/f3/albu/km/o/14/e42c932b-7a4c-4bd7-b639-55b94642ac3d.jpg",
   },
@@ -101,6 +110,7 @@ const products = [
     description:
       "Wizard Rod is a Stamina Type Blade with a wide circular shape.",
     price: 450,
+    pcs: 17,
     image:
       "https://toysonejapan.com/cdn/shop/files/s-l1600_4_9bc991d6-8200-4b36-93a8-52e9abc499fe_1059x959.jpg?v=1711513033",
   },
@@ -111,6 +121,7 @@ const products = [
     description: `Original Random Booster Vol. 4 BX-35. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 1480,
+    pcs: "Pre-order",
     image:
       "https://th.bing.com/th/id/OIP.7ncb8aYMnFMRJFi-SS3bTQHaHa?rs=1&pid=ImgDetMain",
   },
@@ -120,6 +131,7 @@ const products = [
     description: `Original UX-08 Silver Wolf 3-80FB. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 4000,
+    pcs: "Pre-order",
     image:
       "https://media3.nin-nin-game.com/464324/beyblade-x-ux-08-starter-silver-wolf-3-80fb-takara-tomy-.jpg",
   },
@@ -130,6 +142,7 @@ const products = [
     description: `Original UX-05 Random Booster. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 1480,
+    pcs: "Pre-order",
     image:
       "https://malloftoys.com/cdn/shop/files/TakaraTomyBeybladeXUX-05RandomBoosterShinobiShadow.webp?v=1713220230g",
   },
@@ -140,6 +153,7 @@ const products = [
     description: `Original UX-33 Beyblade X Booster Weiss Tiger 3-60U. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 2900,
+    pcs: "Pre-order",
     image:
       "https://th.bing.com/th/id/OIP.vUV_FV_GZ6PIu6fTbTyD7gHaHa?w=1280&h=1280&rs=1&pid=ImgDetMain",
   },
@@ -149,6 +163,7 @@ const products = [
     description: `Original BX-10 Xtreme Stadium. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
     price: 4400,
+    pcs: "Pre-order",
     image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910596-2.jpg",
   },
 
@@ -159,6 +174,7 @@ const products = [
     name: "BX-18 X String Launcher (Pre-order)",
     description: "Pre-order, It will take 15-25 days to be delivered",
     price: 400,
+    pcs: "Pre-order",
     image:
       "https://th.bing.com/th/id/OIP.pRZBwx1ca5dpY_2YPF79jwHaHa?w=1200&h=1200&rs=1&pid=ImgDetMain",
   },
@@ -167,6 +183,7 @@ const products = [
     name: "BX-00 X Ripcord-Launcher (Pre-order)",
     description: "Pre-order, It will take 15-25 days to be delivered",
     price: 300,
+    pcs: "Pre-order",
     image:
       "https://takaratomyasia.com/img/product/910398/product-910398-A02.jpg?20230724_091221",
   },
@@ -177,6 +194,7 @@ const products = [
     description:
       "The Launcher Grip (ランチャーグリップ, Ranchā Gurippu) is an Accessory released as part of the Beyblade X series. It was released in Japan on July 15th, 2023 for 700円.",
     price: 200,
+    pcs: "Out of Stock",
     image:
       "https://beybladepremier.com/cdn/shop/files/TAKARATOMYBeybladeXLauncherGripBX-11er.jpg?height=940&v=1684358727",
   },
@@ -186,6 +204,7 @@ const products = [
     name: "Gatling Dragon",
     description: "Flame brand Gatling Dragon Rapid Charge' Metal-10",
     price: 520,
+    pcs: "4",
     image:
       "https://th.bing.com/th/id/OIP.Qd6oZIu2UZ2JyDl8OKXDuAHaHa?rs=1&pid=ImgDetMain",
   },
@@ -203,6 +222,7 @@ const products = [
     name: "Ultimate Valkyrie",
     description: "Flame brand Ultimate Valkyrie Legacy Variable'-9",
     price: 500,
+    pcs: "3",
     image:
       "https://th.bing.com/th/id/OIP._makEXYOpLStcyVIRfj61wHaHa?rs=1&pid=ImgDetMain",
   },
@@ -211,6 +231,7 @@ const products = [
     name: "Vanish Fafnir",
     description: "Full rubber Vanish Fafnir Tapered Kick-3",
     price: 500,
+    pcs: "2",
     image:
       "https://th.bing.com/th/id/OIP.nx0indHJS37xKmwlMftJKAHaHa?rs=1&pid=ImgDetMain",
   },
@@ -220,6 +241,7 @@ const products = [
     name: "Burst Stadium SB Brand",
     description: "SB Brand Stadium",
     price: 2280,
+    pcs: "Pre-order",
     image:
       "https://ae-pic-a1.aliexpress-media.com/kf/H0b6d5eeee5bc4bf7bc1d68e8eedc50bda.jpg_640x640.jpg_.webp",
   },
@@ -229,6 +251,7 @@ const products = [
     name: "L-Drago Destructor",
     description: "L-Drago Destructor F:S. A Metal Fight Bey",
     price: 350,
+    pcs: 3,
     image:
       "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/140/405/s_l1600_50__79330.1448225384.jpg?c=2?imbypass=on",
   },
@@ -272,8 +295,13 @@ function loadProducts() {
       ${product.description}
     </p>
     <p class="text-lg font-bold mb-4">
-      Price: <span class="text-green-400">BDT ${product.price.toFixed(2)}</span>
+      Price: <span class="text-green-400">BDT ${product.price}</span>
     </p>
+
+    <p class="font-thin mb-0 text-gray-400">
+    Stock: <i><span class="text-gray-400">${product.pcs}</span>.</i>
+    </p>
+
     <div class="card-actions mt-4 flex justify-between items-center">
       <button
         onclick="addToCart(${product.id})"
@@ -324,9 +352,6 @@ function calculateDiscount(quantity, price) {
   return price * discountPercentage;
 }
 
-
-
-
 //
 //
 //
@@ -366,6 +391,11 @@ function loadCart() {
                 } <span class="text-sm font-normal text-gray-400">(Quantity: ${
             item.quantity || 1
           })</span></h3>
+
+
+            <p class="text-sm font-normal mb-0 text-gray-300">
+    Stock: <i><span class="text-red-100">${item.pcs}</span>.</i>
+    </p>
                 <p class="text-sm text-gray-300">Price: <span class="text-blue-100">BDT ${item.price.toFixed(
                   2
                 )}</span></p>
@@ -398,7 +428,7 @@ function loadCart() {
       )} approx</p>
       `;
 
- const coupons = {
+    const coupons = {
       WINNER10: 0.1,
       FLASHSALE25: 0.25,
       EXTRA30OFF: 0.3,
@@ -480,10 +510,6 @@ function loadCart() {
 //
 //
 //
-
-
-
-
 
 // Function to remove an item from the cart
 function removeFromCart(productId) {
@@ -590,6 +616,13 @@ function loadFilteredProducts(filteredProducts) {
     <p class="text-lg font-bold mb-4">
       Price: <span class="text-green-400">BDT ${product.price.toFixed(2)}</span>
     </p>
+
+
+  <p class="font-thin mb-0 text-gray-400">
+    Stock: <i><span class="text-gray-400">${product.pcs}</span>.</i>
+    </p>
+
+
     <div class="card-actions mt-4 flex justify-between items-center">
       <button
         onclick="addToCart(${product.id})"
