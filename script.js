@@ -242,6 +242,24 @@ const products = [
   },
 
   {
+    id: 11.2,
+    name: "Xiphoid Xcalibur",
+    description: " Xcalibur is a right-spin DB Core that features a large sword, representing the DB Core's namesake; Excalibur, the legendary sword of King Arthur.",
+    price: 520,
+    pcs: "2",
+    image:
+      "https://th.bing.com/th/id/R.3c496bbaeac5d4e1e695c24b5cd4fb01?rik=2Dlt2AU3yYDN8Q&pid=ImgRaw&r=0",
+  },
+  {
+    id: 11.6,
+    name: "Wind Knight Moon Bounce-6",
+    description: "Knight is a right-spin DB Core that features the helmet of a knight, akin to its predecessor, the Air Knight Cho-Z Layer.",
+    price: 520,
+    pcs: "1",
+    image:
+      "https://th.bing.com/th/id/R.8cb4f3687991c2262a6384ef6cfd5e89?rik=UQbsuD%2fCGVomTQ&pid=ImgRaw&r=0",
+  },
+  {
     id: 11,
     name: "Gatling Dragon",
     description: "Flame brand Gatling Dragon Rapid Charge' Metal-10",
