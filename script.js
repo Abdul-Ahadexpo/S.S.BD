@@ -15,7 +15,7 @@ const products = [
   },
   {
     id: 2.4,
-    name: "Weiss Tiger 3-60U",
+    name: "Weiss Tiger 3-60U(pre-order)",
     description:
       "<b>Weiss Tiger</b> is a Balance Type Blade with three different sets of three types of blades. The three types of blades are the Attack Type <b>Upper Blades</b>, the Defense Type Damper Blades, and the Stamina Type <b>Smash Blades</b>.",
     price: 400,
@@ -116,7 +116,7 @@ const products = [
   },
   {
     id: 6,
-    name: "UX-03 Booster Wizard Rod 5-70DB",
+    name: "UX-03 Booster Wizard Rod 5-70DB(pre-order)",
     description:
       "Wizard Rod is a Stamina Type Blade with a wide circular shape.",
     price: 450,
@@ -243,7 +243,7 @@ const products = [
 
   {
     id: 11.2,
-    name: "Xiphoid Xcalibur",
+    name: "Xiphoid Xcalibur(pre-order)",
     description: " Xcalibur is a right-spin DB Core that features a large sword, representing the DB Core's namesake; Excalibur, the legendary sword of King Arthur.",
     price: 520,
     pcs: "2",
@@ -252,7 +252,7 @@ const products = [
   },
   {
     id: 11.6,
-    name: "Wind Knight Moon Bounce-6",
+    name: "Wind Knight Moon Bounce-6(pre-order)",
     description: "Knight is a right-spin DB Core that features the helmet of a knight, akin to its predecessor, the Air Knight Cho-Z Layer.",
     price: 520,
     pcs: "1",
@@ -261,7 +261,7 @@ const products = [
   },
   {
     id: 11,
-    name: "Gatling Dragon",
+    name: "Gatling Dragon(pre-order)",
     description: "Flame brand Gatling Dragon Rapid Charge' Metal-10",
     price: 520,
     pcs: "4",
@@ -271,7 +271,7 @@ const products = [
 
   {
     id: 12,
-    name: "Imperial Dragon",
+    name: "Imperial Dragon(pre-order)",
     description: "Flame brand Imperial Dragon Ignition'",
     price: 500,
     image:
@@ -279,7 +279,7 @@ const products = [
   },
   {
     id: 13,
-    name: "Ultimate Valkyrie",
+    name: "Ultimate Valkyrie(pre-order)",
     description: "Flame brand Ultimate Valkyrie Legacy Variable'-9",
     price: 500,
     pcs: "3",
@@ -288,7 +288,7 @@ const products = [
   },
   {
     id: 13.5,
-    name: "Vanish Fafnir",
+    name: "Vanish Fafnir(pre-order)",
     description: "Full rubber Vanish Fafnir Tapered Kick-3",
     price: 500,
     pcs: "2",
