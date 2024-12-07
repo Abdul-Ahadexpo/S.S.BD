@@ -249,7 +249,7 @@
             return acc;
           }, {})
         ).map(item => {
-          return `${item.quantity}ta ${item.name}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
+          return `${item.quantity}ta \n${item.name}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
         }).join("\n\n")
         ,
       };
