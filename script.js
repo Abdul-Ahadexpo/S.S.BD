@@ -28,7 +28,7 @@ const products = [
     name: "Shark Edge 3-60LF",
     description:
       "Shark Edge Three Sixty Low Flat) is an Attack Type Beyblade released by Takara Tomy. It was released in Japan on September 9th, 2023 for 1400円 as the prize Beyblade in Random Booster Vol. 1.",
-    price: 400,
+    price: 450,
     pcs: 2,
     image:
       "https://beyblade-shop.com/cdn/shop/files/Shark-Edge-3-60LF-Beyblade-Shop_1200x1200.jpg?v=1692305996",
