@@ -65,7 +65,7 @@ const products = [
   },
   {
     id: 2.3,
-    name: "Cobalt Drake 4-60F",
+    name: "Cobalt Drake 4-60T",
     description:
       "Cobalt Drake is a four-sided Attack Type Blade with four upward slanting blades acting as the main contact points. The blades are similar to those of Dran Sword, albeit smaller in size.",
     price: 450,
