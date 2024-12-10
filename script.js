@@ -10,7 +10,7 @@ const products = [
   price: 180,
   pcs: "∞",
   image: "https://thebeyverse.com/cdn/shop/products/6C495ED9-94FD-43FD-A2D2-1630AD50E3E8.jpg?v=1680825615",
-}
+},
 
   {
     id: 2.1,
