@@ -5,9 +5,9 @@ let cart = [];
 const products = [
 {
   id: 92.12,
-  name: "180TK Beyblade X Mystery Box",
+  name: "280TK Beyblade X Mystery Box",
   description: "An exciting mystery box filled with Beyblade X surprises worth more than the price you pay!",
-  price: 180,
+  price: 280,
   pcs: "∞",
   image: "https://thebeyverse.com/cdn/shop/products/6C495ED9-94FD-43FD-A2D2-1630AD50E3E8.jpg?v=1680825615",
 },
