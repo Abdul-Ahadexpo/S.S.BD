@@ -206,7 +206,7 @@ const products = [
     price: 2900,
     pcs: "Pre-order",
     image:
-      "https://th.bing.com/th/id/OIP.vUV_FV_GZ6PIu6fTbTyD7gHaHa?w=1280&h=1280&rs=1&pid=ImgDetMain",
+      "https://th.bing.com/th/id/OIP.iDwuU32BFuQq98OZXQmjbgHaHa?w=1280&h=1280&rs=1&pid=ImgDetMain",
   },
   {
     id: 1.9,
