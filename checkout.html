@@ -7,7 +7,7 @@
   <title>Checkout</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/daisyui@1.20.0/dist/full.css" rel="stylesheet">
-  <link rel="icon" sizes="180x180" type="image/x-icon" href="./ttg.png">
+  <link rel="icon" sizes="180x180" type="image/x-icon" href="./tt.jpg">
 </head>
 
 <body class="bg-gray-900 text-white p-6">
@@ -20,6 +20,7 @@
     <div id="user-info" class="mb-6">
       <h2 class="text-xl font-semibold mb-4">Enter Your Information</h2>
       <form id="info-form" class="space-y-4" onsubmit="handleSubmit(event)">
+
         <div>
           <label for="name" class="label">Name:</label>
           <input placeholder="Your name.." type="text" id="name"
@@ -37,7 +38,7 @@
           <input placeholder="City, Area, House, etc..." type="text" id="address"
             class="input input-bordered w-full bg-gray-700 text-white" required>
         </div>
-        
+
         <div>
           <label for="email" class="label">Email:</label>
           <input placeholder="spam@gmail.com..." type="email" id="email"
@@ -55,7 +56,8 @@
           <input type="text" id="c_code" class="input input-bordered w-full bg-gray-700 text-white">
         </div>
 
-         <button type="submit" class="btn-53">
+
+        <button type="submit" class="btn-53">
           <div class="original">ORDER</div>
           <div class="letters">
 
@@ -183,150 +185,192 @@
 
     <div id="checkout-details" class="mb-6"></div>
   </div>
+
   <div id="notification"
     class="fixed bottom-3/4 right-5 hidden bg-black border-solid border-2 border-green-400 text-white p-4 rounded-lg shadow-lg z-50">
   </div>
 
-  <script>
-    document.documentElement.setAttribute("data-theme", "dark");
 
-    let cart = JSON.parse(localStorage.getItem("cart")) || []; // Load the cart from localStorage
-    const delivery = 110; // Same delivery fee
-
-    function loadCheckout() {
-      const checkoutDetails = document.getElementById("checkout-details");
-      if (cart.length === 0) {
-        checkoutDetails.innerHTML = "<p>Your cart is empty.</p>";
-      } else {
-        const totalPriceWithoutDelivery = cart.reduce((total, item) => {
-          const discount = calculateDiscount(item.quantity || 1, item.price);
-          return total + (item.price * (item.quantity || 1) - discount);
-        }, 0);
-        const totalPrice = totalPriceWithoutDelivery + delivery; // Add delivery fee only once
-
-        checkoutDetails.innerHTML =
-          cart
-            .map((item) => {
-              const discount = calculateDiscount(item.quantity || 1, item.price);
-              return `
-                            <div class="border p-4 rounded-lg mb-4 bg-gray-700">
-                                <h3 class="font-semibold">${item.name} (Quantity: ${item.quantity || 1})</h3>
-                                <p>Price: BDT ${item.price.toFixed(2)}</p>
-                                <p>Discount: BDT ${discount.toFixed(2)}</p>
-                            </div>`;
-            })
-            .join("") +
-          `<p class="font-bold text-lg">Total (including delivery): BDT ${totalPrice.toFixed(2)}</p>`;
-      }
-    }
-
-    async function handleSubmit(event) {
-      event.preventDefault(); // Prevent the default form submission
-
-     
-      // Get user information
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
-      const address = document.getElementById("address").value;
-      const email = document.getElementById("email").value;
-      const c_code = document.getElementById("c_code").value;
-      const msgs = document.getElementById("msgs").value;
-
-      // Check if all fields are filled
-      if (!name || !phone || !address || !email) {
-        alert("Please fill out all fields.");
-        return;
-      }
-
-      // Prepare the data to be sent
-      const formData = {
-        access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
-        Coupon_code: c_code,
-        message: msgs,
-        name: name,
-        phone: phone,
-        address: address,
-        email: email,
-        cartItems: Object.values(
-          cart.reduce((acc, item) => {
-            if (acc[item.name]) {
-              acc[item.name].quantity += item.quantity || 1;
-              acc[item.name].totalPrice += item.price * (item.quantity || 1);
-            } else {
-              acc[item.name] = {
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity || 1,
-                totalPrice: item.price * (item.quantity || 1),
-              };
-            }
-            return acc;
-          }, {})
-        ).map(item => {
-          return `${item.quantity}ta \n${item.name}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
-        }).join("\n\n")
-        ,
-      };
-
-
-
-
-      
-
-      // Send the data to the specified API
-      try {
-        const response = await fetch("https://api.web3forms.com/submit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
-
-        if (response.ok) {
-          showNotification(`Thank you for your order, ${name}! It has been confirmed.`);
-          // Optionally, clear the cart
-          localStorage.removeItem("cart");
-          cart = [];
-          loadCheckout();
-        }
-        else {
-          throw new Error("Failed to submit the form.");
-        }
-      } catch (error) {
-        alert(error.message);
-      }
-    }
-    function showNotification(message) {
-      const notification = document.getElementById("notification");
-      notification.textContent = message;
-      notification.classList.remove("hidden");
-
-      // Automatically hide the notification after 3 seconds
-      setTimeout(() => {
-        notification.classList.add("hidden");
-      }, 3000);
-    }
-
-    function calculateDiscount(quantity, price) {
-      let discountPercentage = 0;
-
-      // Find the appropriate discount based on quantity
-      for (let i = discountConfig.length - 1; i >= 0; i--) {
-        if (quantity >= discountConfig[i].quantity) {
-          discountPercentage = discountConfig[i].discount;
-          break;
-        }
-      }
-
-      return price * discountPercentage;
-    }
-
-    // Load checkout details when the page is loaded
-    window.onload = function () {
-      loadCheckout(); // Load the checkout details
-    };
-  </script>
 </body>
+
+
+
+<script>
+  document.documentElement.setAttribute("data-theme", "dark");
+
+  let cart = JSON.parse(localStorage.getItem("cart")) || []; // Load the cart from localStorage
+  const delivery = 120; // Same delivery fee
+
+
+
+  // Function to display cart items as cards
+  function displayCartItems() {
+    const cartContainer = document.getElementById("checkout-details");
+
+    // Retrieve and parse the cart data from local storage
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    // Clear previous content
+    cartContainer.innerHTML = "";
+
+    // Check if the cart is empty
+    if (cart.length === 0) {
+      cartContainer.innerHTML = "<p>Your cart is empty. 🛒</p>";
+      return;
+    }
+
+    // Generate cards for each item
+    cart.forEach((item) => {
+      const card = `
+
+<div class="card border border-gray-800 rounded-lg p-4 shadow-lg mb-4 flex items-center bg-gray-900">
+  <img src="${item.image}" alt="${item.name}" class="w-24 h-24 mr-4 rounded-md border border-gray-700">
+  <div class="text-gray-300">
+    <h2 class="text-lg font-semibold text-white mb-2">${item.name}</h2>
+
+    <p class="text-sm text-gray-400 mb-1">Quantity: <span class="font-medium">${item.quantity}</span></p>
+
+    <p class="text-sm font-bold text-gray-300 mb-1">Price: <span class="text-green-400">${item.price}TK</span></p>
+
+    <p class="text-sm font-bold text-gray-300 mb-1">Delivery: <span class="text-blue-400">${delivery}TK</span></p>
+
+    <p class="text-sm font-bold text-gray-200 mt-2">Total: 
+      <span class="text-purple-400">${item.price * item.quantity + delivery}TK</span>
+    </p>
+  </div>
+</div>
+
+    `;
+      cartContainer.innerHTML += card;
+    });
+  }
+
+  // Call the function to render the items
+  displayCartItems();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  async function handleSubmit(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    // Get user information
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+    const address = document.getElementById("address").value;
+    const email = document.getElementById("email").value;
+    const c_code = document.getElementById("c_code").value;
+    const msgs = document.getElementById("msgs").value;
+
+    // Check if all fields are filled
+    if (!name || !phone || !address || !email) {
+      alert("Please fill out all fields.");
+      return;
+    }
+
+    // Prepare the data to be sent
+    const formData = {
+      access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
+      Coupon_code: c_code,
+      message: msgs,
+      name: name,
+      phone: phone,
+      address: address,
+      email: email,
+      cartItems: Object.values(
+        cart.reduce((acc, item) => {
+          if (acc[item.name]) {
+            acc[item.name].quantity += item.quantity || 1;
+            acc[item.name].totalPrice += item.price * (item.quantity || 1);
+          } else {
+            acc[item.name] = {
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity || 1,
+              totalPrice: item.price * (item.quantity || 1),
+            };
+          }
+          return acc;
+        }, {})
+      ).map(item => {
+        return `${item.quantity}ta \n${item.name}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
+      }).join("\n\n")
+      ,
+    };
+
+
+
+
+
+
+    // Send the data to the specified API
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        showNotification(`Thank you for your order, ${name}! It has been confirmed.`);
+        // Optionally, clear the cart
+        localStorage.removeItem("cart");
+        cart = [];
+
+        // Call displayCartItems to refresh the checkout view
+        displayCartItems();  // ✅ Refresh checkout items after order confirmation
+      }
+
+      else {
+        throw new Error("Failed to submit the form.");
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  function showNotification(message) {
+    const notification = document.getElementById("notification");
+    notification.textContent = message;
+    notification.classList.remove("hidden");
+
+    setTimeout(() => {
+      notification.classList.add("hidden");
+    }, 3000); // Notification disappears after 5 seconds
+  }
+
+
+  function calculateDiscount(quantity, price) {
+    let discountPercentage = 0;
+
+    // Find the appropriate discount based on quantity
+    for (let i = discountConfig.length - 1; i >= 0; i--) {
+      if (quantity >= discountConfig[i].quantity) {
+        discountPercentage = discountConfig[i].discount;
+        break;
+      }
+    }
+
+    return price * discountPercentage;
+  }
+
+  // Load checkout details when the page is loaded
+  window.onload = function () {
+
+
+  };
+</script>
 
 </html>
