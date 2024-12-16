@@ -41,14 +41,19 @@
         </div>
 
         <div>
-          <label for="email" class="label">Send total BDT to this Number (01722786111) and give your transaction
+          <label for="email" class="label">Send the total BDT to this Number (01722786111) and give your transaction
             number here:
           </label>
           <input type="text" id="money" class="input input-bordered w-full bg-gray-700 text-white" required
             placeholder="If you don't send the money, your order will not be confirmed">
         </div>
 
-
+      <div>
+          <label for="msg" class="label">Write a message:</label>
+          <input type="text" placeholder="Like The color of the product, etc" id="msgs"
+            class="input input-bordered w-full bg-gray-700 text-white">
+        </div>
+        
         <div>
           <label for="c_code" class="label">Coupon code (If you have any):</label>
           <input type="text" id="c_code" class="input input-bordered w-full bg-gray-700 text-white">
@@ -225,7 +230,8 @@
       const address = document.getElementById("address").value;
       const email = document.getElementById("email").value;
       const c_code = document.getElementById("c_code").value;
-
+      const money = document.getElementById("money").value;
+   const msgs = document.getElementById("msgs").value;
       const money = document.getElementById("money").value;
 
       // Check if all fields are filled
@@ -238,17 +244,34 @@
       const formData = {
         access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
         Coupon_code: c_code,
+           message: msgs,
+        tranx_id: money,
         name: name,
         phone: phone,
         address: address,
         email: email,
         money: money,
-        cartItems: cart.map(item => {
-          const totalPrice = (item.price * (item.quantity || 1)).toFixed(2);
-          return `${item.quantity || 1}x ${item.name} - BDT ${item.price} - Total: BDT ${totalPrice}`;
-        }).join(", ")
+   cartItems: Object.values(
+          cart.reduce((acc, item) => {
+            if (acc[item.name]) {
+              acc[item.name].quantity += item.quantity || 1;
+              acc[item.name].totalPrice += item.price * (item.quantity || 1);
+            } else {
+              acc[item.name] = {
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity || 1,
+                totalPrice: item.price * (item.quantity || 1),
+              };
+            }
+            return acc;
+          }, {})
+        ).map(item => {
+          return `${item.quantity}ta \n${item.name}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
+        }).join("\n\n")
         ,
       };
+
 
       // Send the data to the specified API
       try {
