@@ -18,7 +18,7 @@ const products = [
     description:
       "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
     price: 400,
-    pcs: 69,
+    pcs: 61,
     image:
       "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
   },
@@ -34,11 +34,11 @@ const products = [
   },
   {
     id: 2.4,
-    name: "Weiss Tiger 3-60U(pre-order)",
+    name: "Weiss Tiger 3-60U",
     description:
       "<b>Weiss Tiger</b> is a Balance Type Blade with three different sets of three types of blades. The three types of blades are the Attack Type <b>Upper Blades</b>, the Defense Type Damper Blades, and the Stamina Type <b>Smash Blades</b>.",
     price: 400,
-    pcs: 53,
+    pcs: 50,
     image:
       "https://th.bing.com/th/id/OIP.LX-pjn8-PzrjcHWl_QSipwHaG9?rs=1&pid=ImgDetMain",
   },
