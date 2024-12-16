@@ -23,6 +23,16 @@ const products = [
       "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
   },
   {
+    id: 2.31,
+    name: "SB Brand Bey X Left String Launcher",
+    description:
+      "Models: String launcher<br>Brand: SB brand <br> Package include: Launcher only",
+    price: 400,
+    pcs:9,
+    image:
+      "https://ae01.alicdn.com/kf/S287b82f604874630a3ceb08de1a04111M/SB-Brand-Bey-X-Left-String-Launcher-BX-Spinning-Tops-Toys-Gift-for-Children.jpg_640x640.jpg",
+  },
+  {
     id: 2.4,
     name: "Weiss Tiger 3-60U(pre-order)",
     description:
