@@ -413,7 +413,7 @@ function showNotification(message) {
   notification.classList.remove("hidden");
   setTimeout(() => {
     notification.classList.add("hidden");
-  }, 5000); // Hide after 5 seconds
+  }, 1000); // Hide after 1 seconds
 }
 
 // Function to calculate the discount based on quantity
