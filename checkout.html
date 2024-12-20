@@ -7,7 +7,7 @@
   <title>Checkout</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/daisyui@1.20.0/dist/full.css" rel="stylesheet">
-   <link rel="icon" sizes="180x180" type="image/x-icon" href="./ttg.png">
+  <link rel="icon" sizes="180x180" type="image/x-icon" href="./tt.jpg">
 </head>
 
 
@@ -56,9 +56,28 @@
         </div>
 
         <div>
-          <label for="email" class="label">Coupon code(If you have any):</label>
+          <label for="c_code" class="label">Coupon code (If you have any):</label>
           <input type="text" id="c_code" class="input input-bordered w-full bg-gray-700 text-white">
         </div>
+
+        <script>
+          // Check if there is a coupon code saved in localStorage
+          const savedCoupon = localStorage.getItem("usedCoupons");
+          if (savedCoupon) {
+            document.getElementById("c_code").value = savedCoupon;
+            localStorage.setItem("usedCoupons_" + savedCoupon, savedCoupon);
+            localStorage.removeItem("usedCoupons");
+          }
+
+          // Prevent the used coupon from being used again
+          document.getElementById("c_code").addEventListener("input", function () {
+            const inputCoupon = this.value;
+            if (localStorage.getItem("usedCoupons_" + inputCoupon)) {
+              alert("This coupon code has already been used.");
+              this.value = "";
+            }
+          });
+        </script>
 
 
         <button type="submit" class="btn-53">
