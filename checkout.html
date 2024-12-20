@@ -10,6 +10,10 @@
   <link rel="icon" sizes="180x180" type="image/x-icon" href="./tt.jpg">
 </head>
 
+
+
+
+
 <body class="bg-gray-900 text-white p-6">
   <div id="checkout-page" class="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
     <h1 class="text-2xl font-bold text-center mb-6">Checkout</h1>
@@ -60,7 +64,6 @@
         <button type="submit" class="btn-53">
           <div class="original">ORDER</div>
           <div class="letters">
-
             <span>C</span>
             <span>O</span>
             <span>N</span>
@@ -70,6 +73,8 @@
             <span>M</span>
           </div>
         </button>
+
+
         <style>
           .btn-53,
           .btn-53 *,
@@ -180,6 +185,7 @@
             transition-delay: 0.5s;
           }
         </style>
+
       </form>
     </div>
 
@@ -199,6 +205,17 @@
 
 
 </body>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -222,9 +239,10 @@
 
     // Check if the cart is empty
     if (cart.length === 0) {
-      cartContainer.innerHTML = "<p>Your cart is empty. 🛒</p>";
+      cartContainer.innerHTML = "<p>Your cart is empty. 🛒</p> <a href='./index.html' class='underline text-blue-200 font-mono'>Please ADD To Cart</a>";
       return;
     }
+
 
     // Generate cards for each item
     cart.forEach((item) => {
@@ -270,11 +288,9 @@
       In Stock ✅
     </span>
 
-
-
+    
 <button onclick="removeFromCart(${item.id
         })" class="btn btn-outline mt-4 btn-error btn-sm md:btn-md">Remove</button>
-    
 
   </div>
 
@@ -290,17 +306,7 @@
   displayCartItems();
 
 
-
-
-
-
-
-
-
-
-
-
-
+  // Function to handle form submission
 
   async function handleSubmit(event) {
     event.preventDefault(); // Prevent the default form submission
@@ -318,6 +324,15 @@
       alert("Please fill out all fields.");
       return;
     }
+
+    // Check if the cart is empty
+    if (cart.length === 0) {
+      if (confirm("Your cart is empty. Would you like to go to the home page to add items?")) {
+        window.location.href = "./index.html";
+      }
+      return;
+    }
+
 
     // Prepare the data to be sent
     const formData = {
@@ -348,10 +363,6 @@
       }).join("\n\n")
       ,
     };
-
-
-
-
 
 
     // Send the data to the specified API
@@ -408,7 +419,6 @@
   }
 
 
-
   // Function to remove an item from the cart
   function removeFromCart(productId) {
     cart = cart.filter((item) => item.id !== productId);
@@ -417,7 +427,7 @@
   }
 
 
-  
+
   // Load checkout details when the page is loaded
   window.onload = function () {
 
