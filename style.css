@@ -40,6 +40,9 @@ img {
 #ppd {
   border: 2px solid rgb(91, 255, 70);
 }
+.addtoct {
+  display: none;
+}
 /* card body */
 .fb {
   position: relative;
@@ -172,11 +175,20 @@ h2 {
   height: 150px;
   margin-top: 180px;
   background-image: url(https://th.bing.com/th/id/OIP.dvw1pjAjWELzEe1CioG1uAHaEK?rs=1&pid=ImgDetMain);
-  background-size: contain;
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   position: relative; /* Needed to position the close button */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+#ads:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
 /* -----------------ADS */
 .close-btn {
   position: absolute;
@@ -186,9 +198,10 @@ h2 {
   font-weight: bold;
   color: rgb(165, 165, 165);
   cursor: pointer;
-  background-color: rgba(0, 0, 0, 0.411);
+  background-color: rgba(0, 0, 0, 0.5);
   border-radius: 50%;
   padding: 2px 6px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .close-btn:hover {
@@ -241,18 +254,11 @@ h2 {
     display: none;
   }
 }
-
+/* </style> */
 
 .hidden {
   display: none;
 }
-
-
-
-
-
-
-
 
 [data-theme="dark"] {
   color: white;
@@ -264,17 +270,6 @@ body {
   padding: 0;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 .notification {
   position: fixed;
@@ -335,4 +330,3 @@ body {
   color: #ffeb3b;
   text-decoration: underline;
 }
-
