@@ -270,6 +270,12 @@
       In Stock ✅
     </span>
 
+
+
+<button onclick="removeFromCart(${item.id
+        })" class="btn btn-outline mt-4 btn-error btn-sm md:btn-md">Remove</button>
+    
+
   </div>
 
 </div>
@@ -401,6 +407,17 @@
     return price * discountPercentage;
   }
 
+
+
+  // Function to remove an item from the cart
+  function removeFromCart(productId) {
+    cart = cart.filter((item) => item.id !== productId);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    displayCartItems();
+  }
+
+
+  
   // Load checkout details when the page is loaded
   window.onload = function () {
 
