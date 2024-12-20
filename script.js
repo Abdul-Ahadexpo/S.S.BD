@@ -418,7 +418,7 @@ function showNotification(message) {
   notification.classList.remove("hidden");
   setTimeout(() => {
     notification.classList.add("hidden");
-  }, 2000); // Hide after 2 seconds
+  }, 3000); // Hide after 2 seconds
 }
 
 // Function to calculate the discount based on quantity
@@ -571,7 +571,7 @@ function loadCart() {
           `🎉 ${
             couponDiscount * 100
           }% discount applied! You saved ${discountAmount.toFixed(2)}TK . 
-          Please use it in Checkout 🛒`
+          Please "You must" use it in Checkout 🛒`
         );
       }
 
