@@ -241,19 +241,7 @@ h2 {
     display: none;
   }
 }
-/* </style> */
-.notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 15px;
-  background-color: #131313;
-  color: white;
-  border-radius: 25px;
-  border: 2px solid greenyellow;
-  z-index: 1000;
-  transition: opacity 0.5s ease;
-}
+
 
 .hidden {
   display: none;
@@ -276,3 +264,75 @@ body {
   padding: 0;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px;
+  background-color: #131313;
+  color: white;
+  border-radius: 25px;
+  border: 2px solid greenyellow;
+  z-index: 1000;
+  transition: opacity 0.5s ease;
+}
+
+/* Notification container */
+#notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  background: linear-gradient(to right, #00140e, #004b92);
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  font-family: "Arial", sans-serif;
+  font-size: 16px;
+  transform: translateX(100%);
+  animation: slideIn 0.5s forwards;
+  opacity: 0;
+}
+
+/* Animation for sliding in */
+@keyframes slideIn {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Hidden state for when it's invisible */
+#notification.hidden {
+  display: none;
+}
+
+/* Hover effect for the link */
+#notification a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+#notification a:hover {
+  color: #ffeb3b;
+  text-decoration: underline;
+}
+
