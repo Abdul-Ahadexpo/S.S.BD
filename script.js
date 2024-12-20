@@ -403,17 +403,22 @@ function addToCart(productId) {
     product.quantity = 1; // Initialize quantity to 1
     cart.push(product);
     localStorage.setItem("cart", JSON.stringify(cart));
-    showNotification(`1. ${product.name} has been added to your cart!`);
+    showNotification(
+      `<a href="./cart.html">
+        1. ${product.name} has been added to your cart!
+      </a>`
+    );
   }
 }
-// Popup u added a product to your cart
+
+// Popup you added a product to your cart
 function showNotification(message) {
   const notification = document.getElementById("notification");
-  notification.textContent = message;
+  notification.innerHTML = message; // Use innerHTML instead of textContent
   notification.classList.remove("hidden");
   setTimeout(() => {
     notification.classList.add("hidden");
-  }, 1000); // Hide after 1 seconds
+  }, 2000); // Hide after 2 seconds
 }
 
 // Function to calculate the discount based on quantity
