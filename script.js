@@ -462,9 +462,9 @@ function loadCart() {
       cart
         .map((item) => {
           const discount = calculateDiscount(item.quantity || 1, item.price);
-          return `
-            <div class="flex flex-col md:flex-row justify-between items-center border-b py-4 shadow-sm rounded-md">
-              <div class="w-24 h-24 md:w-32 md:h-32">
+         return `
+             <div class="flex flex-col md:flex-row justify-between items-center border-b py-4 shadow-lg rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <div class="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-lg">
                 <img class="w-full h-full object-cover rounded-md" src="${
                   item.image
                 }" alt="${item.name}" />
@@ -480,7 +480,9 @@ function loadCart() {
             <p class="text-sm font-normal mb-0 text-gray-300">
     Stock: <i><span class="text-red-100">${item.pcs}</span>.</i>
     </p>
-                <p class="text-sm text-gray-300">Price: <span class="text-blue-100"> ${item.price.toFixed(2)}TK</span></p>
+                <p class="text-sm text-gray-300">Price: <span class="text-blue-100"> ${item.price.toFixed(
+                  2
+                )}TK</span></p>
                 <p class="text-sm text-gray-300">Discount: <span class="text-green-400"> ${discount.toFixed(
                   2
                 )}TK</span></p>
@@ -499,11 +501,24 @@ function loadCart() {
         })
         .join("") +
       `
+      
       <!-- Coupon Section -->
-      <div id="coupon-section" class="mt-6">
-        <input type="text" id="coupon-code" placeholder="Enter your coupon code" class="input input-bordered input-success w-full max-w-xs" />
-        <button id="apply-coupon" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-2">Apply Discount</button>
-      </div>
+<div id="coupon-section" class="mt-6 bg-gradient-to-r from-pink-200 to-blue-200 p-6 rounded-xl shadow-lg flex flex-col items-center space-y-4">
+  <input 
+    type="text" 
+    id="coupon-code" 
+    placeholder="Enter your coupon code..." 
+    class="input input-bordered input-success w-full max-w-xs text-center text-pink-700 bg-white focus:outline-none focus:ring-4 focus:ring-blue-300" 
+  />
+  <button 
+    id="apply-coupon" 
+    class="btn btn-info w-full max-w-xs hover:bg-blue-700 transition-colors duration-300"
+  >
+    Apply Discount
+  </button>
+</div>
+
+
       <!-- Total Price -->
       <p id="total-cost" class="font-bold text-lg mt-4">Total: ${totalPrice.toFixed(
         2
