@@ -18,17 +18,17 @@ const products = [
     description:
       "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
     price: 400,
-    pcs: 61,
+    pcs: 58,
     image:
       "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
   },
   {
     id: 2.31,
-    name: "SB Brand Bey X Left String Launcher",
+    name: "SB Brand Bey X Left String Launcher (Pre-Order)",
     description:
       "Models: String launcher<br>Brand: SB brand <br> Package include: Launcher only",
     price: 400,
-    pcs:9,
+    pcs:0,
     image:
       "https://ae01.alicdn.com/kf/S287b82f604874630a3ceb08de1a04111M/SB-Brand-Bey-X-Left-String-Launcher-BX-Spinning-Tops-Toys-Gift-for-Children.jpg_640x640.jpg",
   },
@@ -67,7 +67,7 @@ const products = [
     name: "Phoenix Wing 9-60GF (Pre-Order)",
     description: `Soar Phoenix (Japanese: PhoenixWing) is a three-sided Attack Type Blade with three blades acting as the main contact points.`,
     price: 400,
-    pcs: 3,
+    pcs: 0,
     image:
       "https://th.bing.com/th/id/OIP.7Vlwn3_Ru7iwhjRfTEPWIAHaGg?rs=1&pid=ImgDetMai",
   },
@@ -105,11 +105,11 @@ const products = [
   },
   {
     id: 4,
-    name: "Hells Chain 5-60HT (BX-21) (Pre-Order)",
+    name: "Hells Chain 5-60HT (BX-21)(Black)",
     description:
       "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T<br><i>It will take 15-25 days<br> to be delivered</i>",
     price: 350,
-    pcs: 11,
+    pcs: 1,
     image:
       "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/2127/9339/BX-21-HC-TT_copy__53930.1700174025.jpg?c=2",
   },
@@ -119,7 +119,7 @@ const products = [
     description:
       "Dagger Dran (Japanese: DranDagger) is an Attack Type Blade with six small blades acting as the main contact points.",
     price: 400,
-    pcs: 2,
+    pcs: 1,
     image:
       "https://th.bing.com/th/id/OIP.AVUEtziRnBOUYX7G-teWbQHaHu?rs=1&pid=ImgDetMain",
   },
@@ -129,7 +129,7 @@ const products = [
     description:
       "Arrow Wizard (Japanese: WizardArrow) is a round Stamina Type Blade with two large blades acting as the main contact points.",
     price: 300,
-    pcs: 9,
+    pcs: 1,
     image:
       "https://img4.dhresource.com/webp/m/0x0/f3/albu/km/o/14/e42c932b-7a4c-4bd7-b639-55b94642ac3d.jpg",
   },
