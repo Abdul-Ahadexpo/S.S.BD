@@ -115,11 +115,11 @@ const products = [
   },
   {
     id: 9,
-    name: "Dran Dagger 4-60R",
+    name: "Dran Dagger 4-60R(Pre-Order)",
     description:
       "Dagger Dran (Japanese: DranDagger) is an Attack Type Blade with six small blades acting as the main contact points.",
     price: 400,
-    pcs: 1,
+    pcs: 0,
     image:
       "https://th.bing.com/th/id/OIP.AVUEtziRnBOUYX7G-teWbQHaHu?rs=1&pid=ImgDetMain",
   },
