@@ -7,7 +7,7 @@
   <title>Checkout</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/daisyui@1.20.0/dist/full.css" rel="stylesheet">
-   <link rel="icon" sizes="180x180" type="image/x-icon" href="./ttg.png">
+  <link rel="icon" sizes="180x180" type="image/x-icon" href="./tt.jpg">
 </head>
 
 
@@ -355,7 +355,7 @@
 
     // Prepare the data to be sent
     const formData = {
-     access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
+      access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
       Coupon_code: c_code,
       message: msgs,
       name: name,
@@ -386,12 +386,12 @@
 
     // Send the data to the specified API
     try {
-       const response = await fetch("https://api.web3forms.com/submit", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(formData),
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
