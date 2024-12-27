@@ -1,0 +1,111 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* Chat Box */
+#chat_box {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 300px;
+  height: 400px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  display: none;
+  flex-direction: column;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Chat Header */
+#chat_box > div:first-child {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Chat Content */
+#chat_content {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+/* Chat Input Container */
+#chat_input_container {
+  padding: 10px;
+  border-top: 1px solid #ccc;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  background-color: #fff;
+}
+
+/* Input Fields */
+#chat_input,
+#name_input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* Buttons */
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Send and Set Name Buttons */
+button:nth-child(2),
+button:nth-child(4) {
+  background-color: #007bff;
+  color: white;
+}
+
+button:nth-child(2):hover,
+button:nth-child(4):hover {
+  background-color: #0056b3;
+}
+
+/* Logout Button */
+#chat_logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+#chat_logout:hover {
+  background-color: #cc0000;
+}
+
+/* Messages */
+#chat_content div {
+  margin-bottom: 10px;
+}
+
+#chat_content strong {
+  font-weight: bold;
+}
+
+#chat_content span {
+  color: #555;
+}
