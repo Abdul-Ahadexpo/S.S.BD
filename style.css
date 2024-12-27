@@ -330,3 +330,139 @@ body {
   color: #ffeb3b;
   text-decoration: underline;
 }
+
+
+/* ================================================================================================================================================================================================================================================================================================================ */
+/* ================================================================================================================================================================================================================================================================================================================ */
+/* ================================================================================================================================================================================================================================================================================================================ */
+/* ================================================================================================================================================================================================================================================================================================================ */
+/* General Chat Box Styles */
+#chat_box_unique {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 350px;
+  height: 500px;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  border: none;
+  display: none;
+  flex-direction: column;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* Chat Header Styles */
+#chat_header_unique {
+  padding: 15px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* Chat Content Styles */
+#chat_content_unique {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+/* Chat Input Container */
+#chat_input_container_unique {
+  padding: 15px;
+  border-top: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+/* Input Fields */
+#chat_input_unique,
+#name_input_unique {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: black;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+#chat_input_unique:focus,
+#name_input_unique:focus {
+  border-color: #007bff;
+}
+
+/* Buttons */
+#chat_send_unique,
+#set_name_button_unique,
+#chat_logout_unique {
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Send Button */
+#chat_send_unique {
+  background-color: #007bff;
+  color: rgb(0, 0, 0);
+}
+
+#chat_send_unique:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Set Name Button */
+#set_name_button_unique {
+  background-color: #007bff;
+  color: rgb(255, 255, 255);
+  margin-bottom: 10px;
+}
+
+#set_name_button_unique:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Logout Button */
+#chat_logout_unique {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+#chat_logout_unique:hover {
+  background-color: #cc0000;
+  transform: scale(1.05);
+}
+
+/* Message Container */
+[id^="message_container_"] {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+[id^="message_user_"] {
+  font-weight: bold;
+  color: #333;
+}
+
+[id^="message_content_"] {
+  color: #555;
+}
+
