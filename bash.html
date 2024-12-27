@@ -223,6 +223,7 @@
 
 
 
+
 <script>
   document.documentElement.setAttribute("data-theme", "dark");
 
@@ -310,101 +311,136 @@
   displayCartItems();
 
 
-    async function handleSubmit(event) {
-      event.preventDefault(); // Prevent the default form submission
+  // Function to handle form submission
 
-      // Get user information
-      const name = document.getElementById("name").value;
-      const phone = document.getElementById("phone").value;
-      const address = document.getElementById("address").value;
-      const email = document.getElementById("email").value;
-      const c_code = document.getElementById("c_code").value;
-      const money = document.getElementById("money").value;
-   const msgs = document.getElementById("msgs").value;
-      const money = document.getElementById("money").value;
+  async function handleSubmit(event) {
+    event.preventDefault(); // Prevent the default form submission
 
-      // Check if all fields are filled
-      if (!name || !phone || !address || !email || !money) {
-        alert("Please fill out all fields.");
-        return;
-      }
+    // Get user information
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+    const address = document.getElementById("address").value;
+    const email = document.getElementById("email").value;
+    const c_code = document.getElementById("c_code").value;
+    const msgs = document.getElementById("msgs").value;
+     const money = document.getElementById("money").value;
 
-      // Prepare the data to be sent
-      const formData = {
-        access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
-        Coupon_code: c_code,
-           message: msgs,
-        tranx_id: money,
-        name: name,
-        phone: phone,
-        address: address,
-        email: email,
-        money: money,
-   cartItems: Object.values(
-          cart.reduce((acc, item) => {
-            if (acc[item.name]) {
-              acc[item.name].quantity += item.quantity || 1;
-              acc[item.name].totalPrice += item.price * (item.quantity || 1);
-            } else {
-              acc[item.name] = {
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity || 1,
-                totalPrice: item.price * (item.quantity || 1),
-              };
-            }
-            return acc;
-          }, {})
-        ).map(item => {
-          return `${item.quantity}ta \n${item.name}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
-        }).join("\n\n")
-        ,
-      };
-
-
-      // Send the data to the specified API
-      try {
-        const response = await fetch("https://api.web3forms.com/submit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
-
-        if (response.ok) {
-          alert(`Thank you for your order, ${name}! It has been confirmed.`);
-          // Optionally, clear the cart
-          localStorage.removeItem("cart");
-          cart = [];
-          loadCheckout();
-        } else {
-          throw new Error("Failed to submit the form.");
-        }
-      } catch (error) {
-        alert(error.message);
-      }
+    // Check if all fields are filled
+    if (!name || !phone || !address || !email || !money) {
+      alert("Please fill out all fields.");
+      return;
     }
 
-    function calculateDiscount(quantity, price) {
-      let discountPercentage = 0;
-
-      // Find the appropriate discount based on quantity
-      for (let i = discountConfig.length - 1; i >= 0; i--) {
-        if (quantity >= discountConfig[i].quantity) {
-          discountPercentage = discountConfig[i].discount;
-          break;
-        }
+    // Check if the cart is empty
+    if (cart.length === 0) {
+      if (confirm("Your cart is empty. Would you like to go to the home page to add items?")) {
+        window.location.href = "./index.html";
       }
-
-      return price * discountPercentage;
+      return;
     }
 
-    // Load checkout details when the page is loaded
-    window.onload = function () {
-      loadCheckout(); // Load the checkout details
+
+    // Prepare the data to be sent
+    const formData = {
+      access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
+      Coupon_code: c_code,
+      message: msgs,
+       money: money,
+      name: name,
+      phone: phone,
+      address: address,
+      email: email,
+      cartItems: Object.values(
+        cart.reduce((acc, item) => {
+          if (acc[item.name]) {
+            acc[item.name].quantity += item.quantity || 1;
+            acc[item.name].totalPrice += item.price * (item.quantity || 1);
+          } else {
+            acc[item.name] = {
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity || 1,
+              totalPrice: item.price * (item.quantity || 1),
+            };
+          }
+          return acc;
+        }, {})
+      ).map(item => {
+        return `${item.quantity}ta \n${item.name}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
+      }).join("\n\n")
+      ,
     };
-  </script>
+
+
+    // Send the data to the specified API
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        showNotification(`Thank you for your order, ${name}! It has been confirmed.`);
+        // Optionally, clear the cart
+        localStorage.removeItem("cart");
+        cart = [];
+
+        // Call displayCartItems to refresh the checkout view
+        displayCartItems();  // ✅ Refresh checkout items after order confirmation
+      }
+
+      else {
+        throw new Error("Failed to submit the form.");
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  function showNotification(message) {
+    const notification = document.getElementById("notification");
+    notification.textContent = message;
+    notification.classList.remove("hidden");
+
+    setTimeout(() => {
+      notification.classList.add("hidden");
+    }, 3000); // Notification disappears after 5 seconds
+  }
+
+
+  function calculateDiscount(quantity, price) {
+    let discountPercentage = 0;
+
+    // Find the appropriate discount based on quantity
+    for (let i = discountConfig.length - 1; i >= 0; i--) {
+      if (quantity >= discountConfig[i].quantity) {
+        discountPercentage = discountConfig[i].discount;
+        break;
+      }
+    }
+
+    return price * discountPercentage;
+  }
+
+
+  // Function to remove an item from the cart
+  function removeFromCart(productId) {
+    cart = cart.filter((item) => item.id !== productId);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    displayCartItems();
+  }
+
+
+
+  // Load checkout details when the page is loaded
+  window.onload = function () {
+
+
+  };
+</script>
 </body>
 
 </html>
