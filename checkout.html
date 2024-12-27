@@ -37,11 +37,21 @@
             class="input input-bordered w-full bg-gray-700 text-white" required>
         </div>
 
-        <div>
-          <label for="address" class="label">Address:</label>
-          <input placeholder="City, Area, House, etc..." type="text" id="address"
-            class="input input-bordered w-full bg-gray-700 text-white" required>
-        </div>
+
+       <div>
+            <label for="address" class="label">Address:</label>
+            <textarea placeholder="City, Area, House, etc..." type="text" id="address"
+            class="input input-bordered w-full bg-gray-700 text-white" required></textarea>
+       </div>
+
+        <script>
+          document.getElementById('address').addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+          });
+        </script>
+
+        
 
         <div>
           <label for="email" class="label">Email:</label>
