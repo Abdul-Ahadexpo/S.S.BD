@@ -488,3 +488,9 @@ body {
     opacity: 1;
   }
 }
+
+
+#chat_content_unique a {
+  color: #007bff;
+  text-decoration: none;
+}   
