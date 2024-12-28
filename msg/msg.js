@@ -1,17 +1,4 @@
 // sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-
-
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 window.onload = function () {
   const firebaseConfig = {
     apiKey: "AIzaSyDhL4CW6paTdchBzL2iTpNKInJSZI-gzQE",
@@ -75,7 +62,7 @@ window.onload = function () {
           online_users_container.innerHTML = `
         <details class="dropdown">
           <summary class="btn m-1 onlineUserDropdownName">Online Users (${userCount})</summary>
-          <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+          <ul class="menu dropdown-content bg-base-100 text-white rounded-box z-[1] w-52 p-2 shadow">
           ${Object.values(onlineUsers)
             .map(
               (user) =>
@@ -286,6 +273,3 @@ window.onload = function () {
   app.create_chat_box();
   app.refresh_chat();
 };
-
-
-
