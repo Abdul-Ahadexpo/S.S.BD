@@ -19,8 +19,9 @@ window.onload = function () {
       chat_box.style.position = "fixed";
       chat_box.style.bottom = "0";
       chat_box.style.right = "0";
-      chat_box.style.width = "300px";
-      chat_box.style.height = "400px";
+      chat_box.style.width = "90%";
+      chat_box.style.maxWidth = "400px";
+      chat_box.style.height = "500px";
       chat_box.style.backgroundColor = "white";
       chat_box.style.border = "1px solid #ccc";
       chat_box.style.display = "none";
@@ -152,10 +153,7 @@ window.onload = function () {
           var chat_logout = document.createElement("button");
           chat_logout.setAttribute("id", "chat_logout_unique");
           chat_logout.textContent = `${localStorage.getItem("name")} • Logout`;
-          chat_logout.style.padding = "10px";
           chat_logout.style.border = "none";
-          chat_logout.style.backgroundColor = "#ff4d4d";
-          chat_logout.style.color = "white";
           chat_logout.style.cursor = "pointer";
 
           chat_logout.onclick = function () {
@@ -183,10 +181,7 @@ window.onload = function () {
         var chat_logout = document.createElement("button");
         chat_logout.setAttribute("id", "chat_logout_unique");
         chat_logout.textContent = `${savedName} • Logout`;
-        chat_logout.style.padding = "10px";
         chat_logout.style.border = "none";
-        chat_logout.style.backgroundColor = "#ff4d4d";
-        chat_logout.style.color = "white";
         chat_logout.style.cursor = "pointer";
 
         chat_logout.onclick = function () {
