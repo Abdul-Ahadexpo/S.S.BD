@@ -95,11 +95,11 @@ const products = [
 
   {
     id: 3,
-    name: "X Bey Unicorn Sting 5-60GP",
+    name: "X Bey Unicorn Sting 5-60GP(Pre-Order)",
     description:
       "Sting Unicorn (Japanese: UnicornSting) is a Balance Type Blade with an asymmetrical shape.",
     price: 400,
-    pcs: 11,
+    pcs: 0,
     image:
       "https://th.bing.com/th/id/OIP.JfM8kxGWhTDQLyFToWd9mAHaHa?rs=1&pid=ImgDetMain",
   },
