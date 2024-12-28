@@ -101,7 +101,7 @@ window.onload = function () {
 
       chat_header.appendChild(backButton);
       var chatTitle = document.createElement("div");
-      chatTitle.textContent = "Help Chat";
+      chatTitle.textContent = " ";
       chat_header.appendChild(chatTitle);
 
       var chat_content = document.createElement("div");
