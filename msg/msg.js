@@ -9,27 +9,8 @@
 // sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 // sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 // sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-// sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+
+
 // sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 window.onload = function () {
   const firebaseConfig = {
@@ -76,11 +57,51 @@ window.onload = function () {
       backButton.onclick = function () {
         document.getElementById("msgbox").click();
       };
+      var online_users_container = document.createElement("div");
+      online_users_container.setAttribute("id", "online_users_container");
+      online_users_container.innerHTML = "Online Users: 0";
+      online_users_container.style.textAlign = "center";
+      online_users_container.style.color = "black";
+      online_users_container.style.fontSize = "14px";
+      online_users_container.style.marginTop = "10px";
+      online_users_container.style.fontWeight = "bold";
+      online_users_container.style.textTransform = "uppercase";
+      online_users_container.style.fontFamily = "Arial, sans-serif";
 
-      var chatTitle = document.createElement("span");
-      chatTitle.textContent = "Live Chat";
+      function updateOnlineUsers() {
+        db.ref("online_users/").on("value", function (snapshot) {
+          var onlineUsers = snapshot.val() || {};
+          var userCount = Object.keys(onlineUsers).length;
+          online_users_container.innerHTML = `
+        <details class="dropdown">
+          <summary class="btn m-1 onlineUserDropdownName">Online Users (${userCount})</summary>
+          <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+          ${Object.values(onlineUsers)
+            .map(
+              (user) =>
+                `<li><a class="usernameID">${user.name} (${user.room})</a></li>`
+            )
+            .join("")}
+          </ul>
+        </details>`;
+        });
+      }
+
+      updateOnlineUsers();
+
+      var userRef = db.ref("online_users/" + localStorage.getItem("name"));
+      userRef.set({
+        name: localStorage.getItem("name"),
+        room: "default",
+      });
+
+      userRef.onDisconnect().remove();
+
+      chat_header.appendChild(online_users_container);
 
       chat_header.appendChild(backButton);
+      var chatTitle = document.createElement("div");
+      chatTitle.textContent = "Help Chat";
       chat_header.appendChild(chatTitle);
 
       var chat_content = document.createElement("div");
@@ -265,3 +286,6 @@ window.onload = function () {
   app.create_chat_box();
   app.refresh_chat();
 };
+
+
+
