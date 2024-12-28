@@ -210,6 +210,22 @@ window.onload = function () {
         chat_box.style.display =
           chat_box.style.display === "none" ? "flex" : "none";
       };
+
+      // Handle key events, including the Enter key
+      chat_input.onkeyup = function (event) {
+        if (chat_input.value.length > 0) {
+          chat_send.removeAttribute("disabled");
+          chat_send.classList.add("enabled");
+
+          // Check if the Enter key is pressed (keyCode 13 or "Enter")
+          if (event.key === "Enter" || event.keyCode === 13) {
+            chat_send.click(); // Trigger the button click programmatically
+          }
+        } else {
+          chat_send.setAttribute("disabled", true);
+          chat_send.classList.remove("enabled");
+        }
+      };
     }
 
     send_message(message) {
@@ -241,6 +257,14 @@ window.onload = function () {
           var name = data.name;
           var message = data.message;
 
+          // Convert URLs in the message to clickable links
+          var urlPattern =
+            /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+          var messageWithLinks = message.replace(
+            urlPattern,
+            '<a href="$1" target="_blank">$1</a>'
+          );
+
           var message_container = document.createElement("div");
           message_container.setAttribute(
             "id",
@@ -254,7 +278,7 @@ window.onload = function () {
 
           var message_content = document.createElement("span");
           message_content.setAttribute("id", `message_content_${data.index}`);
-          message_content.textContent = message;
+          message_content.innerHTML = messageWithLinks;
 
           message_container.append(message_user, message_content);
           chat_content.append(message_container);
@@ -267,4 +291,44 @@ window.onload = function () {
   var app = new MEME_CHAT();
   app.create_chat_box();
   app.refresh_chat();
+};
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// Handle key events, including the Enter key
+chat_input.onkeyup = function (event) {
+  if (chat_input.value.length > 0) {
+    chat_send_unique.removeAttribute("disabled");
+    chat_send_unique.classList.add("enabled");
+
+    // Check if the Enter key is pressed (keyCode 13 or "Enter")
+    if (event.key === "Enter" || event.keyCode === 13) {
+      chat_send_unique.click(); // Trigger the button click programmatically
+    }
+  } else {
+    chat_send_unique.setAttribute("disabled", true);
+    chat_send_unique.classList.remove("enabled");
+  }
 };
