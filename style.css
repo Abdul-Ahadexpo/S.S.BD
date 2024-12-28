@@ -403,8 +403,7 @@ body {
 
 /* Buttons */
 #chat_send_unique,
-#set_name_button_unique,
-#chat_logout_unique {
+#set_name_button_unique {
   padding: 12px;
   border: none;
   border-radius: 25px;
@@ -412,6 +411,7 @@ body {
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
+  animation: fadeIn 1s ease-out forwards;
 }
 
 /* Send Button */
@@ -439,13 +439,14 @@ body {
 
 /* Logout Button */
 #chat_logout_unique {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-#chat_logout_unique:hover {
-  background-color: #cc0000;
-  transform: scale(1.05);
+  color: rgb(255, 62, 62);
+  text-decoration: underline;
+  background-color: transparent;
+  width: fit-content;
+  margin: 0 auto;
+  position: static;
+  /* top: 485px;
+  left: 160px; */
 }
 
 /* Message Container */
@@ -455,6 +456,7 @@ body {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 1s ease-out forwards;
 }
 
 [id^="message_user_"] {
@@ -466,3 +468,23 @@ body {
   color: #555;
 }
 
+/* Keyframes for Animations */
+@keyframes slideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
