@@ -69,9 +69,6 @@ window.onload = function () {
             message += `
         <div class='product-item' style='margin-bottom: 15px;'>
           <strong>${index + 1}. ${product.name}</strong><br>
-          <img src='${product.image}' alt='${
-              product.name
-            }' style='width: 50px; height: 50px; margin: 5px 0;'><br>
           Price: ${product.price} TK<br>
           Delivery Fee: 120 TK
         </div>`;
