@@ -19,9 +19,9 @@ window.onload = function () {
       chat_box.style.position = "fixed";
       chat_box.style.bottom = "0";
       chat_box.style.right = "0";
-      chat_box.style.width = "90%";
-      chat_box.style.maxWidth = "350px";
-      chat_box.style.height = "440px";
+      chat_box.style.width = "95%";
+      chat_box.style.maxWidth = "450px";
+      chat_box.style.height = "540px";
       chat_box.style.backgroundColor = "white";
       chat_box.style.border = "1px solid #ccc";
       chat_box.style.display = "none";
@@ -42,9 +42,53 @@ window.onload = function () {
       var backButton = document.createElement("i");
       backButton.className = "fa-solid fa-backward";
       backButton.style.cursor = "pointer";
+      backButton.title = "Back to the chat"; // Tooltip for better usability  // Make the button visually appealing
       backButton.onclick = function () {
         document.getElementById("msgbox").click();
       };
+
+      // Create the circle button
+      var circleButton = document.createElement("i");
+      circleButton.className = "fa-solid fa-box-open";
+      circleButton.style.cursor = "pointer";
+      circleButton.style.fontSize = "24px"; // Make the button visually appealing
+      circleButton.style.color = "#BD9674"; // Add a vibrant color (green in this case)
+      circleButton.style.margin = "10px"; // Add some margin for spacing
+      circleButton.title = "Send Product"; // Tooltip for better usability
+
+      // Define the button's functionality
+      circleButton.onclick = function () {
+        // Retrieve the cart data from local storage
+        var cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+        if (cart.length > 0) {
+          // Build the message to display cart items
+          var message =
+            "<div class='product-card' style='max-width: 300px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;'>";
+          cart.forEach((product, index) => {
+            message += `
+        <div class='product-item' style='margin-bottom: 15px;'>
+          <strong>${index + 1}. ${product.name}</strong><br>
+          <img src='${product.image}' alt='${
+              product.name
+            }' style='width: 50px; height: 50px; margin: 5px 0;'><br>
+          Price: ${product.price} TK<br>
+          Delivery Fee: 120 TK
+        </div>`;
+          });
+          message += "</div>";
+
+          // Use the app object to send the message
+          app.send_message(message);
+        } else {
+          // Alert the user if the cart is empty
+          alert("No products in the cart.");
+        }
+      };
+
+      // Append the button to the body or desired parent container
+      document.body.appendChild(circleButton);
+
       var online_users_container = document.createElement("div");
       online_users_container.setAttribute("id", "online_users_container");
       online_users_container.innerHTML = "Online Users: 0";
@@ -86,8 +130,9 @@ window.onload = function () {
       userRef.onDisconnect().remove();
 
       chat_header.appendChild(online_users_container);
-
       chat_header.appendChild(backButton);
+      chat_header.appendChild(circleButton);
+
       var chatTitle = document.createElement("div");
       chatTitle.textContent = " ";
       chat_header.appendChild(chatTitle);
@@ -106,6 +151,7 @@ window.onload = function () {
       chat_input_container.style.flexDirection = "column";
 
       var chat_input = document.createElement("input");
+
       chat_input.setAttribute("id", "chat_input_unique");
       chat_input.style.flex = "1";
       chat_input.style.padding = "10px";
