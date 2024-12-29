@@ -64,7 +64,7 @@ window.onload = function () {
         if (cart.length > 0) {
           // Build the message to display cart items
           var message =
-            "<div class='product-card' style='max-width: 300px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;'>";
+            "<div class='product-card' style='max-width: 90%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;'>";
           cart.forEach((product, index) => {
             message += `
         <div class='product-item' style='margin-bottom: 15px;'>
