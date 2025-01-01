@@ -13,6 +13,16 @@ const products = [
 // },
 
   {
+    id: 0.941,
+    name: "Matt Black Dran Sword 3-60 F",
+    description:
+      "Sword Dran (Japanese: Dran Sword) is a three-sided Attack Type Blade with three upward slanting blades acting as the main contact points. The Gear Chip features a dragon head exhaling fire.",
+    price: 420,
+    pcs: 2,
+    image:
+      "https://th.bing.com/th/id/OIP.975Ejdlmm_qVl-OHaPylcAHaHa?rs=1&pid=ImgDetMain",
+  },
+  {
     id: 2.1,
     name: "BX-34 Cobalt Dragoon 2-60C",
     description:
