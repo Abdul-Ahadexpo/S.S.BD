@@ -14,11 +14,11 @@ const products = [
 
   {
     id: 0.941,
-    name: "Matt Black Dran Sword 3-60 F",
+    name: "Matt Black Dran Sword 3-60 F(Pre-Order)",
     description:
       "Sword Dran (Japanese: Dran Sword) is a three-sided Attack Type Blade with three upward slanting blades acting as the main contact points. The Gear Chip features a dragon head exhaling fire.",
     price: 420,
-    pcs: 2,
+    pcs: 0,
     image:
       "https://th.bing.com/th/id/OIP.975Ejdlmm_qVl-OHaPylcAHaHa?rs=1&pid=ImgDetMain",
   },
@@ -28,7 +28,7 @@ const products = [
     description:
       "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
     price: 400,
-    pcs: 58,
+    pcs: 8,
     image:
       "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
   },
@@ -48,7 +48,7 @@ const products = [
     description:
       "<b>Weiss Tiger</b> is a Balance Type Blade with three different sets of three types of blades. The three types of blades are the Attack Type <b>Upper Blades</b>, the Defense Type Damper Blades, and the Stamina Type <b>Smash Blades</b>.",
     price: 400,
-    pcs: 50,
+    pcs: 5,
     image:
       "https://th.bing.com/th/id/OIP.LX-pjn8-PzrjcHWl_QSipwHaG9?rs=1&pid=ImgDetMain",
   },
