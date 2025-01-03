@@ -54,11 +54,11 @@ const products = [
   },
   {
     id: 2.36,
-    name: "Shark Edge 3-60LF",
+    name: "Shark Edge 3-60LF(Pre-Order)",
     description:
       "Shark Edge Three Sixty Low Flat) is an Attack Type Beyblade released by Takara Tomy. It was released in Japan on September 9th, 2023 for 1400円 as the prize Beyblade in Random Booster Vol. 1.",
     price: 450,
-    pcs: 2,
+    pcs: 0,
     image:
       "https://beyblade-shop.com/cdn/shop/files/Shark-Edge-3-60LF-Beyblade-Shop_1200x1200.jpg?v=1692305996",
   },
@@ -68,7 +68,7 @@ const products = [
     description:
       "Black Shell is a Defense Type Blade with an overall diamond shape with eight protrusions as the main points of contact.",
     price: 400,
-    pcs: 37,
+    pcs: 3,
     image:
       "https://beybladepremier.com/cdn/shop/files/BX-3501BlackShell4-60D_BeybladeX_BACKORDERJuly31st.jpg?v=1721582044",
   },
