@@ -118,7 +118,7 @@ const products = [
     name: "Hells Chain 5-60HT (BX-21)(Black)",
     description:
       "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T<br><i>It will take 15-25 days<br> to be delivered</i>",
-    price: 350,
+    price: 400,
     pcs: 1,
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5I8U5CrQj4dMH-N8XT2DNaR1gZx35mGCaotYm2YMG1h9eSpdliY1gt-lgZZJrLsY3_lg&usqp=CAU",
