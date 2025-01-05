@@ -28,7 +28,7 @@ const products = [
     description:
       "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
     price: 400,
-    pcs: 8,
+    pcs: 1,
     image:
       "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
   },
@@ -48,7 +48,7 @@ const products = [
     description:
       "<b>Weiss Tiger</b> is a Balance Type Blade with three different sets of three types of blades. The three types of blades are the Attack Type <b>Upper Blades</b>, the Defense Type Damper Blades, and the Stamina Type <b>Smash Blades</b>.",
     price: 400,
-    pcs: 5,
+    pcs: 1,
     image:
       "https://th.bing.com/th/id/OIP.LX-pjn8-PzrjcHWl_QSipwHaG9?rs=1&pid=ImgDetMain",
   },
@@ -68,7 +68,7 @@ const products = [
     description:
       "Black Shell is a Defense Type Blade with an overall diamond shape with eight protrusions as the main points of contact.",
     price: 400,
-    pcs: 3,
+    pcs: 1,
     image:
       "https://beybladepremier.com/cdn/shop/files/BX-3501BlackShell4-60D_BeybladeX_BACKORDERJuly31st.jpg?v=1721582044",
   },
@@ -84,11 +84,11 @@ const products = [
 
   {
     id: 2,
-    name: "UX Bey Hells Hammer 3-70H",
+    name: "UX Bey Hells Hammer 3-70H  (Pre-Order)",
     description:
       "Hells Hammer is a right-spin Balance Type Blade with three <b>Smash Blades</b> acting as the main contact points.",
     price: 450,
-    pcs: 123,
+    pcs: 0,
     image:
       "https://cdn11.bigcommerce.com/s-lsouzjo20i/images/stencil/1280x1280/products/2512/5372/Beyblade_UX-02_03__11434.1708526001.jpg?c=2",
   },
@@ -98,7 +98,7 @@ const products = [
     description:
       "Cobalt Drake is a four-sided Attack Type Blade with four upward slanting blades acting as the main contact points. The blades are similar to those of Dran Sword, albeit smaller in size.",
     price: 450,
-    pcs: 28,
+    pcs: 1,
     image:
       "https://th.bing.com/th/id/OIP._db41qhqY7Cj6M-cQLflwQHaHa?rs=1&pid=ImgDetMain",
   },
@@ -121,11 +121,11 @@ const products = [
     price: 350,
     pcs: 1,
     image:
-      "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/2127/9339/BX-21-HC-TT_copy__53930.1700174025.jpg?c=2",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5I8U5CrQj4dMH-N8XT2DNaR1gZx35mGCaotYm2YMG1h9eSpdliY1gt-lgZZJrLsY3_lg&usqp=CAU",
   },
   {
     id: 9,
-    name: "Dran Dagger 4-60R(Pre-Order)",
+    name: "Dran Dagger 4-60R (Pre-Order)",
     description:
       "Dagger Dran (Japanese: DranDagger) is an Attack Type Blade with six small blades acting as the main contact points.",
     price: 400,
@@ -149,7 +149,7 @@ const products = [
     description:
       "Wizard Rod is a Stamina Type Blade with a wide circular shape.",
     price: 450,
-    pcs: 17,
+    pcs: 0,
     image:
       "https://toysonejapan.com/cdn/shop/files/s-l1600_4_9bc991d6-8200-4b36-93a8-52e9abc499fe_1059x959.jpg?v=1711513033",
   },
