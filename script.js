@@ -3,14 +3,14 @@ let cart = [];
 
 // Sample product data
 const products = [
-// {
-//   id: 92.12,
-//   name: "280TK Beyblade X Mystery Box",
-//   description: "An exciting mystery box filled with Beyblade X surprises worth more than the price you pay!",
-//   price: 280,
-//   pcs: "∞",
-//   image: "https://thebeyverse.com/cdn/shop/products/6C495ED9-94FD-43FD-A2D2-1630AD50E3E8.jpg?v=1680825615",
-// },
+  // {
+  //   id: 92.12,
+  //   name: "280TK Beyblade X Mystery Box",
+  //   description: "An exciting mystery box filled with Beyblade X surprises worth more than the price you pay!",
+  //   price: 280,
+  //   pcs: "∞",
+  //   image: "https://thebeyverse.com/cdn/shop/products/6C495ED9-94FD-43FD-A2D2-1630AD50E3E8.jpg?v=1680825615",
+  // },
 
   {
     id: 0.941,
@@ -38,7 +38,7 @@ const products = [
     description:
       "Models: String launcher<br>Brand: SB brand <br> Package include: Launcher only",
     price: 400,
-    pcs:0,
+    pcs: 0,
     image:
       "https://ae01.alicdn.com/kf/S287b82f604874630a3ceb08de1a04111M/SB-Brand-Bey-X-Left-String-Launcher-BX-Spinning-Tops-Toys-Gift-for-Children.jpg_640x640.jpg",
   },
@@ -160,8 +160,7 @@ const products = [
     description: `Dran Sword Three Sixty Flat) is an Attack Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on June 10th, 2023 during the CoroCoro Spirit Festival for 1980円.`,
     price: 1700,
     pcs: "Pre-order",
-    image:
-      "https://opensesame.com.bd/wp-content/uploads/2024/08/910381-4.jpg",
+    image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910381-4.jpg",
   },
   {
     id: 1.6,
@@ -169,23 +168,18 @@ const products = [
     description: `Hells Scythe Four Sixty Taper) is a Balance Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on June 10th, 2023 during the CoroCoro Spirit Festival for 1980円.`,
     price: 1700,
     pcs: "Pre-order",
-    image:
-      "https://opensesame.com.bd/wp-content/uploads/2024/08/910398-4.jpg",
+    image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910398-4.jpg",
   },
 
-
-  
   {
     id: 1.6,
     name: "BX-03 STARTER WIZARD ARROW 4-80B",
     description: `Wizard Arrow Four Eighty Ball) is a Stamina Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on July 15th, 2023 for 1980円.`,
     price: 1700,
     pcs: "Pre-order",
-    image:
-      "https://opensesame.com.bd/wp-content/uploads/2024/08/910473-4.jpg",
+    image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910473-4.jpg",
   },
 
-  
   {
     id: 1.5,
     name: "Takara Tomy Beyblade X Random Booster (Pre-Order)",
@@ -273,7 +267,8 @@ const products = [
   {
     id: 11.2,
     name: "Xiphoid Xcalibur(pre-order)",
-    description: " Xcalibur is a right-spin DB Core that features a large sword, representing the DB Core's namesake; Excalibur, the legendary sword of King Arthur.",
+    description:
+      " Xcalibur is a right-spin DB Core that features a large sword, representing the DB Core's namesake; Excalibur, the legendary sword of King Arthur.",
     price: 520,
     pcs: "2",
     image:
@@ -282,7 +277,8 @@ const products = [
   {
     id: 11.6,
     name: "Wind Knight Moon Bounce-6(pre-order)",
-    description: "Knight is a right-spin DB Core that features the helmet of a knight, akin to its predecessor, the Air Knight Cho-Z Layer.",
+    description:
+      "Knight is a right-spin DB Core that features the helmet of a knight, akin to its predecessor, the Air Knight Cho-Z Layer.",
     price: 520,
     pcs: "1",
     image:
@@ -472,7 +468,7 @@ function loadCart() {
       cart
         .map((item) => {
           const discount = calculateDiscount(item.quantity || 1, item.price);
-         return `
+          return `
              <div class="flex flex-col md:flex-row justify-between items-center border-b py-4 shadow-lg rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
               <div class="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-lg">
                 <img class="w-full h-full object-cover rounded-md" src="${
@@ -573,13 +569,23 @@ function loadCart() {
         .toUpperCase();
 
       if (usedCoupons.includes(couponInput)) {
-        alert("This coupon code has already been used! 😢");
+        Swal.fire({
+          icon: "warning",
+          title: "Oops!",
+          text: "This coupon code has already been used! 😢",
+          confirmButtonColor: "#f87171", // Tailwind pink-400
+        });
         return;
       }
 
       const couponDiscount = coupons[couponInput];
       if (!couponDiscount) {
-        alert("Invalid discount code 😢. Try again!");
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Code!",
+          text: "Invalid discount code 😢. Try again!",
+          confirmButtonColor: "#f87171",
+        });
         return;
       }
 
@@ -588,18 +594,30 @@ function loadCart() {
 
       if (couponDiscount === "free_delivery") {
         deliveryCost = 0;
-        alert("🎉 Free delivery applied!");
+        Swal.fire({
+          icon: "success",
+          title: "Free Delivery!",
+          text: "🎉 Free delivery applied!",
+          confirmButtonColor: "#34d399", // Tailwind green-400
+        });
       } else {
         const discountAmount = newTotalCost * couponDiscount;
         newTotalCost -= discountAmount;
-        alert(
-          `🎉 ${
+        Swal.fire({
+          icon: "success",
+          title: "Discount Applied!",
+          html: `🎉 ${
             couponDiscount * 100
-          }% discount applied! You saved ${discountAmount.toFixed(2)}TK . 
-          Please "You must" use it in Checkout 🛒`
-        );
+          }% discount applied!<br>You saved <strong>${discountAmount.toFixed(
+            2
+          )}TK</strong>.<br><br>Please <strong>You must</strong> use it in Checkout 🛒`,
+          confirmButtonColor: "#60a5fa", // Tailwind blue-400
+        });
       }
 
+      // Add the coupon to used list
+      // Add the coupon to used list
+      // Add the coupon to used list
       // Add the coupon to used list
       usedCoupons.push(couponInput);
       localStorage.setItem("usedCoupons", JSON.stringify(usedCoupons));
