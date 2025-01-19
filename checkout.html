@@ -8,6 +8,11 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/daisyui@1.20.0/dist/full.css" rel="stylesheet">
   <link rel="icon" sizes="180x180" type="image/x-icon" href="./tt.jpg">
+
+  <!-- popup -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 
@@ -38,11 +43,11 @@
         </div>
 
 
-       <div>
-            <label for="address" class="label">Address:</label>
-            <textarea placeholder="City, Area, House, etc..." type="text" id="address"
+        <div>
+          <label for="address" class="label">Address:</label>
+          <textarea placeholder="City, Area, House, etc..." type="text" id="address"
             class="input input-bordered w-full bg-gray-700 text-white" required></textarea>
-       </div>
+        </div>
 
         <script>
           document.getElementById('address').addEventListener('input', function () {
@@ -51,7 +56,7 @@
           });
         </script>
 
-        
+
 
         <div>
           <label for="email" class="label">Email:</label>
@@ -83,7 +88,13 @@
           document.getElementById("c_code").addEventListener("input", function () {
             const inputCoupon = this.value;
             if (localStorage.getItem("usedCoupons_" + inputCoupon)) {
-              alert("This coupon code has already been used.");
+              Swal.fire({
+                title: 'Oops!',
+                text: 'This coupon code has already been used.',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+              });
+
               this.value = "";
             }
           });
@@ -350,17 +361,32 @@
 
     // Check if all fields are filled
     if (!name || !phone || !address || !email) {
-      alert("Please fill out all fields.");
+      Swal.fire({
+        title: 'Incomplete Form',
+        text: 'Please fill out all fields.',
+        icon: 'warning',
+        confirmButtonText: 'OK',
+      });
       return;
     }
 
     // Check if the cart is empty
     if (cart.length === 0) {
-      if (confirm("Your cart is empty. Would you like to go to the home page to add items?")) {
-        window.location.href = "./index.html";
-      }
+      Swal.fire({
+        title: 'Your cart is empty',
+        text: 'Would you like to go to the home page to add items?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, take me there!',
+        cancelButtonText: 'No, stay here',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "./index.html";
+        }
+      });
       return;
     }
+
 
 
     // Prepare the data to be sent
@@ -418,8 +444,14 @@
         throw new Error("Failed to submit the form.");
       }
     } catch (error) {
-      alert(error.message);
+      Swal.fire({
+        title: 'Error',
+        text: error.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
     }
+
   }
 
   function showNotification(message) {
