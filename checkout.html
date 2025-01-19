@@ -277,20 +277,9 @@
     // Clear previous content
     cartContainer.innerHTML = "";
 
-   // Check if the cart is empty
-   if (cart.length === 0) {
-      Swal.fire({
-        title: 'Your cart is empty',
-        text: 'Would you like to go to the home page to add items?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, take me there!',
-        cancelButtonText: 'No, stay here',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "./index.html";
-        }
-      });
+    // Check if the cart is empty
+    if (cart.length === 0) {
+      cartContainer.innerHTML = "<p>Your cart is empty. 🛒</p> <a href='./index.html' class='underline text-blue-200 font-mono'>Please ADD To Cart</a>";
       return;
     }
 
@@ -442,7 +431,7 @@
       });
 
       if (response.ok) {
-        showNotification(`Thank you for your order, ${name}! It has been confirmed.`);
+        showNotification(`Thank you for your order, ${name}! It Will be confirmed.`);
         // Optionally, clear the cart
         localStorage.removeItem("cart");
         cart = [];
@@ -466,14 +455,17 @@
   }
 
   function showNotification(message) {
-    const notification = document.getElementById("notification");
-    notification.textContent = message;
-    notification.classList.remove("hidden");
-
-    setTimeout(() => {
-      notification.classList.add("hidden");
-    }, 3000); // Notification disappears after 5 seconds
+    Swal.fire({
+      title: "Notification",
+      text: message,
+      icon: "info",
+      confirmButtonText: "OK",
+      timer: 3000, // Notification disappears after 3 seconds
+      timerProgressBar: true,
+      showConfirmButton: false, // Removes the "OK" button for auto-dismiss
+    });
   }
+
 
 
   function calculateDiscount(quantity, price) {
