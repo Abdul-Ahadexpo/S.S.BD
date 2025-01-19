@@ -92,15 +92,33 @@
         Use Code: QUICK5OFF
       </button>
     </div>
+
+    
     <!-- JavaScript for Copying Code -->
     <script>
       function copyCode() {
         const code = "QUICK5OFF"; // The discount code
         navigator.clipboard.writeText(code).then(() => {
-          alert("Code copied to clipboard: " + code);
+          Swal.fire({
+            title: "Code Copied!",
+            text: `Discount code "${code}" has been copied to your clipboard.`,
+            icon: "success",
+            confirmButtonText: "OK",
+            timer: 3000,
+            timerProgressBar: true,
+          });
+        }).catch((err) => {
+          Swal.fire({
+            title: "Error",
+            text: "Failed to copy the code. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
         });
       }
     </script>
+
+
     <!-- Tailwind Animations -->
     <style>
       @keyframes bounce-in-fade {
