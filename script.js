@@ -410,21 +410,22 @@ function addToCart(productId) {
     cart.push(product);
     localStorage.setItem("cart", JSON.stringify(cart));
     showNotification(
-      `<a href="./cart.html">
+      `
         1. ${product.name} has been added to your cart!
-      </a>`
+      `
     );
   }
 }
 
-// Popup you added a product to your cart
 function showNotification(message) {
-  const notification = document.getElementById("notification");
-  notification.innerHTML = message; // Use innerHTML instead of textContent
-  notification.classList.remove("hidden");
-  setTimeout(() => {
-    notification.classList.add("hidden");
-  }, 3000); // Hide after 2 seconds
+  Swal.fire({
+    title: "Notification",
+    text: message,
+    icon: "success",
+    confirmButtonText: "OK",
+    timer: 3000,
+    timerProgressBar: true,
+  });
 }
 
 // Function to calculate the discount based on quantity
