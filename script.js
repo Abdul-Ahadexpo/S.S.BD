@@ -151,7 +151,7 @@ const products = [
     price: 450,
     pcs: 0,
     image:
-      "https://toysonejapan.com/cdn/shop/files/s-l1600_4_9bc991d6-8200-4b36-93a8-52e9abc499fe_1059x959.jpg?v=1711513033",
+      "https://th.bing.com/th/id/OIP.TiyXAebWm4JEOPMxDXE6WwHaHa?rs=1&pid=ImgDetMain",
   },
   // Original TT
   {
@@ -409,11 +409,7 @@ function addToCart(productId) {
     product.quantity = 1; // Initialize quantity to 1
     cart.push(product);
     localStorage.setItem("cart", JSON.stringify(cart));
-    showNotification(
-      `
-        1. ${product.name} has been added to your cart!
-      `
-    );
+    showNotification(`1. ${product.name} has been added to your cart!`);
   }
 }
 
@@ -422,9 +418,15 @@ function showNotification(message) {
     title: "Notification",
     text: message,
     icon: "success",
+    showCancelButton: true,
     confirmButtonText: "OK",
+    cancelButtonText: "View Cart",
     timer: 3000,
     timerProgressBar: true,
+  }).then((result) => {
+    if (result.dismiss === Swal.DismissReason.cancel) {
+      window.location.href = "cart.html"; // Redirect to cart page
+    }
   });
 }
 
@@ -639,9 +641,30 @@ function loadCart() {
 
 // Function to remove an item from the cart
 function removeFromCart(productId) {
-  cart = cart.filter((item) => item.id !== productId);
+  const product = cart.find((item) => item.id === productId); // Find the product to remove
+  cart = cart.filter((item) => item.id !== productId); // Remove the product from the cart
   localStorage.setItem("cart", JSON.stringify(cart));
   loadCart();
+  showRemovalNotification(product);
+}
+
+// Function to show the removal notification with an "Add More Items" button
+function showRemovalNotification(product) {
+  Swal.fire({
+    title: "Item Removed",
+    text: `${product.name} has been removed from your cart.`,
+    icon: "error",
+    showCancelButton: true,
+    cancelButtonText: "Add More Items",
+    confirmButtonText: "OK",
+    timer: 3000,
+    timerProgressBar: true,
+  }).then((result) => {
+    if (result.isDismissed) {
+      // Redirect to the product page or home page to add more items
+      window.location.href = "./index.html"; // You can change this URL as per your site's structure
+    }
+  });
 }
 
 // Function to add one more item to the cart
