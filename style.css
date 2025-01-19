@@ -1,6 +1,8 @@
 /* style.css */
 body {
   font-family: Arial, sans-serif;
+  background-image: url("./bgb.png"); /* URL of the pattern */
+  background-repeat: repeat; /* Makes the pattern repeat */
 }
 
 header {
