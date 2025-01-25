@@ -320,11 +320,13 @@
 
 
 
+  
   <!-- Footer -->
   <footer class="footer footer-center bg-base-300 text-base-content p-6 shadow-lg">
     <aside class="flex flex-col items-center">
-      <p class="text-sm md:text-base">
-        &copy; 2022 - All rights reserved by <span class="italic font-bold text-violet-500">.inc</span>
+      <p class="text-sm">
+        Copyright © 2007-<span id="currentYear"></span> - All rights reserved by <span
+          class="font-bold text-gray-100">Doro.inc</span>
       </p>
       <div class="flex space-x-4 mt-2">
         <a href="https://www.facebook.com/profile.php?id=100089129497483" class="text-blue-600 hover:text-blue-400"
@@ -339,7 +341,14 @@
       </div>
     </aside>
   </footer>
+  <script>
+    // Dynamically set the current year
+    document.getElementById("currentYear").textContent = new Date().getFullYear();
+  </script>
 
+
+
+  
 
 
   <script src="script.js"></script>
