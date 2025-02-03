@@ -783,7 +783,7 @@ function loadFilteredProducts(filteredProducts) {
             (product) => `
       <div
   id="ppd"
-  class="card w-full bg-gradient-to-b from-gray-900 to-gray-800 text-white shadow-xl transition-transform transform hover:scale-105 hover:shadow-2xl rounded-xl overflow-hidden relative group max-h-[300px]"
+  class="card w-full bg-gradient-to-b from-gray-900 to-gray-800 text-white shadow-xl transition-transform transform hover:scale-105 hover:shadow-2xl rounded-xl overflow-hidden relative group"
 >
   <figure class="overflow-hidden">
     <img
