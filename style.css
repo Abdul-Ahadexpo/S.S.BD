@@ -497,5 +497,5 @@ body {
   text-decoration: none;
 }   
 #ppd{
-  max-height: 500px !important;
+  max-height: fit-content !important;
 }
