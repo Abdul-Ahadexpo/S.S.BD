@@ -413,9 +413,19 @@ function loadProducts() {
     <h2 class="card-title text-3xl font-extrabold mb-3 group-hover:text-green-400 transition duration-200">
       ${product.name}
     </h2>
-    <p class="text-sm text-gray-400 mb-4 line-clamp-3">
-  ${product.description.length > 80 ? product.description.substring(0, 80) + ' see more..' : product.description}
+    
+   <p class="text-sm text-gray-400 mb-4 line-clamp-3">
+  <span id="desc-${product.id}">
+    ${product.description.length > 80 
+      ? product.description.substring(0, 80) + '...' 
+      : product.description}
+  </span>
+  ${product.description.length > 80 
+    ? `<span class="text-green-400 cursor-pointer font-semibold" onclick="toggleDescription(${product.id})"> see more..</span>` 
+    : ''}
 </p>
+
+
     <p class="text-lg font-bold mb-4">
       Price: <span class="text-green-400"> ${product.price.toFixed(2)}TK</span>
     </p>
@@ -438,6 +448,32 @@ function loadProducts() {
     )
     .join("");
 }
+
+
+
+
+
+// SEE MORE
+
+
+function toggleDescription(productId) {
+  const descSpan = document.getElementById(`desc-${productId}`);
+  const product = products.find(p => p.id === productId); // Assuming 'products' is your product list
+
+  if (descSpan.innerText.includes("...")) {
+    descSpan.innerText = product.description; // Show full description
+  } else {
+    descSpan.innerText = product.description.substring(0, 80) + "..."; // Collapse it back
+  }
+}
+
+
+
+
+
+
+
+
 
 // Function to add an item to the cart
 function addToCart(productId) {
