@@ -416,8 +416,8 @@ function loadProducts() {
     
    <p class="text-sm text-gray-400 mb-4 line-clamp-3">
   <span id="desc-${product.id}">
-    ${product.description.length > 80 
-      ? product.description.substring(0, 80) + '...' 
+    ${product.description.length > 10 
+      ? product.description.substring(0, 10) + '...' 
       : product.description}
   </span>
   ${product.description.length > 80 
