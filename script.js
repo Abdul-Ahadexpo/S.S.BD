@@ -11,21 +11,19 @@ const products = [
   //   pcs: "∞",
   //   image: "https://thebeyverse.com/cdn/shop/products/6C495ED9-94FD-43FD-A2D2-1630AD50E3E8.jpg?v=1680825615",
   // },
-   {
+  {
     id: 0.941,
     name: "Phoenix Rudder",
-    description:
-      "Phoenix Rudder 9-70G (フェニックスラダー9-70ナインセブンティーGグライド, Fenikkusu Radā Nain Sebuntī Guraido; Phoenix Rudder Nine Seventy Glide) is a Stamina Type Beyblade.",
+    description: "Phoenix Rudder 9-70G is a Stamina Type Beyblade.",
     price: 460,
     pcs: 11,
     image:
       "https://th.bing.com/th/id/OIP.pk6blr69rhIm9_KKW6Tg-QAAAA?rs=1&pid=ImgDetMain",
   },
-    {
+  {
     id: 0.17,
     name: "Silver Wolf",
-    description:
-      "<b>Silver Wolf </b> is a reference to Beyblades from Bakuten Shoot Beyblade, in this case being Wolborg. The Gear Chip has the Bakuten Shoot Beyblade logo on the wolf's ears..",
+    description: "Silver Wolf is a Beyblade.",
     price: 470,
     pcs: 7,
     image:
@@ -35,8 +33,7 @@ const products = [
   {
     id: 0.819,
     name: "Leon Crest",
-    description:
-      "Leon Crest 7-60GN (レオンクレスト7-60 (セブンシクスティー)GN (ギヤニードル), Reon Kuresuto Sebun Shikusutī Giya Nīdoru; Leon Crest Seven Sixty Gear Needle) is a Defense Type Beyblade.",
+    description: "Leon Crest 7-60GN is a Defense Type Beyblade.",
     price: 480,
     pcs: 11,
     image:
@@ -45,28 +42,24 @@ const products = [
 
   {
     id: 1,
-    name: "Phoenix Wing 9-60GF (Pre-Order)",
-    description: `Soar Phoenix (Japanese: PhoenixWing) is a three-sided Attack Type Blade with three blades acting as the main contact points.`,
+    name: "Phoenix Wing 9-60GF",
+    description: `Soar Phoenix is a three-sided Attack Type Beyblade.`,
     price: 450,
     pcs: 4,
     image:
       "https://th.bing.com/th/id/OIP.7Vlwn3_Ru7iwhjRfTEPWIAHaGg?rs=1&pid=ImgDetMai",
   },
 
-
- {
+  {
     id: 0.172,
     name: "Shinobi Shadow",
-    description:
-      "<b>Shinobi Shadow</b> is a Shitty Beyblade...",
+    description: "Shinobi Shadow is a Shitty Beyblade...",
     price: 420,
     pcs: 6,
     image:
       "https://th.bing.com/th/id/OIP.qsOanWmIlc24rOmGhG6ZaAAAAA?rs=1&pid=ImgDetMain",
   },
 
-  
- 
   {
     id: 2.1,
     name: "BX-34 Cobalt Dragoon 2-60C",
@@ -90,8 +83,7 @@ const products = [
   {
     id: 2.4,
     name: "Weiss Tiger 3-60U",
-    description:
-      "<b>Weiss Tiger</b> is a Balance Type Blade with three different sets of three types of blades. The three types of blades are the Attack Type <b>Upper Blades</b>, the Defense Type Damper Blades, and the Stamina Type <b>Smash Blades</b>.",
+    description: "Weiss Tiger is a Balance Type Beyblade.",
     price: 400,
     pcs: 1,
     image:
@@ -100,8 +92,7 @@ const products = [
   {
     id: 2.36,
     name: "Shark Edge 3-60LF(Pre-Order)",
-    description:
-      "Shark Edge Three Sixty Low Flat) is an Attack Type Beyblade released by Takara Tomy. It was released in Japan on September 9th, 2023 for 1400円 as the prize Beyblade in Random Booster Vol. 1.",
+    description: "Shark Edge is an Attack Type Beyblade.",
     price: 450,
     pcs: 0,
     image:
@@ -110,27 +101,24 @@ const products = [
   {
     id: 2.2,
     name: "Black Shell 4-60D",
-    description:
-      "Black Shell is a Defense Type Blade with an overall diamond shape with eight protrusions as the main points of contact.",
+    description: "Black Shell is a Defense Type Beyblade.",
     price: 400,
     pcs: 1,
     image:
       "https://beybladepremier.com/cdn/shop/files/BX-3501BlackShell4-60D_BeybladeX_BACKORDERJuly31st.jpg?v=1721582044",
   },
 
-
   {
     id: 2,
     name: "UX Bey Hells Hammer 3-70H  (Pre-Order)",
-    description:
-      "Hells Hammer is a right-spin Balance Type Blade with three <b>Smash Blades</b> acting as the main contact points.",
+    description: "Hells Hammer is a right-spin Balance Type Beyblade.",
     price: 450,
     pcs: 0,
     image:
       "https://cdn11.bigcommerce.com/s-lsouzjo20i/images/stencil/1280x1280/products/2512/5372/Beyblade_UX-02_03__11434.1708526001.jpg?c=2",
   },
   {
-    id: 2.3,
+    id: 3,
     name: "Cobalt Drake 4-60T",
     description:
       "Cobalt Drake is a four-sided Attack Type Blade with four upward slanting blades acting as the main contact points. The blades are similar to those of Dran Sword, albeit smaller in size.",
@@ -141,20 +129,9 @@ const products = [
   },
 
   {
-    id: 3,
-    name: "X Bey Unicorn Sting 5-60GP(Pre-Order)",
-    description:
-      "Sting Unicorn (Japanese: UnicornSting) is a Balance Type Blade with an asymmetrical shape.",
-    price: 400,
-    pcs: 0,
-    image:
-      "https://th.bing.com/th/id/OIP.JfM8kxGWhTDQLyFToWd9mAHaHa?rs=1&pid=ImgDetMain",
-  },
-  {
     id: 4,
     name: "Hells Chain 5-60HT (BX-21)(Black)",
-    description:
-      "A Balance Type Beyblade. <br>Successor to Hells Scythe 4-60T<br><i>It will take 15-25 days<br> to be delivered</i>",
+    description: "A Balance Type Beyblade.",
     price: 400,
     pcs: 1,
     image:
@@ -163,8 +140,7 @@ const products = [
   {
     id: 9,
     name: "Dran Dagger 4-60R (Pre-Order)",
-    description:
-      "Dagger Dran (Japanese: DranDagger) is an Attack Type Blade with six small blades acting as the main contact points.",
+    description: "Dagger Dran is an Attack Type Beyblade.",
     price: 400,
     pcs: 0,
     image:
@@ -173,8 +149,7 @@ const products = [
   {
     id: 5,
     name: "BX-08 Wizard Arrow 4-80B(Yellow)",
-    description:
-      "Arrow Wizard (Japanese: WizardArrow) is a round Stamina Type Blade with two large blades acting as the main contact points.",
+    description: "Arrow Wizard is a round Stamina Type Beyblade.",
     price: 300,
     pcs: 1,
     image:
@@ -190,80 +165,11 @@ const products = [
     image:
       "https://th.bing.com/th/id/OIP.TiyXAebWm4JEOPMxDXE6WwHaHa?rs=1&pid=ImgDetMain",
   },
-  // Original TT
-  {
-    id: 1.5,
-    name: "BX-01 STARTER DRAN SWORD 3-60F",
-    description: `Dran Sword Three Sixty Flat) is an Attack Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on June 10th, 2023 during the CoroCoro Spirit Festival for 1980円.`,
-    price: 1700,
-    pcs: "Pre-order",
-    image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910381-4.jpg",
-  },
-  {
-    id: 1.6,
-    name: "BX-02 STARTER HELLS SCYTHE 4-60T",
-    description: `Hells Scythe Four Sixty Taper) is a Balance Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on June 10th, 2023 during the CoroCoro Spirit Festival for 1980円.`,
-    price: 1700,
-    pcs: "Pre-order",
-    image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910398-4.jpg",
-  },
-
-  {
-    id: 1.6,
-    name: "BX-03 STARTER WIZARD ARROW 4-80B",
-    description: `Wizard Arrow Four Eighty Ball) is a Stamina Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on July 15th, 2023 for 1980円.`,
-    price: 1700,
-    pcs: "Pre-order",
-    image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910473-4.jpg",
-  },
-
-  {
-    id: 1.5,
-    name: "Takara Tomy Beyblade X Random Booster (Pre-Order)",
-    description: `Original Random Booster Vol. 4 BX-35. <br>
-  <i>It will take 15-25 days<br> to be delivered</i>`,
-    price: 1480,
-    pcs: "Pre-order",
-    image:
-      "https://th.bing.com/th/id/OIP.7ncb8aYMnFMRJFi-SS3bTQHaHa?rs=1&pid=ImgDetMain",
-  },
-  {
-    id: 1.6,
-    name: "Takara Tomy UX-08 Silver Wolf (Pre-Order)",
-    description: `Original UX-08 Silver Wolf 3-80FB. <br>
-  <i>It will take 15-25 days<br> to be delivered</i>`,
-    price: 4000,
-    pcs: "Pre-order",
-    image:
-      "https://media3.nin-nin-game.com/464324/beyblade-x-ux-08-starter-silver-wolf-3-80fb-takara-tomy-.jpg",
-  },
-
-  {
-    id: 1.7,
-    name: "Takara Tomy Random Booster Shinobi Shadow Select (Pre-Order)",
-    description: `Original UX-05 Random Booster. <br>
-  <i>It will take 15-25 days<br> to be delivered</i>`,
-    price: 1480,
-    pcs: "Pre-order",
-    image:
-      "https://malloftoys.com/cdn/shop/files/TakaraTomyBeybladeXUX-05RandomBoosterShinobiShadow.webp?v=1713220230g",
-  },
-
-  {
-    id: 1.8,
-    name: "Takara Tomy BX-33 Weiss Tiger <I>With launcher</i> (Pre-Order)",
-    description: `Original UX-33 Beyblade X Booster Weiss Tiger 3-60U. <br>
-  <i>It will take 15-25 days<br> to be delivered</i>`,
-    price: 2900,
-    pcs: "Pre-order",
-    image:
-      "https://th.bing.com/th/id/OIP.iDwuU32BFuQq98OZXQmjbgHaHa?w=1280&h=1280&rs=1&pid=ImgDetMain",
-  },
+  // Original TT Starts
   {
     id: 1.9,
     name: "Takara Tomy Xtreme Stadium (Pre-Order)",
-    description: `Original BX-10 Xtreme Stadium. <br>
-  <i>It will take 15-25 days<br> to be delivered</i>`,
+    description: `Original BX-10 Xtreme Stadium.`,
     price: 3800,
     pcs: "Pre-order",
     image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910596-2.jpg",
@@ -293,8 +199,7 @@ const products = [
   {
     id: 10,
     name: "Beyblade X Launcher Grip",
-    description:
-      "The Launcher Grip (ランチャーグリップ, Ranchā Gurippu) is an Accessory released as part of the Beyblade X series. It was released in Japan on July 15th, 2023 for 700円.",
+    description: "The Launcher Grip is an Accessory.",
     price: 200,
     pcs: "Out of Stock",
     image:
@@ -413,17 +318,30 @@ function loadProducts() {
     <h2 class="card-title text-3xl font-extrabold mb-3 group-hover:text-green-400 transition duration-200">
       ${product.name}
     </h2>
-    
-   <p class="text-sm text-gray-400 mb-4 line-clamp-3">
+      
+
+
+
+<p id="desc-container-${
+        product.id
+      }" class="text-sm text-gray-400 mb-4 line-clamp-3 overflow-hidden max-h-[40px] transition-all duration-300">
   <span id="desc-${product.id}">
-    ${product.description.length > 10 
-      ? product.description.substring(0, 10) + '...' 
-      : product.description}
+    ${
+      product.description.length > 10
+        ? product.description.substring(0, 10) + "..."
+        : product.description
+    }
   </span>
-  ${product.description.length > 80 
-    ? `<span class="text-green-400 cursor-pointer font-semibold" onclick="toggleDescription(${product.id})"> see more..</span>` 
-    : ''}
+  ${
+    product.description.length > 10
+      ? `<span class="text-green-400 cursor-pointer font-semibold" onclick="toggleDescription(${product.id})"> see more..</span>`
+      : ""
+  }
 </p>
+
+
+
+
 
 
     <p class="text-lg font-bold mb-4">
@@ -449,31 +367,23 @@ function loadProducts() {
     .join("");
 }
 
-
-
-
-
-// SEE MORE
-
-
+// SEE MORE DESCRIPTION
 function toggleDescription(productId) {
   const descSpan = document.getElementById(`desc-${productId}`);
-  const product = products.find(p => p.id === productId); // Assuming 'products' is your product list
+  const descContainer = document.getElementById(`desc-container-${productId}`);
+  const product = products.find((p) => p.id === productId);
 
-  if (descSpan.innerText.includes("...")) {
+  if (descSpan.innerText.length <= 13) {
+    // Checking if currently collapsed (10 chars + "...")
     descSpan.innerText = product.description; // Show full description
+    descContainer.classList.remove("max-h-[40px]"); // Remove height limit
   } else {
-    descSpan.innerText = product.description.substring(0, 80) + "..."; // Collapse it back
+    descSpan.innerText = product.description.substring(0, 10) + "..."; // Collapse it back
+    descContainer.classList.add("max-h-[40px]"); // Limit height again
   }
 }
 
-
-
-
-
-
-
-
+// SEE MORE DESCRIPTION
 
 // Function to add an item to the cart
 function addToCart(productId) {
