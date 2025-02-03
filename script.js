@@ -16,7 +16,7 @@ const products = [
     name: "Phoenix Rudder",
     description:
       "Phoenix Rudder 9-70G (フェニックスラダー9-70ナインセブンティーGグライド, Fenikkusu Radā Nain Sebuntī Guraido; Phoenix Rudder Nine Seventy Glide) is a Stamina Type Beyblade.",
-    price: 450,
+    price: 460,
     pcs: 11,
     image:
       "https://th.bing.com/th/id/OIP.pk6blr69rhIm9_KKW6Tg-QAAAA?rs=1&pid=ImgDetMain",
@@ -26,7 +26,7 @@ const products = [
     name: "Silver Wolf",
     description:
       "<b>Silver Wolf </b> is a reference to Beyblades from Bakuten Shoot Beyblade, in this case being Wolborg. The Gear Chip has the Bakuten Shoot Beyblade logo on the wolf's ears..",
-    price: 450,
+    price: 470,
     pcs: 7,
     image:
       "https://th.bing.com/th/id/OIP.EP4oWeNCoM2XVYiSiRvfjgHaHa?rs=1&pid=ImgDetMain",
@@ -37,7 +37,7 @@ const products = [
     name: "Leon Crest",
     description:
       "Leon Crest 7-60GN (レオンクレスト7-60 (セブンシクスティー)GN (ギヤニードル), Reon Kuresuto Sebun Shikusutī Giya Nīdoru; Leon Crest Seven Sixty Gear Needle) is a Defense Type Beyblade.",
-    price: 450,
+    price: 480,
     pcs: 11,
     image:
       "https://th.bing.com/th/id/OIP.lnyewdWH41kt0n1521GDtgHaGe?rs=1&pid=ImgDetMain",
@@ -51,7 +51,7 @@ const products = [
     name: "Shinobi Shadow",
     description:
       "<b>Shinobi Shadow</b> is a Shitty Beyblade...",
-    price: 400,
+    price: 420,
     pcs: 6,
     image:
       "https://th.bing.com/th/id/OIP.qsOanWmIlc24rOmGhG6ZaAAAAA?rs=1&pid=ImgDetMain",
