@@ -16,7 +16,7 @@ const products = [
     name: "Phoenix Rudder",
     description: "Phoenix Rudder 9-70G is a Stamina Type Beyblade.",
     price: 460,
-    pcs: 11,
+    pcs: 10,
     image:
       "https://th.bing.com/th/id/OIP.pk6blr69rhIm9_KKW6Tg-QAAAA?rs=1&pid=ImgDetMain",
   },
@@ -35,7 +35,7 @@ const products = [
     name: "Leon Crest",
     description: "Leon Crest 7-60GN is a Defense Type Beyblade.",
     price: 480,
-    pcs: 11,
+    pcs: 10,
     image:
       "https://th.bing.com/th/id/OIP.lnyewdWH41kt0n1521GDtgHaGe?rs=1&pid=ImgDetMain",
   },
