@@ -11,24 +11,61 @@ const products = [
   //   pcs: "∞",
   //   image: "https://thebeyverse.com/cdn/shop/products/6C495ED9-94FD-43FD-A2D2-1630AD50E3E8.jpg?v=1680825615",
   // },
+   {
+    id: 0.941,
+    name: "Phoenix Rudder",
+    description:
+      "Phoenix Rudder 9-70G (フェニックスラダー9-70ナインセブンティーGグライド, Fenikkusu Radā Nain Sebuntī Guraido; Phoenix Rudder Nine Seventy Glide) is a Stamina Type Beyblade.",
+    price: 450,
+    pcs: 11,
+    image:
+      "https://th.bing.com/th/id/OIP.pk6blr69rhIm9_KKW6Tg-QAAAA?rs=1&pid=ImgDetMain",
+  },
+    {
+    id: 0.17,
+    name: "Silver Wolf",
+    description:
+      "<b>Silver Wolf </b> is a reference to Beyblades from Bakuten Shoot Beyblade, in this case being Wolborg. The Gear Chip has the Bakuten Shoot Beyblade logo on the wolf's ears..",
+    price: 450,
+    pcs: 7,
+    image:
+      "https://th.bing.com/th/id/OIP.EP4oWeNCoM2XVYiSiRvfjgHaHa?rs=1&pid=ImgDetMain",
+  },
 
   {
-    id: 0.941,
-    name: "Matt Black Dran Sword 3-60 F(Pre-Order)",
+    id: 0.819,
+    name: "Leon Crest",
     description:
-      "Sword Dran (Japanese: Dran Sword) is a three-sided Attack Type Blade with three upward slanting blades acting as the main contact points. The Gear Chip features a dragon head exhaling fire.",
-    price: 420,
-    pcs: 0,
+      "Leon Crest 7-60GN (レオンクレスト7-60 (セブンシクスティー)GN (ギヤニードル), Reon Kuresuto Sebun Shikusutī Giya Nīdoru; Leon Crest Seven Sixty Gear Needle) is a Defense Type Beyblade.",
+    price: 450,
+    pcs: 11,
     image:
-      "https://th.bing.com/th/id/OIP.975Ejdlmm_qVl-OHaPylcAHaHa?rs=1&pid=ImgDetMain",
+      "https://th.bing.com/th/id/OIP.lnyewdWH41kt0n1521GDtgHaGe?rs=1&pid=ImgDetMain",
   },
+
+
+
+
+ {
+    id: 0.172,
+    name: "Shinobi Shadow",
+    description:
+      "<b>Shinobi Shadow</b> is a Shitty Beyblade...",
+    price: 400,
+    pcs: 6,
+    image:
+      "https://th.bing.com/th/id/OIP.qsOanWmIlc24rOmGhG6ZaAAAAA?rs=1&pid=ImgDetMain",
+  },
+
+  
+ 
   {
     id: 2.1,
     name: "BX-34 Cobalt Dragoon 2-60C",
     description:
       "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
     price: 400,
-    pcs: 1,
+    pcs: 3,
     image:
       "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
   },
@@ -38,7 +75,7 @@ const products = [
     description:
       "Models: String launcher<br>Brand: SB brand <br> Package include: Launcher only",
     price: 400,
-    pcs: 0,
+    pcs: 8,
     image:
       "https://ae01.alicdn.com/kf/S287b82f604874630a3ceb08de1a04111M/SB-Brand-Bey-X-Left-String-Launcher-BX-Spinning-Tops-Toys-Gift-for-Children.jpg_640x640.jpg",
   },
