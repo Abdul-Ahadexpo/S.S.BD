@@ -192,7 +192,7 @@ const products = [
   },
   // Original TT
   {
-    .5,
+    id: 1.5,
     name: "BX-01 STARTER DRAN SWORD 3-60F",
     description: `Dran Sword Three Sixty Flat) is an Attack Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on June 10th, 2023 during the CoroCoro Spirit Festival for 1980円.`,
     price: 1700,
@@ -200,7 +200,7 @@ const products = [
     image: "https://opensesame.com.bd/wp-content/uploads/2024/08/910381-4.jpg",
   },
   {
-    .6,
+    id: 1.6,
     name: "BX-02 STARTER HELLS SCYTHE 4-60T",
     description: `Hells Scythe Four Sixty Taper) is a Balance Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on June 10th, 2023 during the CoroCoro Spirit Festival for 1980円.`,
     price: 1700,
@@ -209,7 +209,7 @@ const products = [
   },
 
   {
-    .6,
+    id: 1.6,
     name: "BX-03 STARTER WIZARD ARROW 4-80B",
     description: `Wizard Arrow Four Eighty Ball) is a Stamina Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on July 15th, 2023 for 1980円.`,
     price: 1700,
@@ -218,7 +218,7 @@ const products = [
   },
 
   {
-    .5,
+    id: 1.5,
     name: "Takara Tomy Beyblade X Random Booster (Pre-Order)",
     description: `Original Random Booster Vol. 4 BX-35. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -228,7 +228,7 @@ const products = [
       "https://th.bing.com/th/id/OIP.7ncb8aYMnFMRJFi-SS3bTQHaHa?rs=1&pid=ImgDetMain",
   },
   {
-    .6,
+    id: 1.6,
     name: "Takara Tomy UX-08 Silver Wolf (Pre-Order)",
     description: `Original UX-08 Silver Wolf 3-80FB. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -239,7 +239,7 @@ const products = [
   },
 
   {
-    .7,
+    id: 1.7,
     name: "Takara Tomy Random Booster Shinobi Shadow Select (Pre-Order)",
     description: `Original UX-05 Random Booster. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -250,7 +250,7 @@ const products = [
   },
 
   {
-    .8,
+    id: 1.8,
     name: "Takara Tomy BX-33 Weiss Tiger <I>With launcher</i> (Pre-Order)",
     description: `Original UX-33 Beyblade X Booster Weiss Tiger 3-60U. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -260,7 +260,7 @@ const products = [
       "https://th.bing.com/th/id/OIP.iDwuU32BFuQq98OZXQmjbgHaHa?w=1280&h=1280&rs=1&pid=ImgDetMain",
   },
   {
-    .9,
+    id: 1.9,
     name: "Takara Tomy Xtreme Stadium (Pre-Order)",
     description: `Original BX-10 Xtreme Stadium. <br>
   <i>It will take 15-25 days<br> to be delivered</i>`,
@@ -291,7 +291,7 @@ const products = [
   },
 
   {
-    0,
+    id: 10,
     name: "Beyblade X Launcher Grip",
     description:
       "The Launcher Grip (ランチャーグリップ, Ranchā Gurippu) is an Accessory released as part of the Beyblade X series. It was released in Japan on July 15th, 2023 for 700円.",
@@ -302,7 +302,7 @@ const products = [
   },
 
   {
-    1.2,
+    id: 11.2,
     name: "Xiphoid Xcalibur(pre-order)",
     description:
       " Xcalibur is a right-spin DB Core that features a large sword, representing the DB Core's namesake; Excalibur, the legendary sword of King Arthur.",
