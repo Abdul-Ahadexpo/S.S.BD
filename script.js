@@ -793,7 +793,7 @@ function loadFilteredProducts(filteredProducts) {
     />
   </figure>
   <div class="card-body p-6 bg-opacity-80 backdrop-blur-sm bg-gradient-to-b from-black via-gray-800 to-transparent">
-    <h2 class="card-title text-3xl font-extrabold mb-3 group-hover:text-green-400 transition duration-200 max-h-[300px]">
+    <h2 class="card-title text-3xl font-extrabold mb-3 group-hover:text-green-400 transition duration-200 max-h-[30px]">
       ${product.name}
     </h2>
     <p class="text-sm text-gray-400 mb-4 line-clamp-3">
