@@ -414,8 +414,8 @@ function loadProducts() {
       ${product.name}
     </h2>
     <p class="text-sm text-gray-400 mb-4 line-clamp-3">
-      ${product.description}
-    </p>
+  ${product.description.length > 80 ? product.description.substring(0, 80) + ' see more..' : product.description}
+</p>
     <p class="text-lg font-bold mb-4">
       Price: <span class="text-green-400"> ${product.price.toFixed(2)}TK</span>
     </p>
