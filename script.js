@@ -783,7 +783,7 @@ function loadFilteredProducts(filteredProducts) {
             (product) => `
       <div
   id="ppd"
-  class="card w-full bg-gradient-to-b from-gray-900 to-gray-800 text-white shadow-xl transition-transform transform hover:scale-105 hover:shadow-2xl rounded-xl overflow-hidden relative group"
+  class="card w-full bg-gradient-to-b from-gray-900 to-gray-800 text-white shadow-xl transition-transform transform hover:scale-105 hover:shadow-2xl rounded-xl overflow-hidden relative group max-h-[300px]"
 >
   <figure class="overflow-hidden">
     <img
@@ -793,7 +793,7 @@ function loadFilteredProducts(filteredProducts) {
     />
   </figure>
   <div class="card-body p-6 bg-opacity-80 backdrop-blur-sm bg-gradient-to-b from-black via-gray-800 to-transparent">
-    <h2 class="card-title text-3xl font-extrabold mb-3 group-hover:text-green-400 transition duration-200 max-h-[30px]">
+    <h2 class="card-title text-3xl font-extrabold mb-3 group-hover:text-green-400 transition duration-200">
       ${product.name}
     </h2>
     <p class="text-sm text-gray-400 mb-4 line-clamp-3">
