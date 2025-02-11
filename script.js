@@ -21,6 +21,15 @@ const products = [
       "https://th.bing.com/th/id/OIP.pk6blr69rhIm9_KKW6Tg-QAAAA?rs=1&pid=ImgDetMain",
   },
   {
+    id: 0.491,
+    name: "Dran Buster",
+    description: "Dran Buster is an Attack Type Blade with an overall blocky shape.",
+    price: 450,
+    pcs: 1,
+    image:
+      "https://th.bing.com/th/id/OIP.dcfIdPi16hcjBbquC0fsrQHaHu?rs=1&pid=ImgDetMain",
+  },
+  {
     id: 0.17,
     name: "Silver Wolf",
     description: "Silver Wolf is a Beyblade.",
