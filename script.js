@@ -16,7 +16,7 @@ const products = [
     name: "Phoenix Rudder",
     description: "Phoenix Rudder 9-70G is a Stamina Type Beyblade.",
     price: 460,
-    pcs: 10,
+    pcs: 0,
     image:
       "https://th.bing.com/th/id/OIP.pk6blr69rhIm9_KKW6Tg-QAAAA?rs=1&pid=ImgDetMain",
   },
@@ -25,7 +25,7 @@ const products = [
     name: "Silver Wolf",
     description: "Silver Wolf is a Beyblade.",
     price: 470,
-    pcs: 7,
+    pcs: 3,
     image:
       "https://th.bing.com/th/id/OIP.EP4oWeNCoM2XVYiSiRvfjgHaHa?rs=1&pid=ImgDetMain",
   },
@@ -35,7 +35,7 @@ const products = [
     name: "Leon Crest",
     description: "Leon Crest 7-60GN is a Defense Type Beyblade.",
     price: 480,
-    pcs: 10,
+    pcs: 2,
     image:
       "https://th.bing.com/th/id/OIP.lnyewdWH41kt0n1521GDtgHaGe?rs=1&pid=ImgDetMain",
   },
@@ -55,7 +55,7 @@ const products = [
     name: "Shinobi Shadow",
     description: "Shinobi Shadow is a Shitty Beyblade...",
     price: 420,
-    pcs: 6,
+    pcs: 3,
     image:
       "https://th.bing.com/th/id/OIP.qsOanWmIlc24rOmGhG6ZaAAAAA?rs=1&pid=ImgDetMain",
   },
@@ -66,7 +66,7 @@ const products = [
     description:
       "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
     price: 400,
-    pcs: 3,
+    pcs: 1,
     image:
       "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
   },
