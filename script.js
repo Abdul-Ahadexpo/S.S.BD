@@ -53,9 +53,9 @@ const products = [
   },
   {
     id: 2.31,
-    name: "SB Brand Bey X Left String Launcher (Pre-Order)",
+    name: "SB Brand Bey X Left String Launcher",
     description:
-      "Models: String launcher<br>Brand: SB brand <br> Package include: Launcher only",
+      "SB Brand Left String launcher(Black)",
     price: 400,
     pcs: 1,
     image:
