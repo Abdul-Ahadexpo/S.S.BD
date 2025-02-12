@@ -8,7 +8,7 @@ const products = [
     name: "280TK Beyblade X Mystery Box",
     description: "An exciting mystery box filled with Beyblade X surprises worth more than the price you pay!",
     price: 300,
-    pcs: "5",
+    pcs: "2",
     image: "https://thebeyverse.com/cdn/shop/products/6C495ED9-94FD-43FD-A2D2-1630AD50E3E8.jpg?v=1680825615",
   },
   {
@@ -34,40 +34,12 @@ const products = [
     name: "Silver Wolf",
     description: "Silver Wolf is a Beyblade.",
     price: 470,
-    pcs: 3,
+    pcs: 1,
     image:
       "https://th.bing.com/th/id/OIP.EP4oWeNCoM2XVYiSiRvfjgHaHa?rs=1&pid=ImgDetMain",
   },
 
-  {
-    id: 0.819,
-    name: "Leon Crest",
-    description: "Leon Crest 7-60GN is a Defense Type Beyblade.",
-    price: 480,
-    pcs: 2,
-    image:
-      "https://th.bing.com/th/id/OIP.lnyewdWH41kt0n1521GDtgHaGe?rs=1&pid=ImgDetMain",
-  },
 
-  {
-    id: 1,
-    name: "Phoenix Wing 9-60GF",
-    description: `Soar Phoenix is a three-sided Attack Type Beyblade.`,
-    price: 450,
-    pcs: 4,
-    image:
-      "https://th.bing.com/th/id/OIP.7Vlwn3_Ru7iwhjRfTEPWIAHaGg?rs=1&pid=ImgDetMai",
-  },
-
-  {
-    id: 0.172,
-    name: "Shinobi Shadow",
-    description: "Shinobi Shadow is a Shitty Beyblade...",
-    price: 420,
-    pcs: 3,
-    image:
-      "https://th.bing.com/th/id/OIP.qsOanWmIlc24rOmGhG6ZaAAAAA?rs=1&pid=ImgDetMain",
-  },
 
   {
     id: 2.1,
@@ -85,10 +57,45 @@ const products = [
     description:
       "Models: String launcher<br>Brand: SB brand <br> Package include: Launcher only",
     price: 400,
-    pcs: 8,
+    pcs: 1,
     image:
       "https://ae01.alicdn.com/kf/S287b82f604874630a3ceb08de1a04111M/SB-Brand-Bey-X-Left-String-Launcher-BX-Spinning-Tops-Toys-Gift-for-Children.jpg_640x640.jpg",
   },
+
+
+
+  
+  
+  {
+    id: 0.819,
+    name: "Leon Crest",
+    description: "Leon Crest 7-60GN is a Defense Type Beyblade.",
+    price: 480,
+    pcs: 0,
+    image:
+      "https://th.bing.com/th/id/OIP.lnyewdWH41kt0n1521GDtgHaGe?rs=1&pid=ImgDetMain",
+  },
+
+  {
+    id: 1,
+    name: "Phoenix Wing 9-60GF",
+    description: `Soar Phoenix is a three-sided Attack Type Beyblade.`,
+    price: 450,
+    pcs: 0,
+    image:
+      "https://th.bing.com/th/id/OIP.7Vlwn3_Ru7iwhjRfTEPWIAHaGg?rs=1&pid=ImgDetMai",
+  },
+
+  {
+    id: 0.172,
+    name: "Shinobi Shadow",
+    description: "Shinobi Shadow is a Shitty Beyblade...",
+    price: 420,
+    pcs: 2,
+    image:
+      "https://th.bing.com/th/id/OIP.qsOanWmIlc24rOmGhG6ZaAAAAA?rs=1&pid=ImgDetMain",
+  },
+
   {
     id: 2.4,
     name: "Weiss Tiger 3-60U",
