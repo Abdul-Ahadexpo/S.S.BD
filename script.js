@@ -534,7 +534,7 @@ function loadCart() {
       MEGADEAL40: 0.4,
       QUICK5OFF: 0.05,
       COOLVIBES10: 0.1,
-      LUCKYDAY20: 0.2,
+      LUCKYDAY20: 0.1,
       ZOOMDEAL30: 0.3,
       POWERUP60: 0.6,
       JUMPSTART70: 0.7,
