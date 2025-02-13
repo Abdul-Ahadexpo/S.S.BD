@@ -91,7 +91,7 @@ const products = [
     name: "Shinobi Shadow",
     description: "Shinobi Shadow is a Shitty Beyblade...",
     price: 420,
-    pcs: 2,
+    pcs: 1,
     image:
       "https://th.bing.com/th/id/OIP.qsOanWmIlc24rOmGhG6ZaAAAAA?rs=1&pid=ImgDetMain",
   },
