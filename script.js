@@ -34,7 +34,7 @@ const products = [
     name: "Silver Wolf",
     description: "Silver Wolf is a Beyblade.",
     price: 470,
-    pcs: 1,
+    pcs: 0,
     image:
       "https://th.bing.com/th/id/OIP.EP4oWeNCoM2XVYiSiRvfjgHaHa?rs=1&pid=ImgDetMain",
   },
