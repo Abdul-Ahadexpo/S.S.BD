@@ -47,7 +47,7 @@ const products = [
     description:
       "Cobalt Dragoon is a left-spin four-sided Attack Type Blade with four upward slanting blades acting as the main contact points.",
     price: 400,
-    pcs: 1,
+    pcs: 0,
     image:
       "https://i5.walmartimages.com/asr/19cc5349-bd73-4c38-ae26-24d153f35867.d2b63e51ab81b07745964587525dcfde.jpeg?odnHeight=117&odnWidth=117&odnBg=FFFFFF",
   },
@@ -57,7 +57,7 @@ const products = [
     description:
       "SB Brand Left String launcher(Black)",
     price: 400,
-    pcs: 1,
+    pcs: 0,
     image:
       "https://ae01.alicdn.com/kf/S287b82f604874630a3ceb08de1a04111M/SB-Brand-Bey-X-Left-String-Launcher-BX-Spinning-Tops-Toys-Gift-for-Children.jpg_640x640.jpg",
   },
@@ -101,7 +101,7 @@ const products = [
     name: "Weiss Tiger 3-60U",
     description: "Weiss Tiger is a Balance Type Beyblade.",
     price: 400,
-    pcs: 1,
+    pcs: 0,
     image:
       "https://th.bing.com/th/id/OIP.LX-pjn8-PzrjcHWl_QSipwHaG9?rs=1&pid=ImgDetMain",
   },
@@ -110,7 +110,7 @@ const products = [
     name: "Shark Edge 3-60LF(Pre-Order)",
     description: "Shark Edge is an Attack Type Beyblade.",
     price: 450,
-    pcs: 0,
+    pcs: 1,
     image:
       "https://beyblade-shop.com/cdn/shop/files/Shark-Edge-3-60LF-Beyblade-Shop_1200x1200.jpg?v=1692305996",
   },
@@ -119,7 +119,7 @@ const products = [
     name: "Black Shell 4-60D",
     description: "Black Shell is a Defense Type Beyblade.",
     price: 400,
-    pcs: 1,
+    pcs: 0,
     image:
       "https://beybladepremier.com/cdn/shop/files/BX-3501BlackShell4-60D_BeybladeX_BACKORDERJuly31st.jpg?v=1721582044",
   },
@@ -167,7 +167,7 @@ const products = [
     name: "BX-08 Wizard Arrow 4-80B(Yellow)",
     description: "Arrow Wizard is a round Stamina Type Beyblade.",
     price: 300,
-    pcs: 1,
+    pcs: 0,
     image:
       "https://img4.dhresource.com/webp/m/0x0/f3/albu/km/o/14/e42c932b-7a4c-4bd7-b639-55b94642ac3d.jpg",
   },
@@ -177,7 +177,7 @@ const products = [
     description:
       "Wizard Rod is a Stamina Type Blade with a wide circular shape.",
     price: 450,
-    pcs: 0,
+    pcs: 1,
     image:
       "https://th.bing.com/th/id/OIP.TiyXAebWm4JEOPMxDXE6WwHaHa?rs=1&pid=ImgDetMain",
   },
