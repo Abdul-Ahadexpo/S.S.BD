@@ -228,7 +228,7 @@ const products = [
     description:
       " Xcalibur is a right-spin DB Core that features a large sword, representing the DB Core's namesake; Excalibur, the legendary sword of King Arthur.",
     price: 520,
-    pcs: "2",
+    pcs: "Pre-order",
     image:
       "https://th.bing.com/th/id/R.3c496bbaeac5d4e1e695c24b5cd4fb01?rik=2Dlt2AU3yYDN8Q&pid=ImgRaw&r=0",
   },
@@ -238,7 +238,7 @@ const products = [
     description:
       "Knight is a right-spin DB Core that features the helmet of a knight, akin to its predecessor, the Air Knight Cho-Z Layer.",
     price: 520,
-    pcs: "1",
+    pcs: "Pre-order",
     image:
       "https://th.bing.com/th/id/R.8cb4f3687991c2262a6384ef6cfd5e89?rik=UQbsuD%2fCGVomTQ&pid=ImgRaw&r=0",
   },
@@ -247,7 +247,7 @@ const products = [
     name: "Gatling Dragon(pre-order)",
     description: "Flame brand Gatling Dragon Rapid Charge' Metal-10",
     price: 520,
-    pcs: "4",
+    pcs: "Pre-order",
     image:
       "https://th.bing.com/th/id/OIP.Qd6oZIu2UZ2JyDl8OKXDuAHaHa?rs=1&pid=ImgDetMain",
   },
@@ -257,6 +257,7 @@ const products = [
     name: "Imperial Dragon(pre-order)",
     description: "Flame brand Imperial Dragon Ignition'",
     price: 500,
+     pcs: "Pre-order",
     image:
       "https://vignette.wikia.nocookie.net/beyblade/images/2/2c/Imperial_Dragon_Bey.jpg/revision/latest?cb=20191015123208",
   },
@@ -265,7 +266,7 @@ const products = [
     name: "Ultimate Valkyrie(pre-order)",
     description: "Flame brand Ultimate Valkyrie Legacy Variable'-9",
     price: 500,
-    pcs: "3",
+     pcs: "Pre-order",
     image:
       "https://th.bing.com/th/id/OIP._makEXYOpLStcyVIRfj61wHaHa?rs=1&pid=ImgDetMain",
   },
@@ -274,7 +275,7 @@ const products = [
     name: "Vanish Fafnir(pre-order)",
     description: "Full rubber Vanish Fafnir Tapered Kick-3",
     price: 500,
-    pcs: "2",
+ pcs: "Pre-order",
     image:
       "https://th.bing.com/th/id/OIP.nx0indHJS37xKmwlMftJKAHaHa?rs=1&pid=ImgDetMain",
   },
@@ -294,7 +295,7 @@ const products = [
     name: "L-Drago Destructor",
     description: "L-Drago Destructor F:S. A Metal Fight Bey",
     price: 350,
-    pcs: 3,
+   pcs: "Pre-order",
     image:
       "https://cdn11.bigcommerce.com/s-iodt3qca/images/stencil/1280x1280/products/140/405/s_l1600_50__79330.1448225384.jpg?c=2?imbypass=on",
   },
