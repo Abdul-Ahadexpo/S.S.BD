@@ -53,7 +53,7 @@ function Cart() {
                 <div className="flex-1 ml-4">
                   <h3 className="text-lg font-semibold">{item.name}</h3>
                   <p className="text-gray-600">Quantity: {item.quantity || 1}</p>
-                  <p className="text-gray-800">{item.price} TK</p>
+                  <p className="text-gray-800">{item.price}TK</p>
                 </div>
                 <button
                   onClick={() => removeFromCart(item.id)}
@@ -66,15 +66,15 @@ function Cart() {
             <div className="mt-6 border-t pt-4">
               <div className="flex justify-between text-lg font-semibold">
                 <span>Subtotal:</span>
-                <span>${calculateTotal() - DELIVERY_CHARGE}</span>
+                <span>{calculateTotal() - DELIVERY_CHARGE}TK</span>
               </div>
               <div className="flex justify-between text-lg font-semibold mt-2">
                 <span>Delivery Charge:</span>
-                <span>${DELIVERY_CHARGE}</span>
+                <span>{DELIVERY_CHARGE}TK</span>
               </div>
               <div className="flex justify-between text-xl font-bold mt-4">
                 <span>Total:</span>
-                <span>${calculateTotal()}</span>
+                <span>{calculateTotal()}TK</span>
               </div>
             </div>
           </div>
