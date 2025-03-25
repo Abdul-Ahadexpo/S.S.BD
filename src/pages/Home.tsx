@@ -140,7 +140,7 @@ function Home() {
             <div className="p-4">
               <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{product.name}</h2>
               <p className="text-gray-600 dark:text-gray-300 mb-2 text-sm line-clamp-2">{product.description}</p>
-              <p className="text-lg font-bold mb-2 text-gray-800 dark:text-white">${product.price}</p>
+              <p className="text-lg font-bold mb-2 text-gray-800 dark:text-white">{product.price} TK</p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 Status: {
                   typeof product.quantity === 'number' 
