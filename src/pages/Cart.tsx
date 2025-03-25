@@ -53,7 +53,7 @@ function Cart() {
                 <div className="flex-1 ml-4">
                   <h3 className="text-lg font-semibold">{item.name}</h3>
                   <p className="text-gray-600">Quantity: {item.quantity || 1}</p>
-                  <p className="text-gray-800">${item.price}</p>
+                  <p className="text-gray-800">{item.price} TK</p>
                 </div>
                 <button
                   onClick={() => removeFromCart(item.id)}
