@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Home, Settings, Sun, Moon } from 'lucide-react';
+import { ShoppingCart, Home, Settings, Sun, Moon, Star } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 function Navbar() {
@@ -17,6 +17,13 @@ function Navbar() {
             </Link>
           </div>
           <div className="flex items-center space-x-4">
+            <Link 
+              to="/reviews" 
+              className="flex items-center space-x-1 text-gray-800 dark:text-white hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              <Star className="h-6 w-6" />
+              <span className="hidden sm:inline">Reviews</span>
+            </Link>
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, push, remove, get } from 'firebase/database';
 import { db } from '../firebase';
-import { Trash2, Plus, Star } from 'lucide-react';
+import { Trash2, Plus, Star, Tag } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface Product {
@@ -11,6 +11,7 @@ interface Product {
   price: number;
   imageUrl: string;
   quantity: string;
+  category: string;
 }
 
 interface Review {
@@ -21,16 +22,23 @@ interface Review {
   images: string[];
 }
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'products' | 'reviews'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'reviews' | 'categories'>('products');
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [product, setProduct] = useState({
     name: '',
     description: '',
     price: 0,
     imageUrl: '',
-    quantity: ''
+    quantity: '',
+    category: ''
   });
   const [review, setReview] = useState<Review>({
     buyerName: '',
@@ -39,10 +47,12 @@ function Admin() {
     purchaseDate: '',
     images: []
   });
+  const [newCategory, setNewCategory] = useState('');
 
   useEffect(() => {
     if (isAuthenticated) {
       loadProducts();
+      loadCategories();
     }
   }, [isAuthenticated]);
 
@@ -56,6 +66,19 @@ function Admin() {
         ...(data as Omit<Product, 'id'>)
       }));
       setProducts(productsArray);
+    }
+  };
+
+  const loadCategories = async () => {
+    const categoriesRef = ref(db, 'categories');
+    const snapshot = await get(categoriesRef);
+    if (snapshot.exists()) {
+      const categoriesData = snapshot.val();
+      const categoriesArray = Object.entries(categoriesData).map(([id, data]) => ({
+        id,
+        ...(data as Omit<Category, 'id'>)
+      }));
+      setCategories(categoriesArray);
     }
   };
 
@@ -95,7 +118,8 @@ function Admin() {
         description: '',
         price: 0,
         imageUrl: '',
-        quantity: ''
+        quantity: '',
+        category: ''
       });
 
       await loadProducts();
@@ -151,6 +175,34 @@ function Admin() {
     }
   };
 
+  const handleCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const categoriesRef = ref(db, 'categories');
+      await push(categoriesRef, { name: newCategory });
+      
+      setNewCategory('');
+      await loadCategories();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Category added successfully',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to add category',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
   const handleDeleteProduct = async (productId: string) => {
     try {
       const result = await Swal.fire({
@@ -189,6 +241,44 @@ function Admin() {
     }
   };
 
+  const handleDeleteCategory = async (categoryId: string) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!',
+        background: '#1f2937',
+        color: '#fff'
+      });
+
+      if (result.isConfirmed) {
+        const categoryRef = ref(db, `categories/${categoryId}`);
+        await remove(categoryRef);
+        await loadCategories();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Category has been deleted.',
+          background: '#1f2937',
+          color: '#fff'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to delete category',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -217,6 +307,17 @@ function Admin() {
           Manage Products
         </button>
         <button
+          onClick={() => setActiveTab('categories')}
+          className={`px-6 py-3 rounded-lg transition-colors duration-200 ${
+            activeTab === 'categories'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+          }`}
+        >
+          <Tag className="inline-block mr-2" size={20} />
+          Manage Categories
+        </button>
+        <button
           onClick={() => setActiveTab('reviews')}
           className={`px-6 py-3 rounded-lg transition-colors duration-200 ${
             activeTab === 'reviews'
@@ -229,7 +330,7 @@ function Admin() {
         </button>
       </div>
 
-      {activeTab === 'products' ? (
+      {activeTab === 'products' && (
         <>
           <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">Product Management</h1>
           <div className="max-w-4xl mx-auto">
@@ -280,6 +381,23 @@ function Admin() {
                     required
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Category</label>
+                  <select
+                    value={product.category}
+                    onChange={(e) => setProduct({ ...product, category: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Quantity</label>
@@ -320,7 +438,8 @@ function Admin() {
                     <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover rounded-lg mb-4" />
                     <h3 className="text-lg font-semibold mb-2 dark:text-white">{product.name}</h3>
                     <p className="text-gray-600 dark:text-gray-300 mb-2">{product.price} TK</p>
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">Stock: {product.quantity}</p>
+                    <p className="text-gray-500 dark:text-gray-400 mb-2">Stock: {product.quantity}</p>
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">Category: {product.category}</p>
                     <button
                       onClick={() => handleDeleteProduct(product.id)}
                       className="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 flex items-center justify-center"
@@ -334,7 +453,52 @@ function Admin() {
             </div>
           </div>
         </>
-      ) : (
+      )}
+
+      {activeTab === 'categories' && (
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">Category Management</h1>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
+            <form onSubmit={handleCategorySubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Category Name</label>
+                <input
+                  type="text"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-lg"
+              >
+                Add Category
+              </button>
+            </form>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Current Categories</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {categories.map((category) => (
+                <div key={category.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <span className="text-lg font-medium dark:text-white">{category.name}</span>
+                  <button
+                    onClick={() => handleDeleteCategory(category.id)}
+                    className="text-red-500 hover:text-red-600"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'reviews' && (
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">Add Customer Review</h1>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
