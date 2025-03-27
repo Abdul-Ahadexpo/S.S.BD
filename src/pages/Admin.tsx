@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ref, push, remove, get } from 'firebase/database';
+import { ref, push, remove, update, get } from 'firebase/database';
 import { db } from '../firebase';
-import { Trash2, Plus, Star, Tag } from 'lucide-react';
+import { Trash2, Plus, Star, Tag, Edit, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface Product {
@@ -15,6 +15,7 @@ interface Product {
 }
 
 interface Review {
+  id: string;
   buyerName: string;
   productName: string;
   reviewText: string;
@@ -32,6 +33,10 @@ function Admin() {
   const [activeTab, setActiveTab] = useState<'products' | 'reviews' | 'categories'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [editingProduct, setEditingProduct] = useState<string | null>(null);
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editingReview, setEditingReview] = useState<string | null>(null);
   const [product, setProduct] = useState({
     name: '',
     description: '',
@@ -41,6 +46,7 @@ function Admin() {
     category: ''
   });
   const [review, setReview] = useState<Review>({
+    id: '',
     buyerName: '',
     productName: '',
     reviewText: '',
@@ -48,11 +54,13 @@ function Admin() {
     images: []
   });
   const [newCategory, setNewCategory] = useState('');
+  const [editedCategoryName, setEditedCategoryName] = useState('');
 
   useEffect(() => {
     if (isAuthenticated) {
       loadProducts();
       loadCategories();
+      loadReviews();
     }
   }, [isAuthenticated]);
 
@@ -79,6 +87,19 @@ function Admin() {
         ...(data as Omit<Category, 'id'>)
       }));
       setCategories(categoriesArray);
+    }
+  };
+
+  const loadReviews = async () => {
+    const reviewsRef = ref(db, 'reviews');
+    const snapshot = await get(reviewsRef);
+    if (snapshot.exists()) {
+      const reviewsData = snapshot.val();
+      const reviewsArray = Object.entries(reviewsData).map(([id, data]) => ({
+        id,
+        ...(data as Omit<Review, 'id'>)
+      }));
+      setReviews(reviewsArray);
     }
   };
 
@@ -110,8 +131,14 @@ function Admin() {
     e.preventDefault();
     
     try {
-      const productsRef = ref(db, 'products');
-      await push(productsRef, product);
+      if (editingProduct) {
+        const productRef = ref(db, `products/${editingProduct}`);
+        await update(productRef, product);
+        setEditingProduct(null);
+      } else {
+        const productsRef = ref(db, 'products');
+        await push(productsRef, product);
+      }
       
       setProduct({
         name: '',
@@ -127,7 +154,7 @@ function Admin() {
       Swal.fire({
         icon: 'success',
         title: 'Success',
-        text: 'Product added successfully',
+        text: editingProduct ? 'Product updated successfully' : 'Product added successfully',
         background: '#1f2937',
         color: '#fff'
       });
@@ -135,7 +162,7 @@ function Admin() {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to add product',
+        text: editingProduct ? 'Failed to update product' : 'Failed to add product',
         background: '#1f2937',
         color: '#fff'
       });
@@ -146,10 +173,23 @@ function Admin() {
     e.preventDefault();
     
     try {
-      const reviewsRef = ref(db, 'reviews');
-      await push(reviewsRef, review);
+      if (editingReview) {
+        const reviewRef = ref(db, `reviews/${editingReview}`);
+        await update(reviewRef, {
+          buyerName: review.buyerName,
+          productName: review.productName,
+          reviewText: review.reviewText,
+          purchaseDate: review.purchaseDate,
+          images: review.images
+        });
+        setEditingReview(null);
+      } else {
+        const reviewsRef = ref(db, 'reviews');
+        await push(reviewsRef, review);
+      }
       
       setReview({
+        id: '',
         buyerName: '',
         productName: '',
         reviewText: '',
@@ -157,10 +197,12 @@ function Admin() {
         images: []
       });
 
+      await loadReviews();
+
       Swal.fire({
         icon: 'success',
         title: 'Success',
-        text: 'Review added successfully',
+        text: editingReview ? 'Review updated successfully' : 'Review added successfully',
         background: '#1f2937',
         color: '#fff'
       });
@@ -168,7 +210,7 @@ function Admin() {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to add review',
+        text: editingReview ? 'Failed to update review' : 'Failed to add review',
         background: '#1f2937',
         color: '#fff'
       });
@@ -179,16 +221,23 @@ function Admin() {
     e.preventDefault();
     
     try {
-      const categoriesRef = ref(db, 'categories');
-      await push(categoriesRef, { name: newCategory });
+      if (editingCategory) {
+        const categoryRef = ref(db, `categories/${editingCategory}`);
+        await update(categoryRef, { name: editedCategoryName });
+        setEditingCategory(null);
+        setEditedCategoryName('');
+      } else {
+        const categoriesRef = ref(db, 'categories');
+        await push(categoriesRef, { name: newCategory });
+        setNewCategory('');
+      }
       
-      setNewCategory('');
       await loadCategories();
 
       Swal.fire({
         icon: 'success',
         title: 'Success',
-        text: 'Category added successfully',
+        text: editingCategory ? 'Category updated successfully' : 'Category added successfully',
         background: '#1f2937',
         color: '#fff'
       });
@@ -196,11 +245,33 @@ function Admin() {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Failed to add category',
+        text: editingCategory ? 'Failed to update category' : 'Failed to add category',
         background: '#1f2937',
         color: '#fff'
       });
     }
+  };
+
+  const handleEditProduct = (productToEdit: Product) => {
+    setProduct({
+      name: productToEdit.name,
+      description: productToEdit.description,
+      price: productToEdit.price,
+      imageUrl: productToEdit.imageUrl,
+      quantity: productToEdit.quantity,
+      category: productToEdit.category
+    });
+    setEditingProduct(productToEdit.id);
+  };
+
+  const handleEditReview = (reviewToEdit: Review) => {
+    setReview(reviewToEdit);
+    setEditingReview(reviewToEdit.id);
+  };
+
+  const handleEditCategory = (category: Category) => {
+    setEditedCategoryName(category.name);
+    setEditingCategory(category.id);
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -235,6 +306,44 @@ function Admin() {
         icon: 'error',
         title: 'Error',
         text: 'Failed to delete product',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!',
+        background: '#1f2937',
+        color: '#fff'
+      });
+
+      if (result.isConfirmed) {
+        const reviewRef = ref(db, `reviews/${reviewId}`);
+        await remove(reviewRef);
+        await loadReviews();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Review has been deleted.',
+          background: '#1f2937',
+          color: '#fff'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to delete review',
         background: '#1f2937',
         color: '#fff'
       });
@@ -294,7 +403,7 @@ function Admin() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-center space-x-4 mb-8">
+      <div className="flex flex-wrap justify-center gap-4 mb-8">
         <button
           onClick={() => setActiveTab('products')}
           className={`px-6 py-3 rounded-lg transition-colors duration-200 ${
@@ -326,13 +435,15 @@ function Admin() {
           }`}
         >
           <Star className="inline-block mr-2" size={20} />
-          Add Reviews
+          Manage Reviews
         </button>
       </div>
 
       {activeTab === 'products' && (
         <>
-          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">Product Management</h1>
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">
+            {editingProduct ? 'Edit Product' : 'Add New Product'}
+          </h1>
           <div className="max-w-4xl mx-auto">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
               <form onSubmit={handleProductSubmit} className="space-y-6">
@@ -421,12 +532,33 @@ function Admin() {
                   </select>
                 </div>
                 
-                <button
-                  type="submit"
-                  className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-lg"
-                >
-                  Add Product
-                </button>
+                <div className="flex space-x-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-lg"
+                  >
+                    {editingProduct ? 'Update Product' : 'Add Product'}
+                  </button>
+                  {editingProduct && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingProduct(null);
+                        setProduct({
+                          name: '',
+                          description: '',
+                          price: 0,
+                          imageUrl: '',
+                          quantity: '',
+                          category: ''
+                        });
+                      }}
+                      className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200 shadow-lg"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
               </form>
             </div>
 
@@ -440,13 +572,22 @@ function Admin() {
                     <p className="text-gray-600 dark:text-gray-300 mb-2">{product.price} TK</p>
                     <p className="text-gray-500 dark:text-gray-400 mb-2">Stock: {product.quantity}</p>
                     <p className="text-gray-500 dark:text-gray-400 mb-4">Category: {product.category}</p>
-                    <button
-                      onClick={() => handleDeleteProduct(product.id)}
-                      className="w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 flex items-center justify-center"
-                    >
-                      <Trash2 className="mr-2" size={16} />
-                      Delete Product
-                    </button>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditProduct(product)}
+                        className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center"
+                      >
+                        <Edit className="mr-2" size={16} />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 flex items-center justify-center"
+                      >
+                        <Trash2 className="mr-2" size={16} />
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -461,21 +602,37 @@ function Admin() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
             <form onSubmit={handleCategorySubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Category Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  {editingCategory ? 'Edit Category Name' : 'New Category Name'}
+                </label>
                 <input
                   type="text"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
+                  value={editingCategory ? editedCategoryName : newCategory}
+                  onChange={(e) => editingCategory ? setEditedCategoryName(e.target.value) : setNewCategory(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-lg"
-              >
-                Add Category
-              </button>
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-lg"
+                >
+                  {editingCategory ? 'Update Category' : 'Add Category'}
+                </button>
+                {editingCategory && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingCategory(null);
+                      setEditedCategoryName('');
+                    }}
+                    className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200 shadow-lg"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -485,12 +642,20 @@ function Admin() {
               {categories.map((category) => (
                 <div key={category.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
                   <span className="text-lg font-medium dark:text-white">{category.name}</span>
-                  <button
-                    onClick={() => handleDeleteCategory(category.id)}
-                    className="text-red-500 hover:text-red-600"
-                  >
-                    <Trash2 size={20} />
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEditCategory(category)}
+                      className="text-blue-500 hover:text-blue-600"
+                    >
+                      <Edit size={20} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCategory(category.id)}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -500,8 +665,10 @@ function Admin() {
 
       {activeTab === 'reviews' && (
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">Add Customer Review</h1>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">
+            {editingReview ? 'Edit Review' : 'Add Customer Review'}
+          </h1>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
             <form onSubmit={handleReviewSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -561,13 +728,79 @@ function Admin() {
                 />
               </div>
               
-              <button
-                type="submit"
-                className="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-lg"
-              >
-                Add Review
-              </button>
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-lg"
+                >
+                  {editingReview ? 'Update Review' : 'Add Review'}
+                </button>
+                {editingReview && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingReview(null);
+                      setReview({
+                        id: '',
+                        buyerName: '',
+                        productName: '',
+                        reviewText: '',
+                        purchaseDate: '',
+                        images: []
+                      });
+                    }}
+                    className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200 shadow-lg"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Current Reviews</h2>
+            <div className="grid grid-cols-1 gap-6">
+              {reviews.map((review) => (
+                <div key={review.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold dark:text-white">{review.productName}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        by {review.buyerName} on {review.purchaseDate}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditReview(review)}
+                        className="text-blue-500 hover:text-blue-600"
+                      >
+                        <Edit size={20} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteReview(review.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{review.reviewText}</p>
+                  {review.images && review.images.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {review.images.map((image, index) => (
+                        <img
+                          key={index}
+                          src={image}
+                          alt={`Review image ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
