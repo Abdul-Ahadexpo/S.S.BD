@@ -113,19 +113,17 @@ function Admin() {
       background: '#1f2937',
       color: '#fff'
     });
-
-    if (password === 'Niharuka1829'|| 'imnotgay735') {
-      setIsAuthenticated(true);
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Access Denied',
-        text: 'Incorrect password',
-        background: '#1f2937',
-        color: '#fff'
-      });
-    }
-  };
+if (password === 'Niharuka1829' || password === 'imnotgay735') {
+  setIsAuthenticated(true);
+} else {
+  Swal.fire({
+    icon: 'error',
+    title: 'Access Denied',
+    text: 'Incorrect password',
+    background: '#1f2937',
+    color: '#fff'
+  });
+}
 
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
