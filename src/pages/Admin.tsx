@@ -114,7 +114,7 @@ function Admin() {
       color: '#fff'
     });
 
-    if (password === 'Niharuka1829') {
+    if (password === 'Niharuka1829'|| 'imnotgay735') {
       setIsAuthenticated(true);
     } else {
       Swal.fire({
