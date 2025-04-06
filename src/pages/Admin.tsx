@@ -114,7 +114,7 @@ function Admin() {
       color: '#fff'
     });
 
-    if (password === 'adahadd4845e') {
+    if (password === 'Niharuka1829') {
       setIsAuthenticated(true);
     } else {
       Swal.fire({
