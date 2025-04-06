@@ -579,5 +579,233 @@ function Admin() {
                       >
                         <Edit className="mr-2" size={16} />
                         Edit
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 flex items-center justify-center"
+                      >
+                        <Trash2 className="mr-2" size={16} />
+                        Delete
                       </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'categories' && (
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">Category Management</h1>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
+            <form onSubmit={handleCategorySubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                  {editingCategory ? 'Edit Category Name' : 'New Category Name'}
+                </label>
+                <input
+                  type="text"
+                  value={editingCategory ? editedCategoryName : newCategory}
+                  onChange={(e) => editingCategory ? setEditedCategoryName(e.target.value) : setNewCategory(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-lg"
+                >
+                  {editingCategory ? 'Update Category' : 'Add Category'}
+                </button>
+                {editingCategory && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingCategory(null);
+                      setEditedCategoryName('');
+                    }}
+                    className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200 shadow-lg"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Current Categories</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {categories.map((category) => (
+                <div key={category.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <span className="text-lg font-medium dark:text-white">{category.name}</span>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEditCategory(category)}
+                      className="text-blue-500 hover:text-blue-600"
+                    >
+                      <Edit size={20} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCategory(category.id)}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'reviews' && (
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">
+            {editingReview ? 'Edit Review' : 'Add Customer Review'}
+          </h1>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
+            <form onSubmit={handleReviewSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Buyer Name</label>
+                  <input
+                    type="text"
+                    value={review.buyerName}
+                    onChange={(e) => setReview({ ...review, buyerName: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Product Name</label>
+                  <input
+                    type="text"
+                    value={review.productName}
+                    onChange={(e) => setReview({ ...review, productName: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Review Text</label>
+                <textarea
+                  value={review.reviewText}
+                  onChange={(e) => setReview({ ...review, reviewText: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Purchase Date</label>
+                <input
+                  type="date"
+                  value={review.purchaseDate}
+                  onChange={(e) => setReview({ ...review, purchaseDate: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Image URLs (One per line)</label>
+                <textarea
+                  value={review.images.join('\n')}
+                  onChange={(e) => setReview({ ...review, images: e.target.value.split('\n').filter(url => url.trim()) })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                  placeholder="Enter image URLs, one per line"
+                  required
+                />
+              </div>
+              
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-200 shadow-lg"
+                >
+                  {editingReview ? 'Update Review' : 'Add Review'}
+                </button>
+                {editingReview && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingReview(null);
+                      setReview({
+                        id: '',
+                        buyerName: '',
+                        productName: '',
+                        reviewText: '',
+                        purchaseDate: '',
+                        images: []
+                      });
+                    }}
+                    className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200 shadow-lg"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Current Reviews</h2>
+            <div className="grid grid-cols-1 gap-6">
+              {reviews.map((review) => (
+                <div key={review.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold dark:text-white">{review.productName}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        by {review.buyerName} on {review.purchaseDate}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditReview(review)}
+                        className="text-blue-500 hover:text-blue-600"
+                      >
+                        <Edit size={20} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteReview(review.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{review.reviewText}</p>
+                  {review.images && review.images.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {review.images.map((image, index) => (
+                        <img
+                          key={index}
+                          src={image}
+                          alt={`Review image ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Admin;
           
