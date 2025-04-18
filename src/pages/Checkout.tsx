@@ -43,6 +43,19 @@ function Checkout() {
       });
       return;
     }
+
+    const hasPreOrder = cart.some((item: any) => item.quantity === 'Pre-order');
+    if (hasPreOrder) {
+      await Swal.fire({
+        title: 'Pre-order Payment Required',
+        html: `
+          <p>To pre-order, you need to send 60% of the total payment in advance to this Bkash number:</p>
+          <p class="text-xl font-bold mt-4">01722786111</p>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Proceed'
+      });
+    }
     
     const orderData = {
       access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
@@ -54,12 +67,14 @@ function Checkout() {
       email: formData.email,
       cartItems: Object.values(
         cart.reduce((acc: any, item: any) => {
-          if (acc[item.name]) {
-            acc[item.name].quantity += item.quantity || 1;
-            acc[item.name].totalPrice += item.price * (item.quantity || 1);
+          const key = `${item.name}${item.selectedVariant ? ` - ${item.selectedVariant}` : ''}`;
+          if (acc[key]) {
+            acc[key].quantity += item.quantity || 1;
+            acc[key].totalPrice += item.price * (item.quantity || 1);
           } else {
-            acc[item.name] = {
+            acc[key] = {
               name: item.name,
+              variant: item.selectedVariant,
               price: item.price,
               quantity: item.quantity || 1,
               totalPrice: item.price * (item.quantity || 1),
@@ -68,7 +83,7 @@ function Checkout() {
           return acc;
         }, {})
       ).map((item: any) => {
-        return `${item.quantity}ta \n${item.name}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
+        return `${item.quantity}x ${item.name}${item.variant ? ` (${item.variant})` : ''}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
       }).join("\n\n")
     };
 
