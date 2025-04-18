@@ -8,6 +8,7 @@ interface Product {
   price: number;
   quantity: number;
   imageUrl: string;
+  selectedVariant?: string;
 }
 
 function Cart() {
@@ -22,16 +23,21 @@ function Cart() {
     }
   }, []);
 
-  const removeFromCart = (productId: string) => {
-    const newCart = cart.filter(item => item.id !== productId);
+  const removeFromCart = (productId: string, variant?: string) => {
+    const newCart = cart.filter(item => !(item.id === productId && item.selectedVariant === variant));
     setCart(newCart);
     localStorage.setItem('cart', JSON.stringify(newCart));
   };
 
   const calculateTotal = () => {
     const subtotal = cart.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
-    return subtotal + DELIVERY_CHARGE;
+    return {
+      subtotal,
+      total: subtotal + DELIVERY_CHARGE
+    };
   };
+
+  const { subtotal, total } = calculateTotal();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -44,7 +50,7 @@ function Cart() {
         <>
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             {cart.map((item) => (
-              <div key={item.id} className="flex items-center border-b py-4">
+              <div key={`${item.id}-${item.selectedVariant}`} className="flex items-center border-b py-4">
                 <img 
                   src={item.imageUrl} 
                   alt={item.name} 
@@ -52,11 +58,14 @@ function Cart() {
                 />
                 <div className="flex-1 ml-4">
                   <h3 className="text-lg font-semibold">{item.name}</h3>
+                  {item.selectedVariant && (
+                    <p className="text-gray-600">Color: {item.selectedVariant}</p>
+                  )}
                   <p className="text-gray-600">Quantity: {item.quantity || 1}</p>
                   <p className="text-gray-800">{item.price}TK</p>
                 </div>
                 <button
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(item.id, item.selectedVariant)}
                   className="text-red-500 hover:text-red-700"
                 >
                   <Trash2 className="h-6 w-6" />
@@ -66,7 +75,7 @@ function Cart() {
             <div className="mt-6 border-t pt-4">
               <div className="flex justify-between text-lg font-semibold">
                 <span>Subtotal:</span>
-                <span>{calculateTotal() - DELIVERY_CHARGE}TK</span>
+                <span>{subtotal}TK</span>
               </div>
               <div className="flex justify-between text-lg font-semibold mt-2">
                 <span>Delivery Charge:</span>
@@ -74,7 +83,7 @@ function Cart() {
               </div>
               <div className="flex justify-between text-xl font-bold mt-4">
                 <span>Total:</span>
-                <span>{calculateTotal()}TK</span>
+                <span>{total}TK</span>
               </div>
             </div>
           </div>
