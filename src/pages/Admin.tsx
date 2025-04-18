@@ -4,6 +4,11 @@ import { db } from '../firebase';
 import { Trash2, Plus, Star, Tag, Edit, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 
+interface ProductVariant {
+  color: string;
+  stock: number;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -12,6 +17,8 @@ interface Product {
   imageUrl: string;
   quantity: string;
   category: string;
+  variants?: ProductVariant[];
+  createdAt: number;
 }
 
 interface Review {
@@ -43,8 +50,11 @@ function Admin() {
     price: 0,
     imageUrl: '',
     quantity: '',
-    category: ''
+    category: '',
+    variants: [] as ProductVariant[],
+    createdAt: Date.now()
   });
+  const [newVariant, setNewVariant] = useState({ color: '', stock: 0 });
   const [review, setReview] = useState<Review>({
     id: '',
     buyerName: '',
@@ -72,7 +82,7 @@ function Admin() {
       const productsArray = Object.entries(productsData).map(([id, data]) => ({
         id,
         ...(data as Omit<Product, 'id'>)
-      }));
+      })).sort((a, b) => b.createdAt - a.createdAt);
       setProducts(productsArray);
     }
   };
@@ -127,17 +137,38 @@ function Admin() {
     }
   };
 
+  const addVariant = () => {
+    if (newVariant.color && newVariant.stock > 0) {
+      setProduct({
+        ...product,
+        variants: [...(product.variants || []), newVariant]
+      });
+      setNewVariant({ color: '', stock: 0 });
+    }
+  };
+
+  const removeVariant = (index: number) => {
+    const newVariants = [...(product.variants || [])];
+    newVariants.splice(index, 1);
+    setProduct({ ...product, variants: newVariants });
+  };
+
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
+      const productData = {
+        ...product,
+        createdAt: Date.now()
+      };
+
       if (editingProduct) {
         const productRef = ref(db, `products/${editingProduct}`);
-        await update(productRef, product);
+        await update(productRef, productData);
         setEditingProduct(null);
       } else {
         const productsRef = ref(db, 'products');
-        await push(productsRef, product);
+        await push(productsRef, productData);
       }
       
       setProduct({
@@ -146,7 +177,9 @@ function Admin() {
         price: 0,
         imageUrl: '',
         quantity: '',
-        category: ''
+        category: '',
+        variants: [],
+        createdAt: Date.now()
       });
 
       await loadProducts();
@@ -172,6 +205,17 @@ function Admin() {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (review.images.length > 3) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Maximum 3 images allowed per review',
+        background: '#1f2937',
+        color: '#fff'
+      });
+      return;
+    }
+
     try {
       if (editingReview) {
         const reviewRef = ref(db, `reviews/${editingReview}`);
@@ -180,12 +224,15 @@ function Admin() {
           productName: review.productName,
           reviewText: review.reviewText,
           purchaseDate: review.purchaseDate,
-          images: review.images
+          images: review.images.slice(0, 3)
         });
         setEditingReview(null);
       } else {
         const reviewsRef = ref(db, 'reviews');
-        await push(reviewsRef, review);
+        await push(reviewsRef, {
+          ...review,
+          images: review.images.slice(0, 3)
+        });
       }
       
       setReview({
@@ -259,7 +306,9 @@ function Admin() {
       price: productToEdit.price,
       imageUrl: productToEdit.imageUrl,
       quantity: productToEdit.quantity,
-      category: productToEdit.category
+      category: productToEdit.category,
+      variants: productToEdit.variants || [],
+      createdAt: productToEdit.createdAt
     });
     setEditingProduct(productToEdit.id);
   };
@@ -531,6 +580,49 @@ function Admin() {
                     <option value="50">50</option>
                   </select>
                 </div>
+
+                <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
+                  <h3 className="text-lg font-semibold mb-4 dark:text-white">Product Variants</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <input
+                      type="text"
+                      placeholder="Color"
+                      value={newVariant.color}
+                      onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
+                      className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Stock"
+                      value={newVariant.stock || ''}
+                      onChange={(e) => setNewVariant({ ...newVariant, stock: parseInt(e.target.value) || 0 })}
+                      className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addVariant}
+                    className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 mb-4"
+                  >
+                    Add Variant
+                  </button>
+                  <div className="space-y-2">
+                    {product.variants?.map((variant, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-2 rounded-lg">
+                        <span className="dark:text-white">
+                          {variant.color} - Stock: {variant.stock}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeVariant(index)}
+                          className="text-red-500 hover:text-red-600"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 
                 <div className="flex space-x-4">
                   <button
@@ -550,7 +642,9 @@ function Admin() {
                           price: 0,
                           imageUrl: '',
                           quantity: '',
-                          category: ''
+                          category: '',
+                          variants: [],
+                          createdAt: Date.now()
                         });
                       }}
                       className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200 shadow-lg"
@@ -572,6 +666,18 @@ function Admin() {
                     <p className="text-gray-600 dark:text-gray-300 mb-2">{product.price} TK</p>
                     <p className="text-gray-500 dark:text-gray-400 mb-2">Stock: {product.quantity}</p>
                     <p className="text-gray-500 dark:text-gray-400 mb-4">Category: {product.category}</p>
+                    {product.variants && product.variants.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="font-semibold mb-2 dark:text-white">Variants:</h4>
+                        <div className="space-y-1">
+                          {product.variants.map((variant, index) => (
+                            <p key={index} className="text-sm text-gray-500 dark:text-gray-400">
+                              {variant.color} - Stock: {variant.stock}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <div className="flex space-x-2">
                       <button
                         onClick={() => handleEditProduct(product)}
@@ -579,6 +685,7 @@ function Admin() {
                       >
                         <Edit className="mr-2" size={16} />
                         Edit
+                      </button>
                       <button
                         onClick={() => handleDeleteProduct(product.id)}
                         className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors duration-200 flex items-center justify-center"
@@ -668,7 +775,7 @@ function Admin() {
             {editingReview ? 'Edit Review' : 'Add Customer Review'}
           </h1>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
-            <form onSubmit={handleReviewSubmit} className="space-y-6">
+            <form on Submit={handleReviewSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Buyer Name</label>
@@ -808,4 +915,3 @@ function Admin() {
 }
 
 export default Admin;
-          
