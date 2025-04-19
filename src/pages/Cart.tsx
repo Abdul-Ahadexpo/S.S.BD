@@ -69,26 +69,28 @@ function Cart() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
       
-      {cartAd && (
-        <div className="mb-8 relative overflow-hidden rounded-lg shadow-lg">
-          <a
-            href={cartAd.linkUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block relative group"
-          >
-            <img 
-              src={cartAd.imageUrl} 
-              alt="Advertisement"
-              className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300 flex items-center justify-center">
-              <ExternalLink className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" size={24} />
-            </div>
-          </a>
-        </div>
-      )}
+     {cartAd && (
+  <div className="fixed bottom-4 right-4 w-44 h-auto z-50 rounded-lg shadow-lg overflow-hidden border bg-white">
+    <a
+      href={cartAd.linkUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block group"
+    >
+      <img 
+        src={cartAd.imageUrl} 
+        alt="Advertisement"
+        className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300 flex items-center justify-center">
+        <ExternalLink className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" size={20} />
+      </div>
+    </a>
+  </div>
+)}
 
+
+      
       {cart.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-xl text-gray-600">Your cart is empty</p>
