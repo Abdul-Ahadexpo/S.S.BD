@@ -70,11 +70,28 @@ function Cart() {
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
 
       
+
+
+
+
       
-    {cartAd && (
+    
+{cartAd && (
   <div className="mt-12 flex justify-center">
-    <div className="w-60 border rounded-md shadow-sm bg-white p-2 text-center">
-      <p className="text-xs text-gray-500 mb-1 font-medium">Advertisement</p>
+    <div className="w-[240px] sm:w-[280px] md:w-[320px] border rounded-lg shadow-lg bg-white p-4 text-center relative overflow-hidden">
+      {/* Close Button */}
+      <button 
+        onClick={() => setCartAd(null)} 
+        className="absolute top-2 right-2 text-lg text-gray-500 hover:text-gray-700 focus:outline-none"
+      >
+        ❌
+      </button>
+
+      {/* Advertisement Label */}
+      <p className="text-xs text-gray-500 mb-2 font-semibold uppercase tracking-wide">Advertisement</p>
+      <div className="border-t border-b border-gray-200 mb-2"></div>
+
+      {/* Image */}
       <a
         href={cartAd.linkUrl}
         target="_blank"
@@ -84,16 +101,28 @@ function Cart() {
         <img 
           src={cartAd.imageUrl} 
           alt="Advertisement"
-          className="w-full h-auto object-cover rounded transition-transform duration-300 group-hover:scale-105"
+          className="w-full h-auto max-h-60 object-cover rounded-md transition-transform duration-300 group-hover:scale-110"
         />
+        {/* Hover Effect Overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300 flex items-center justify-center">
           <ExternalLink className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" size={20} />
         </div>
       </a>
+
+      {/* Optional Text */}
+      <p className="text-sm text-gray-600 mt-2">
+        {/* Optional placeholder text – replace with actual text if needed */}
+        Discover amazing things!
+      </p>
     </div>
   </div>
 )}
 
+
+
+
+
+      
 
 
       
