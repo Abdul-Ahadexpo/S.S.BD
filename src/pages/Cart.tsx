@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trash2 } from 'lucide-react';
+import { ref, onValue } from 'firebase/database';
+import { db } from '../firebase';
+import { Trash2, ExternalLink } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -11,8 +13,15 @@ interface Product {
   selectedVariant?: string;
 }
 
+interface CartAd {
+  imageUrl: string;
+  linkUrl: string;
+  isActive: boolean;
+}
+
 function Cart() {
   const [cart, setCart] = useState<Product[]>([]);
+  const [cartAd, setCartAd] = useState<CartAd | null>(null);
   const navigate = useNavigate();
   const DELIVERY_CHARGE = 120;
 
@@ -21,6 +30,23 @@ function Cart() {
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     }
+
+    // Load active cart ad
+    const cartAdsRef = ref(db, 'cartAds');
+    const unsubscribe = onValue(cartAdsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const adsData = snapshot.val();
+        const activeAds = Object.values(adsData as Record<string, CartAd>)
+          .filter(ad => ad.isActive);
+        if (activeAds.length > 0) {
+          // Randomly select one active ad
+          const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
+          setCartAd(randomAd);
+        }
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const removeFromCart = (productId: string, variant?: string) => {
@@ -42,6 +68,27 @@ function Cart() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+      
+      {cartAd && (
+        <div className="mb-8 relative overflow-hidden rounded-lg shadow-lg">
+          <a
+            href={cartAd.linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block relative group"
+          >
+            <img 
+              src={cartAd.imageUrl} 
+              alt="Advertisement"
+              className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300 flex items-center justify-center">
+              <ExternalLink className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" size={24} />
+            </div>
+          </a>
+        </div>
+      )}
+
       {cart.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-xl text-gray-600">Your cart is empty</p>

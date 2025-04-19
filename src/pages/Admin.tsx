@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, push, remove, update, get } from 'firebase/database';
 import { db } from '../firebase';
-import { Trash2, Plus, Star, Tag, Edit, X } from 'lucide-react';
+import { Trash2, Plus, Star, Tag, Edit, X, Link as LinkIcon } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductVariant {
@@ -15,6 +15,7 @@ interface Product {
   description: string;
   price: number;
   imageUrl: string;
+  additionalImages: string[];
   quantity: string;
   category: string;
   variants?: ProductVariant[];
@@ -35,20 +36,45 @@ interface Category {
   name: string;
 }
 
+interface FooterContent {
+  address: string;
+  phone: string;
+  email: string;
+  socialLinks: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+  };
+  quickLinks: Array<{
+    title: string;
+    url: string;
+  }>;
+}
+
+interface CartAd {
+  id: string;
+  imageUrl: string;
+  linkUrl: string;
+  isActive: boolean;
+}
+
 function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'products' | 'reviews' | 'categories'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'reviews' | 'categories' | 'footer' | 'ads'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [cartAds, setCartAds] = useState<CartAd[]>([]);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editingReview, setEditingReview] = useState<string | null>(null);
+  const [editingAd, setEditingAd] = useState<string | null>(null);
   const [product, setProduct] = useState({
     name: '',
     description: '',
     price: 0,
     imageUrl: '',
+    additionalImages: ['', ''],
     quantity: '',
     category: '',
     variants: [] as ProductVariant[],
@@ -65,12 +91,32 @@ function Admin() {
   });
   const [newCategory, setNewCategory] = useState('');
   const [editedCategoryName, setEditedCategoryName] = useState('');
+  const [footerContent, setFooterContent] = useState<FooterContent>({
+    address: '',
+    phone: '',
+    email: '',
+    socialLinks: {
+      facebook: '',
+      instagram: '',
+      twitter: ''
+    },
+    quickLinks: []
+  });
+  const [newQuickLink, setNewQuickLink] = useState({ title: '', url: '' });
+  const [cartAd, setCartAd] = useState<CartAd>({
+    id: '',
+    imageUrl: '',
+    linkUrl: '',
+    isActive: true
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
       loadProducts();
       loadCategories();
       loadReviews();
+      loadFooterContent();
+      loadCartAds();
     }
   }, [isAuthenticated]);
 
@@ -110,6 +156,27 @@ function Admin() {
         ...(data as Omit<Review, 'id'>)
       }));
       setReviews(reviewsArray);
+    }
+  };
+
+  const loadFooterContent = async () => {
+    const footerRef = ref(db, 'footer');
+    const snapshot = await get(footerRef);
+    if (snapshot.exists()) {
+      setFooterContent(snapshot.val());
+    }
+  };
+
+  const loadCartAds = async () => {
+    const adsRef = ref(db, 'cartAds');
+    const snapshot = await get(adsRef);
+    if (snapshot.exists()) {
+      const adsData = snapshot.val();
+      const adsArray = Object.entries(adsData).map(([id, data]) => ({
+        id,
+        ...(data as Omit<CartAd, 'id'>)
+      }));
+      setCartAds(adsArray);
     }
   };
 
@@ -176,6 +243,7 @@ function Admin() {
         description: '',
         price: 0,
         imageUrl: '',
+        additionalImages: ['', ''],
         quantity: '',
         category: '',
         variants: [],
@@ -299,12 +367,76 @@ function Admin() {
     }
   };
 
+  const handleFooterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const footerRef = ref(db, 'footer');
+      await update(footerRef, footerContent);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Footer content updated successfully',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update footer content',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
+  const handleCartAdSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingAd) {
+        const adRef = ref(db, `cartAds/${editingAd}`);
+        await update(adRef, cartAd);
+        setEditingAd(null);
+      } else {
+        const adsRef = ref(db, 'cartAds');
+        await push(adsRef, cartAd);
+      }
+      
+      setCartAd({
+        id: '',
+        imageUrl: '',
+        linkUrl: '',
+        isActive: true
+      });
+      
+      await loadCartAds();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: editingAd ? 'Ad updated successfully' : 'Ad added successfully',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: editingAd ? 'Failed to update ad' : 'Failed to add ad',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
   const handleEditProduct = (productToEdit: Product) => {
     setProduct({
       name: productToEdit.name,
       description: productToEdit.description,
       price: productToEdit.price,
       imageUrl: productToEdit.imageUrl,
+      additionalImages: productToEdit.additionalImages || ['', ''],
       quantity: productToEdit.quantity,
       category: productToEdit.category,
       variants: productToEdit.variants || [],
@@ -437,6 +569,60 @@ function Admin() {
     }
   };
 
+  const handleDeleteAd = async (adId: string) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!',
+        background: '#1f2937',
+        color: '#fff'
+      });
+
+      if (result.isConfirmed) {
+        const adRef = ref(db, `cartAds/${adId}`);
+        await remove(adRef);
+        await loadCartAds();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Ad has been deleted.',
+          background: '#1f2937',
+          color: '#fff'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to delete ad',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
+  const addQuickLink = () => {
+    if (newQuickLink.title && newQuickLink.url) {
+      setFooterContent({
+        ...footerContent,
+        quickLinks: [...footerContent.quickLinks, newQuickLink]
+      });
+      setNewQuickLink({ title: '', url: '' });
+    }
+  };
+
+  const removeQuickLink = (index: number) => {
+    const newQuickLinks = [...footerContent.quickLinks];
+    newQuickLinks.splice(index, 1);
+    setFooterContent({ ...footerContent, quickLinks: newQuickLinks });
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -486,6 +672,26 @@ function Admin() {
           <Star className="inline-block mr-2" size={20} />
           Manage Reviews
         </button>
+        <button
+          onClick={() => setActiveTab('footer')}
+          className={`px-6 py-3 rounded-lg transition-colors duration-200 ${
+            activeTab === 'footer'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+          }`}
+        >
+          Manage Footer
+        </button>
+        <button
+          onClick={() => setActiveTab('ads')}
+          className={`px-6 py-3 rounded-lg transition-colors duration-200 ${
+            activeTab === 'ads'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+          }`}
+        >
+          Cart Ads
+        </button>
       </div>
 
       {activeTab === 'products' && (
@@ -532,7 +738,7 @@ function Admin() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Image URL</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Main Image URL</label>
                   <input
                     type="url"
                     value={product.imageUrl}
@@ -540,6 +746,24 @@ function Admin() {
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                     required
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Additional Images URLs</label>
+                  {product.additionalImages.map((url, index) => (
+                    <input
+                      key={index}
+                      type="url"
+                      value={url}
+                      onChange={(e) => {
+                        const newImages = [...product.additionalImages];
+                        newImages[index] = e.target.value;
+                        setProduct({ ...product, additionalImages: newImages });
+                      }}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 mb-2"
+                      placeholder={`Additional Image ${index + 1} URL`}
+                    />
+                  ))}
                 </div>
 
                 <div>
@@ -622,6 +846,7 @@ function Admin() {
                       </div>
                     ))}
                   </div>
+                
                 </div>
                 
                 <div className="flex space-x-4">
@@ -641,6 +866,7 @@ function Admin() {
                           description: '',
                           price: 0,
                           imageUrl: '',
+                          additionalImages: ['', ''],
                           quantity: '',
                           category: '',
                           variants: [],
@@ -775,7 +1001,7 @@ function Admin() {
             {editingReview ? 'Edit Review' : 'Add Customer Review'}
           </h1>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
-            <form on Submit={handleReviewSubmit} className="space-y-6">
+            <form onSubmit={handleReviewSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Buyer Name</label>
@@ -904,6 +1130,263 @@ function Admin() {
                       ))}
                     </div>
                   )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'footer' && (
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">Footer Management</h1>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <form onSubmit={handleFooterSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Address</label>
+                  <input
+                    type="text"
+                    value={footerContent.address}
+                    onChange={(e) => setFooterContent({ ...footerContent, address: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Phone</label>
+                  <input
+                    type="text"
+                    value={footerContent.phone}
+                    onChange={(e) => setFooterContent({ ...footerContent, phone: e.target.value })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={footerContent.email}
+                  onChange={(e) => setFooterContent({ ...footerContent, email: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Facebook URL</label>
+                  <input
+                    type="url"
+                    value={footerContent.socialLinks.facebook}
+                    onChange={(e) => setFooterContent({
+                      ...footerContent,
+                      socialLinks: { ...footerContent.socialLinks, facebook: e.target.value }
+                    })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Instagram URL</label>
+                  <input
+                    type="url"
+                    value={footerContent.socialLinks.instagram}
+                    onChange={(e) => setFooterContent({
+                      ...footerContent,
+                      socialLinks: { ...footerContent.socialLinks, instagram: e.target.value }
+                    })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Twitter URL</label>
+                  <input
+                    type="url"
+                    value={footerContent.socialLinks.twitter}
+                    onChange={(e) => setFooterContent({
+                      ...footerContent,
+                      socialLinks: { ...footerContent.socialLinks, twitter: e.target.value }
+                    })}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
+                <h3 className="text-lg font-semibold mb-4 dark:text-white">Quick Links</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <input
+                    type="text"
+                    placeholder="Link Title"
+                    value={newQuickLink.title}
+                    onChange={(e) => setNewQuickLink({ ...newQuickLink, title: e.target.value })}
+                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                  <input
+                    type="url"
+                    placeholder="Link URL"
+                    value={newQuickLink.url}
+                    onChange={(e) => setNewQuickLink({ ...newQuickLink, url: e.target.value })}
+                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={addQuickLink}
+                  className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 mb-4"
+                >
+                  Add Quick Link
+                </button>
+                <div className="space-y-2">
+                  {footerContent.quickLinks.map((link, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-2 rounded-lg">
+                      <div>
+                        <span className="font-medium dark:text-white">{link.title}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">{link.url}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeQuickLink(index)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200"
+              >
+                Update Footer
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'ads' && (
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">
+            {editingAd ? 'Edit Cart Ad' : 'Add Cart Ad'}
+          </h1>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
+            <form onSubmit={handleCartAdSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Image URL</label>
+                <input
+                  type="url"
+                  value={cartAd.imageUrl}
+                  onChange={(e) => setCartAd({ ...cartAd, imageUrl: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Link URL</label>
+                <input
+                  type="url"
+                  value={cartAd.linkUrl}
+                  onChange={(e) => setCartAd({ ...cartAd, linkUrl: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={cartAd.isActive}
+                  onChange={(e) => setCartAd({ ...cartAd, isActive: e.target.checked })}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="ml-2 block text-sm text-gray-700 dark:text-gray-200">
+                  Active
+                </label>
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                >
+                  {editingAd ? 'Update Ad' : 'Add Ad'}
+                </button>
+                {editingAd && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingAd(null);
+                      setCartAd({
+                        id: '',
+                        imageUrl: '',
+                        linkUrl: '',
+                        isActive: true
+                      });
+                    }}
+                    className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Current Ads</h2>
+            <div className="grid grid-cols-1 gap-6">
+              {cartAds.map((ad) => (
+                <div key={ad.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={ad.imageUrl}
+                        alt="Ad"
+                        className="w-24 h-24 object-cover rounded-lg"
+                      />
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <LinkIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                          <a
+                            href={ad.linkUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:text-blue-600"
+                          >
+                            {ad.linkUrl}
+                          </a>
+                        </div>
+                        <span className={`inline-block mt-2 px-2 py-1 rounded-full text-sm ${
+                          ad.isActive
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {ad.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setCartAd(ad);
+                          setEditingAd(ad.id);
+                        }}
+                        className="text-blue-500 hover:text-blue-600"
+                      >
+                        <Edit size={20} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAd(ad.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
