@@ -26,7 +26,6 @@ function App() {
             </Routes>
           </div>
           <HelpGuide />
-          <Footer />
         </div>
       </Router>
     </ThemeProvider>
