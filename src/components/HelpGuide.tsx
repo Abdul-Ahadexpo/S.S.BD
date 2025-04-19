@@ -34,6 +34,7 @@ function HelpGuide() {
             <h3 class="text-lg font-bold mb-2">Delivery Information:</h3>
             <ul class="list-disc list-inside space-y-2">
               <li>Standard delivery time: 3-5 working days</li>
+              <li>Delivery time for "Pre-Order": 25-35 working days</li>
               <li>Delivery charge: 120 TK</li>
               <li>Free delivery on orders above 2000 TK</li>
             </ul>
@@ -43,9 +44,9 @@ function HelpGuide() {
             <h3 class="text-lg font-bold mb-2">Need Help?</h3>
             <p>Contact us through:</p>
             <ul class="list-disc list-inside space-y-2">
-              <li>Phone: 01722786111</li>
-              <li>Email: support@spinstrike.com</li>
-              <li>Facebook Messenger</li>
+              <li>Phone: +8801521722011</li>
+              <li>Email: spinstrikebd@gmail.com</li>
+              <li>Facebook: Spin Strike BD</li>
             </ul>
           </div>
         </div>
