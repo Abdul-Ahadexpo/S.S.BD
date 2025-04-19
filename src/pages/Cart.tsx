@@ -68,26 +68,32 @@ function Cart() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+
       
-     {cartAd && (
-  <div className="fixed bottom-4 right-4 w-44 h-auto z-50 rounded-lg shadow-lg overflow-hidden border bg-white">
-    <a
-      href={cartAd.linkUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block group"
-    >
-      <img 
-        src={cartAd.imageUrl} 
-        alt="Advertisement"
-        className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300 flex items-center justify-center">
-        <ExternalLink className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" size={20} />
-      </div>
-    </a>
+      
+    {cartAd && (
+  <div className="mt-12 flex justify-center">
+    <div className="w-60 border rounded-md shadow-sm bg-white p-2 text-center">
+      <p className="text-xs text-gray-500 mb-1 font-medium">Advertisement</p>
+      <a
+        href={cartAd.linkUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block group relative"
+      >
+        <img 
+          src={cartAd.imageUrl} 
+          alt="Advertisement"
+          className="w-full h-auto object-cover rounded transition-transform duration-300 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300 flex items-center justify-center">
+          <ExternalLink className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" size={20} />
+        </div>
+      </a>
+    </div>
   </div>
 )}
+
 
 
       
