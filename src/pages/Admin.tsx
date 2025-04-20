@@ -273,11 +273,11 @@ function Admin() {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (review.images.length > 3) {
+    if (review.images.length > 3 || review.images.length === 0) {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Maximum 3 images allowed per review',
+        text: 'Please provide 1-3 images for the review',
         background: '#1f2937',
         color: '#fff'
       });
@@ -292,15 +292,12 @@ function Admin() {
           productName: review.productName,
           reviewText: review.reviewText,
           purchaseDate: review.purchaseDate,
-          images: review.images.slice(0, 3)
+          images: review.images
         });
         setEditingReview(null);
       } else {
         const reviewsRef = ref(db, 'reviews');
-        await push(reviewsRef, {
-          ...review,
-          images: review.images.slice(0, 3)
-        });
+        await push(reviewsRef, review);
       }
       
       setReview({
@@ -1048,16 +1045,27 @@ function Admin() {
                 />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Image URLs (One per line)</label>
-                <textarea
-                  value={review.images.join('\n')}
-                  onChange={(e) => setReview({ ...review, images: e.target.value.split('\n').filter(url => url.trim()) })}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  rows={4}
-                  placeholder="Enter image URLs, one per line"
-                  required
-                />
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Review Images (1-3 required)</label>
+                {[0, 1, 2].map((index) => (
+                  <input
+                    key={index}
+                    type="url"
+                    placeholder={`Image URL ${index + 1}`}
+                    value={review.images[index] || ''}
+                    onChange={(e) => {
+                      const newImages = [...review.images];
+                      if (e.target.value) {
+                        newImages[index] = e.target.value;
+                      } else {
+                        newImages.splice(index, 1);
+                      }
+                      setReview({ ...review, images: newImages.filter(Boolean) });
+                    }}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    required={index === 0}
+                  />
+                ))}
               </div>
               
               <div className="flex space-x-4">
