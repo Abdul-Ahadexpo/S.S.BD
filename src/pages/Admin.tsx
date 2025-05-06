@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, push, remove, update, get } from 'firebase/database';
 import { db } from '../firebase';
-import { Trash2, Plus, Star, Tag, Edit, X } from 'lucide-react';
+import { Trash2, Plus, Star, Tag, Edit, X, Search, Ticket } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductVariant {
@@ -36,15 +36,34 @@ interface Category {
   name: string;
 }
 
+interface Advertisement {
+  id: string;
+  imageUrl: string;
+  linkUrl: string;
+  isActive: boolean;
+}
+
+interface Coupon {
+  id: string;
+  code: string;
+  discount: number;
+  isActive: boolean;
+}
+
 function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'products' | 'reviews' | 'categories'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'reviews' | 'categories' | 'ads' | 'coupons'>('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editingReview, setEditingReview] = useState<string | null>(null);
+  const [editingAd, setEditingAd] = useState<string | null>(null);
+  const [editingCoupon, setEditingCoupon] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [product, setProduct] = useState({
     name: '',
     description: '',
@@ -65,6 +84,16 @@ function Admin() {
     purchaseDate: '',
     images: []
   });
+  const [advertisement, setAdvertisement] = useState<Omit<Advertisement, 'id'>>({
+    imageUrl: '',
+    linkUrl: '',
+    isActive: true
+  });
+  const [coupon, setCoupon] = useState<Omit<Coupon, 'id'>>({
+    code: '',
+    discount: 0,
+    isActive: true
+  });
   const [newCategory, setNewCategory] = useState('');
   const [editedCategoryName, setEditedCategoryName] = useState('');
 
@@ -73,6 +102,8 @@ function Admin() {
       loadProducts();
       loadCategories();
       loadReviews();
+      loadAdvertisements();
+      loadCoupons();
     }
   }, [isAuthenticated]);
 
@@ -112,6 +143,32 @@ function Admin() {
         ...(data as Omit<Review, 'id'>)
       }));
       setReviews(reviewsArray);
+    }
+  };
+
+  const loadAdvertisements = async () => {
+    const adsRef = ref(db, 'cartAds');
+    const snapshot = await get(adsRef);
+    if (snapshot.exists()) {
+      const adsData = snapshot.val();
+      const adsArray = Object.entries(adsData).map(([id, data]) => ({
+        id,
+        ...(data as Omit<Advertisement, 'id'>)
+      }));
+      setAdvertisements(adsArray);
+    }
+  };
+
+  const loadCoupons = async () => {
+    const couponsRef = ref(db, 'coupons');
+    const snapshot = await get(couponsRef);
+    if (snapshot.exists()) {
+      const couponsData = snapshot.val();
+      const couponsArray = Object.entries(couponsData).map(([id, data]) => ({
+        id,
+        ...(data as Omit<Coupon, 'id'>)
+      }));
+      setCoupons(couponsArray);
     }
   };
 
@@ -300,6 +357,84 @@ function Admin() {
     }
   };
 
+  const handleAdvertisementSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      if (editingAd) {
+        const adRef = ref(db, `cartAds/${editingAd}`);
+        await update(adRef, advertisement);
+        setEditingAd(null);
+      } else {
+        const adsRef = ref(db, 'cartAds');
+        await push(adsRef, advertisement);
+      }
+      
+      setAdvertisement({
+        imageUrl: '',
+        linkUrl: '',
+        isActive: true
+      });
+
+      await loadAdvertisements();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: editingAd ? 'Advertisement updated successfully' : 'Advertisement added successfully',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: editingAd ? 'Failed to update advertisement' : 'Failed to add advertisement',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
+  const handleCouponSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      if (editingCoupon) {
+        const couponRef = ref(db, `coupons/${editingCoupon}`);
+        await update(couponRef, coupon);
+        setEditingCoupon(null);
+      } else {
+        const couponsRef = ref(db, 'coupons');
+        await push(couponsRef, coupon);
+      }
+      
+      setCoupon({
+        code: '',
+        discount: 0,
+        isActive: true
+      });
+
+      await loadCoupons();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: editingCoupon ? 'Coupon updated successfully' : 'Coupon added successfully',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: editingCoupon ? 'Failed to update coupon' : 'Failed to add coupon',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
   const handleEditProduct = (productToEdit: Product) => {
     setProduct({
       name: productToEdit.name,
@@ -323,6 +458,24 @@ function Admin() {
   const handleEditCategory = (category: Category) => {
     setEditedCategoryName(category.name);
     setEditingCategory(category.id);
+  };
+
+  const handleEditAdvertisement = (ad: Advertisement) => {
+    setAdvertisement({
+      imageUrl: ad.imageUrl,
+      linkUrl: ad.linkUrl,
+      isActive: ad.isActive
+    });
+    setEditingAd(ad.id);
+  };
+
+  const handleEditCoupon = (coupon: Coupon) => {
+    setCoupon({
+      code: coupon.code,
+      discount: coupon.discount,
+      isActive: coupon.isActive
+    });
+    setEditingCoupon(coupon.id);
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -439,6 +592,88 @@ function Admin() {
     }
   };
 
+  const handleDeleteAdvertisement = async (adId: string) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!',
+        background: '#1f2937',
+        color: '#fff'
+      });
+
+      if (result.isConfirmed) {
+        const adRef = ref(db, `cartAds/${adId}`);
+        await remove(adRef);
+        await loadAdvertisements();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Advertisement has been deleted.',
+          background: '#1f2937',
+          color: '#fff'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to delete advertisement',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
+  const handleDeleteCoupon = async (couponId: string) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it!',
+        background: '#1f2937',
+        color: '#fff'
+      });
+
+      if (result.isConfirmed) {
+        const couponRef = ref(db, `coupons/${couponId}`);
+        await remove(couponRef);
+        await loadCoupons();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Coupon has been deleted.',
+          background: '#1f2937',
+          color: '#fff'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to delete coupon',
+        background: '#1f2937',
+        color: '#fff'
+      });
+    }
+  };
+
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -488,10 +723,45 @@ function Admin() {
           <Star className="inline-block mr-2" size={20} />
           Manage Reviews
         </button>
+        <button
+          onClick={() => setActiveTab('ads')}
+          className={`px-6 py-3 rounded-lg transition-colors duration-200 ${
+            activeTab === 'ads'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+          }`}
+        >
+          <Plus className="inline-block mr-2" size={20} />
+          Manage Ads
+        </button>
+        <button
+          onClick={() => setActiveTab('coupons')}
+          className={`px-6 py-3 rounded-lg transition-colors duration-200 ${
+            activeTab === 'coupons'
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
+          }`}
+        >
+          <Ticket className="inline-block mr-2" size={20} />
+          Manage Coupons
+        </button>
       </div>
 
       {activeTab === 'products' && (
         <>
+          <div className="max-w-md mx-auto mb-8">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 pl-10 pr-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              />
+              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+            </div>
+          </div>
+
           <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">
             {editingProduct ? 'Edit Product' : 'Add New Product'}
           </h1>
@@ -680,7 +950,7 @@ function Admin() {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
               <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Current Products</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <div key={product.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-md">
                     <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover rounded-lg mb-4" />
                     <h3 className="text-lg font-semibold mb-2 dark:text-white">{product.name}</h3>
@@ -764,7 +1034,7 @@ function Admin() {
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
-            <h2 className="text-2xl font-bol d mb-6 text-center dark:text-white">Current Categories</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Current Categories</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {categories.map((category) => (
                 <div key={category.id} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
@@ -936,6 +1206,227 @@ function Admin() {
                       ))}
                     </div>
                   )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'ads' && (
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">
+            {editingAd ? 'Edit Advertisement' : 'Add New Advertisement'}
+          </h1>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
+            <form onSubmit={handleAdvertisementSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Image URL</label>
+                <input
+                  type="url"
+                  value={advertisement.imageUrl}
+                  onChange={(e) => setAdvertisement({ ...advertisement, imageUrl: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Link URL</label>
+                <input
+                  type="url"
+                  value={advertisement.linkUrl}
+                  onChange={(e) => setAdvertisement({ ...advertisement, linkUrl: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={advertisement.isActive}
+                  onChange={(e) => setAdvertisement({ ...advertisement, isActive: e.target.checked })}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700 dark:text-gray-200">
+                  Active
+                </label>
+              </div>
+              
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-lg"
+                >
+                  {editingAd ? 'Update Advertisement' : 'Add Advertisement'}
+                </button>
+                {editingAd && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingAd(null);
+                      setAdvertisement({
+                        imageUrl: '',
+                        linkUrl: '',
+                        isActive: true
+                      });
+                    }}
+                    className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200 shadow-lg"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Current Advertisements</h2>
+            <div className="grid grid-cols-1 gap-6">
+              {advertisements.map((ad) => (
+                <div key={ad.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <img src={ad.imageUrl} alt="Advertisement" className="w-full h-40 object-cover rounded-lg mb-4" />
+                      <p className="text-sm text-gray-500 dark:text-gray-400 break-all">{ad.linkUrl}</p>
+                      <div className="mt-2">
+                        <span className={`px-2 py-1 rounded-full text-sm ${
+                          ad.isActive 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        }`}>
+                          {ad.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2 ml-4">
+                      <button
+                        onClick={() => handleEditAdvertisement(ad)}
+                        className="text-blue-500 hover:text-blue-600"
+                      >
+                        <Edit size={20} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAdvertisement(ad.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'coupons' && (
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">
+            {editingCoupon ? 'Edit Coupon' : 'Add New Coupon'}
+          </h1>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 mb-8">
+            <form onSubmit={handleCouponSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Coupon Code</label>
+                <input
+                  type="text"
+                  value={coupon.code}
+                  onChange={(e) => setCoupon({ ...coupon, code: e.target.value.toUpperCase() })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Discount Amount (TK)</label>
+                <input
+                  type="number"
+                  value={coupon.discount}
+                  onChange={(e) => setCoupon({ ...coupon, discount: Number(e.target.value) })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  required
+                  min="0"
+                />
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="couponActive"
+                  checked={coupon.isActive}
+                  onChange={(e) => setCoupon({ ...coupon, isActive: e.target.checked })}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="couponActive" className="ml-2 block text-sm text-gray-700 dark:text-gray-200">
+                  Active
+                </label>
+              </div>
+              
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors duration-200 shadow-lg"
+                >
+                  {editingCoupon ? 'Update Coupon' : 'Add Coupon'}
+                </button>
+                {editingCoupon && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingCoupon(null);
+                      setCoupon({
+                        code: '',
+                        discount: 0,
+                        isActive: true
+                      });
+                    }}
+                    className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200 shadow-lg"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Current Coupons</h2>
+            <div className="grid grid-cols-1 gap-6">
+              {coupons.map((coupon) => (
+                <div key={coupon.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg font-semibold dark:text-white">{coupon.code}</h3>
+                      <p className="text-gray-600 dark:text-gray-300">Discount: {coupon.discount} TK</p>
+                      <div className="mt-2">
+                        <span className={`px-2 py-1 rounded-full text-sm ${
+                          coupon.isActive 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        }`}>
+                          {coupon.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEditCoupon(coupon)}
+                        className="text-blue-500 hover:text-blue-600"
+                      >
+                        <Edit size={20} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCoupon(coupon.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
