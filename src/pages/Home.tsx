@@ -3,6 +3,7 @@ import { ref, onValue } from 'firebase/database';
 import { db } from '../firebase';
 import { ShoppingCart, Search, ArrowUpDown, Filter, Share2, X } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductVariant {
   color: string;
@@ -28,6 +29,7 @@ interface Category {
 }
 
 function Home() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -183,36 +185,8 @@ function Home() {
     filterProducts(products, selectedCategory, searchTerm);
   };
 
-  const showProductDetails = (product: Product) => {
-    setSelectedProduct(product);
-    Swal.fire({
-      title: product.name,
-      html: `
-        <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-2">
-            <img src="${product.imageUrl}" class="w-full h-48 object-contain rounded-lg" alt="${product.name}" />
-            ${product.additionalImages ? product.additionalImages.map(img => 
-              `<img src="${img}" class="w-full h-48 object-contain rounded-lg" alt="${product.name}" />`
-            ).join('') : ''}
-          </div>
-          <p class="text-lg font-bold">${product.price} TK</p>
-          <p class="text-sm">${product.description}</p>
-          ${product.variants ? `
-            <div class="text-sm">
-              <p class="font-semibold">Available Colors:</p>
-              <ul class="list-disc list-inside">
-                ${product.variants.map(v => `
-                  <li>${v.color} - ${v.stock} in stock</li>
-                `).join('')}
-              </ul>
-            </div>
-          ` : ''}
-        </div>
-      `,
-      width: 600,
-      showCloseButton: true,
-      showConfirmButton: false
-    });
+  const handleProductClick = (productId: string) => {
+    navigate(`/product/${productId}`);
   };
 
   return (
@@ -261,13 +235,14 @@ function Home() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
         {displayProducts.map((product) => (
-          <div key={product.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden md:transform md:transition-all md:duration-300 md:hover:scale-105">
+          <div 
+            key={product.id}
+            onClick={() => handleProductClick(product.id)}
+            className="cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden md:transform md:transition-all md:duration-300 md:hover:scale-105"
+          >
             {/* Mobile View */}
             <div className="md:hidden">
-              <div 
-                className="relative aspect-square cursor-pointer"
-                onClick={() => showProductDetails(product)}
-              >
+              <div className="relative aspect-square">
                 <img 
                   src={product.imageUrl} 
                   alt={product.name} 
@@ -293,10 +268,13 @@ function Home() {
                   {product.variants && product.variants.length > 0 ? (
                     <select
                       value={selectedVariant[product.id] || ''}
-                      onChange={(e) => setSelectedVariant({
-                        ...selectedVariant,
-                        [product.id]: e.target.value
-                      })}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        setSelectedVariant({
+                          ...selectedVariant,
+                          [product.id]: e.target.value
+                        });
+                      }}
                       className="text-xs px-1 py-0.5 border rounded"
                     >
                       <option value="">Color</option>
@@ -313,7 +291,10 @@ function Home() {
                   )}
                 </div>
                 <button
-                  onClick={() => addToCart(product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(product);
+                  }}
                   disabled={product.quantity === 'Out of Stock' || (product.variants && product.variants.length > 0 && !selectedVariant[product.id])}
                   className="w-full bg-blue-500 text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-blue-600 disabled:bg-gray-400 flex items-center justify-center space-x-1"
                 >
@@ -325,10 +306,7 @@ function Home() {
 
             {/* Desktop View */}
             <div className="hidden md:block">
-              <div 
-                className="relative pb-[100%] cursor-pointer"
-                onClick={() => showProductDetails(product)}
-              >
+              <div className="relative pb-[100%]">
                 <img 
                   src={product.imageUrl} 
                   alt={product.name} 
@@ -358,10 +336,13 @@ function Home() {
                   <div className="mb-4">
                     <select
                       value={selectedVariant[product.id] || ''}
-                      onChange={(e) => setSelectedVariant({
-                        ...selectedVariant,
-                        [product.id]: e.target.value
-                      })}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        setSelectedVariant({
+                          ...selectedVariant,
+                          [product.id]: e.target.value
+                        });
+                      }}
                       className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white mb-2"
                     >
                       <option value="">Select Color</option>
@@ -383,7 +364,10 @@ function Home() {
                 )}
 
                 <button
-                  onClick={() => addToCart(product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(product);
+                  }}
                   disabled={product.quantity === 'Out of Stock' || (product.variants && product.variants.length > 0 && !selectedVariant[product.id])}
                   className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 flex items-center justify-center space-x-2 transition-colors"
                 >
