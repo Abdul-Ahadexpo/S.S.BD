@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Truck, HeadphonesIcon } from 'lucide-react';
+import { Shield, Truck, HeadphonesIcon, Gift } from 'lucide-react';
 import Swal from 'sweetalert2';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 function Checkout() {
   const navigate = useNavigate();
@@ -14,10 +16,34 @@ function Checkout() {
     couponCode: ''
   });
   const [cart, setCart] = useState<any[]>([]);
+  const [isGiftWrapped, setIsGiftWrapped] = useState(false);
+  const [orderTimestamp, setOrderTimestamp] = useState<number | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Load cart items
     const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
     setCart(cartItems);
+    
+    // Load gift wrap preference
+    const giftWrap = localStorage.getItem('giftWrap');
+    if (giftWrap) {
+      setIsGiftWrapped(JSON.parse(giftWrap));
+    }
+
+    // Load saved user info
+    const savedInfo = localStorage.getItem('userCheckoutInfo');
+    if (savedInfo) {
+      const parsedInfo = JSON.parse(savedInfo);
+      setFormData(prev => ({
+        ...prev,
+        name: parsedInfo.name || '',
+        phone: parsedInfo.phone || '',
+        address: parsedInfo.address || '',
+        email: parsedInfo.email || ''
+      }));
+    }
+
     if (cartItems.length === 0) {
       Swal.fire({
         title: 'Empty Cart',
@@ -29,6 +55,73 @@ function Checkout() {
       });
     }
   }, [navigate]);
+
+  const generateReceipt = async () => {
+    const receiptElement = document.createElement('div');
+    receiptElement.innerHTML = `
+      <div style="padding: 20px; font-family: Arial, sans-serif;">
+        <h2 style="text-align: center; color: #2563eb;">Spin Strike - Order Receipt</h2>
+        <p style="text-align: center; color: #666;">Order #${orderId}</p>
+        <hr style="margin: 20px 0;" />
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #1f2937;">Customer Details</h3>
+          <p>Name: ${formData.name}</p>
+          <p>Phone: ${formData.phone}</p>
+          <p>Address: ${formData.address}</p>
+          <p>Email: ${formData.email}</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #1f2937;">Order Details</h3>
+          ${cart.map(item => `
+            <div style="margin-bottom: 10px;">
+              <p style="margin: 0;">${item.name} ${item.selectedVariant ? `(${item.selectedVariant})` : ''}</p>
+              <p style="margin: 0; color: #666;">Quantity: ${item.quantity} × ${item.price} TK</p>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+          <p style="display: flex; justify-content: space-between;">
+            <span>Subtotal:</span>
+            <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0)} TK</span>
+          </p>
+          <p style="display: flex; justify-content: space-between;">
+            <span>Delivery Charge:</span>
+            <span>120 TK</span>
+          </p>
+          ${isGiftWrapped ? `
+            <p style="display: flex; justify-content: space-between;">
+              <span>Gift Wrapping:</span>
+              <span>20 TK</span>
+            </p>
+          ` : ''}
+          <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
+            <span>Total:</span>
+            <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 120 + (isGiftWrapped ? 20 : 0)} TK</span>
+          </p>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
+          <p>Thank you for shopping with Spin Strike!</p>
+          <p>For any queries, contact us at: spinstrikebd@gmail.com</p>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(receiptElement);
+    
+    try {
+      const canvas = await html2canvas(receiptElement);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      pdf.save(`spin-strike-receipt-${orderId}.pdf`);
+    } finally {
+      document.body.removeChild(receiptElement);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +138,15 @@ function Checkout() {
       return;
     }
 
-    const hasPreOrder = cart.some((item: any) => item.quantity === 'Pre-order');
+    // Save user info for future use
+    localStorage.setItem('userCheckoutInfo', JSON.stringify({
+      name: formData.name,
+      phone: formData.phone,
+      address: formData.address,
+      email: formData.email
+    }));
+
+    const hasPreOrder = cart.some(item => item.quantity === 'Pre-order');
     if (hasPreOrder) {
       await Swal.fire({
         title: 'Pre-order Payment Required',
@@ -58,8 +159,16 @@ function Checkout() {
       });
     }
     
+    const timestamp = Date.now();
+    const generatedOrderId = `SS-${timestamp.toString(36)}`;
+    setOrderId(generatedOrderId);
+    setOrderTimestamp(timestamp);
+    
     const orderData = {
       access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
+      orderId: generatedOrderId,
+      timestamp: timestamp,
+      isGiftWrapped: isGiftWrapped,
       Coupon_code: formData.couponCode,
       message: formData.message,
       name: formData.name,
@@ -99,6 +208,61 @@ function Checkout() {
 
       if (response.ok) {
         localStorage.removeItem('cart');
+        localStorage.removeItem('giftWrap');
+        
+        await generateReceipt();
+
+        Swal.fire({
+          title: 'Order Placed Successfully!',
+          html: `
+            <p>Thank you for your order, ${formData.name}!</p>
+            <p class="mt-4">Your order ID is: <strong>${generatedOrderId}</strong></p>
+            <p class="mt-2 text-sm">You can modify your order within the next 10 minutes.</p>
+          `,
+          icon: 'success',
+          showCancelButton: true,
+          confirmButtonText: 'Go to Home',
+          cancelButtonText: 'Modify Order'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate('/');
+          } else {
+            // Show modify order options
+            Swal.fire({
+              title: 'Modify Order',
+              html: `
+                <div class="space-y-4">
+                  <button class="w-full bg-blue-500 text-white px-4 py-2 rounded" onclick="window.modifyAddress()">
+                    Edit Address
+                  </button>
+                  <button class="w-full bg-red-500 text-white px-4 py-2 rounded" onclick="window.cancelOrder()">
+                    Cancel Order
+                  </button>
+                  <button class="w-full bg-green-500 text-white px-4 py-2 rounded" onclick="window.addMoreProducts()">
+                    Add More Products
+                  </button>
+                </div>
+              `,
+              showConfirmButton: false,
+              showCloseButton: true,
+              didOpen: () => {
+                // Add window functions for the buttons
+                (window as any).modifyAddress = () => {
+                  Swal.close();
+                  // Handle address modification
+                };
+                (window as any).cancelOrder = () => {
+                  Swal.close();
+                  // Handle order cancellation
+                };
+                (window as any).addMoreProducts = () => {
+                  navigate('/');
+                };
+              }
+            });
+          }
+        });
+
         setFormData({
           name: '',
           phone: '',
@@ -106,14 +270,6 @@ function Checkout() {
           email: '',
           message: '',
           couponCode: ''
-        });
-        
-        Swal.fire({
-          title: 'Success!',
-          text: `Thank you for your order, ${formData.name}! It will be confirmed.`,
-          icon: 'success'
-        }).then(() => {
-          navigate('/');
         });
       } else {
         throw new Error("Failed to submit your order.");
@@ -242,6 +398,22 @@ function Checkout() {
               onChange={(e) => setFormData({ ...formData, couponCode: e.target.value })}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          <div>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isGiftWrapped}
+                onChange={(e) => setIsGiftWrapped(e.target.checked)}
+                className="form-checkbox h-5 w-5 text-blue-500"
+              />
+              
+              <span className="flex items-center space-x-2">
+                <Gift className="h-5 w-5 text-pink-500" />
+                <span>Add Gift Wrapping (+20 TK)</span>
+              </span>
+            </label>
           </div>
           
           <button
