@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, onValue, get } from 'firebase/database';
 import { db } from '../firebase';
-import { Trash2, ExternalLink, Tag } from 'lucide-react';
+import { Trash2, ExternalLink, Tag, Gift } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface Product {
@@ -31,13 +31,21 @@ function Cart() {
   const [cartAd, setCartAd] = useState<CartAd | null>(null);
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [isGiftWrapped, setIsGiftWrapped] = useState(false);
   const navigate = useNavigate();
   const DELIVERY_CHARGE = 120;
+  const GIFT_WRAP_CHARGE = 20;
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
+    }
+
+    // Load gift wrap preference
+    const giftWrap = localStorage.getItem('giftWrap');
+    if (giftWrap) {
+      setIsGiftWrapped(JSON.parse(giftWrap));
     }
 
     // Load active cart ad
@@ -48,7 +56,6 @@ function Cart() {
         const activeAds = Object.values(adsData as Record<string, CartAd>)
           .filter(ad => ad.isActive);
         if (activeAds.length > 0) {
-          // Randomly select one active ad
           const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
           setCartAd(randomAd);
         }
@@ -110,18 +117,26 @@ function Cart() {
     setCouponCode('');
   };
 
+  const handleGiftWrapToggle = () => {
+    const newValue = !isGiftWrapped;
+    setIsGiftWrapped(newValue);
+    localStorage.setItem('giftWrap', JSON.stringify(newValue));
+  };
+
   const calculateTotal = () => {
     const subtotal = cart.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
     const discount = appliedCoupon ? appliedCoupon.discount : 0;
-    const total = subtotal + DELIVERY_CHARGE - discount;
+    const giftWrapFee = isGiftWrapped ? GIFT_WRAP_CHARGE : 0;
+    const total = subtotal + DELIVERY_CHARGE + giftWrapFee - discount;
     return {
       subtotal,
       discount,
+      giftWrapFee,
       total: total < 0 ? 0 : total
     };
   };
 
-  const { subtotal, discount, total } = calculateTotal();
+  const { subtotal, discount, giftWrapFee, total } = calculateTotal();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -229,6 +244,21 @@ function Cart() {
                 )}
               </div>
 
+              <div className="mb-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isGiftWrapped}
+                    onChange={handleGiftWrapToggle}
+                    className="form-checkbox h-5 w-5 text-blue-500"
+                  />
+                  <span className="flex items-center space-x-2">
+                    <Gift className="h-5 w-5 text-pink-500" />
+                    <span>Add Gift Wrapping (+20 TK)</span>
+                  </span>
+                </label>
+              </div>
+
               <div className="flex justify-between text-lg font-semibold">
                 <span>Subtotal:</span>
                 <span>{subtotal}TK</span>
@@ -237,6 +267,12 @@ function Cart() {
                 <span>Delivery Charge:</span>
                 <span>{DELIVERY_CHARGE}TK</span>
               </div>
+              {giftWrapFee > 0 && (
+                <div className="flex justify-between text-lg font-semibold mt-2 text-pink-600">
+                  <span>Gift Wrapping:</span>
+                  <span>{giftWrapFee}TK</span>
+                </div>
+              )}
               {discount > 0 && (
                 <div className="flex justify-between text-lg font-semibold mt-2 text-green-600">
                   <span>Discount:</span>
