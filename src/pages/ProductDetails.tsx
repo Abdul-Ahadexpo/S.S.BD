@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, get } from 'firebase/database';
 import { db } from '../firebase';
-import { ShoppingCart, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Clock, Shield, Truck, HeadphonesIcon } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductVariant {
   color: string;
   stock: number;
+  imageUrl?: string;
 }
 
 interface Product {
@@ -58,6 +59,31 @@ function ProductDetails() {
 
     fetchProduct();
   }, [id]);
+
+  const handleVariantChange = (color: string) => {
+    setSelectedVariant(color);
+    if (product) {
+      const variant = product.variants?.find(v => v.color === color);
+      if (variant?.imageUrl) {
+        setSelectedImage(variant.imageUrl);
+      } else {
+        setSelectedImage(product.imageUrl);
+      }
+    }
+  };
+
+  const getDeliveryEstimate = () => {
+    if (product) {
+      if (product.quantity === 'Pre-order') {
+        return '25-35 days';
+      } else if (product.quantity === 'Out of Stock') {
+        return null;
+      } else {
+        return '3-5 days';
+      }
+    }
+    return null;
+  };
 
   const addToCart = () => {
     if (product) {
@@ -117,6 +143,10 @@ function ProductDetails() {
     );
   }
 
+  const deliveryEstimate = getDeliveryEstimate();
+  const isPreOrder = product.quantity === 'Pre-order';
+  const isOutOfStock = product.quantity === 'Out of Stock';
+
   return (
     <div className="container mx-auto px-4 py-8">
       <button
@@ -170,6 +200,37 @@ function ProductDetails() {
         <div className="space-y-6">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{product.name}</h1>
           <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{product.price} TK</p>
+          
+          {/* Stock Status */}
+          <div className="flex items-center space-x-2">
+            <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+              isOutOfStock 
+                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                : isPreOrder
+                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+            }`}>
+              {isOutOfStock ? 'Out of Stock' : isPreOrder ? 'Pre-order' : 'In Stock'}
+            </div>
+          </div>
+
+          {/* Delivery Estimate */}
+          {deliveryEstimate && (
+            <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+              <Clock size={20} />
+              <span>Estimated delivery: {deliveryEstimate}</span>
+            </div>
+          )}
+
+          {/* Pre-order Notice */}
+          {isPreOrder && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 rounded">
+              <p className="font-bold text-yellow-800 dark:text-yellow-200">
+                Pre-order requires 60% advance payment
+              </p>
+            </div>
+          )}
+
           <div className="prose dark:prose-invert max-w-none">
             <p className="text-gray-600 dark:text-gray-300">{product.description}</p>
           </div>
@@ -181,7 +242,7 @@ function ProductDetails() {
               </label>
               <select
                 value={selectedVariant}
-                onChange={(e) => setSelectedVariant(e.target.value)}
+                onChange={(e) => handleVariantChange(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">Choose a color</option>
@@ -201,7 +262,7 @@ function ProductDetails() {
           <div className="flex space-x-4">
             <button
               onClick={addToCart}
-              disabled={product.quantity === 'Out of Stock'}
+              disabled={isOutOfStock}
               className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 flex items-center justify-center space-x-2"
             >
               <ShoppingCart size={20} />
@@ -209,11 +270,27 @@ function ProductDetails() {
             </button>
             <button
               onClick={handleBuyNow}
-              disabled={product.quantity === 'Out of Stock'}
+              disabled={isOutOfStock}
               className="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 disabled:bg-gray-400"
             >
               Buy Now
             </button>
+          </div>
+
+          {/* Trust Badges */}
+          <div className="grid grid-cols-3 gap-4 pt-6 border-t">
+            <div className="flex flex-col items-center text-center">
+              <Shield className="h-8 w-8 text-green-500 mb-2" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">100% Secure Payment</span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <Truck className="h-8 w-8 text-blue-500 mb-2" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Fast Delivery</span>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <HeadphonesIcon className="h-8 w-8 text-purple-500 mb-2" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active Support</span>
+            </div>
           </div>
         </div>
       </div>
