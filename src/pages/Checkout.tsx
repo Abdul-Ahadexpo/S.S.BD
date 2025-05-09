@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Shield, Truck, HeadphonesIcon } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 function Checkout() {
@@ -12,10 +13,12 @@ function Checkout() {
     message: '',
     couponCode: ''
   });
+  const [cart, setCart] = useState<any[]>([]);
 
   useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    if (cart.length === 0) {
+    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+    setCart(cartItems);
+    if (cartItems.length === 0) {
       Swal.fire({
         title: 'Empty Cart',
         text: 'Please add products to your cart before checking out.',
@@ -29,8 +32,6 @@ function Checkout() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     
     if (cart.length === 0) {
       Swal.fire({
@@ -126,9 +127,57 @@ function Checkout() {
     }
   };
 
+  const hasPreOrder = cart.some(item => item.quantity === 'Pre-order');
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">Checkout</h1>
+      
+      {/* Trust Badges */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <div className="grid grid-cols-3 gap-4 bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
+          <div className="flex flex-col items-center text-center">
+            <Shield className="h-8 w-8 text-green-500 mb-2" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">100% Secure Payment</span>
+          </div>
+          <div className="flex flex-col items-center text-center">
+            <Truck className="h-8 w-8 text-blue-500 mb-2" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Fast Delivery</span>
+          </div>
+          <div className="flex flex-col items-center text-center">
+            <HeadphonesIcon className="h-8 w-8 text-purple-500 mb-2" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active Support</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Delivery Time Notice */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+          <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">Delivery Information</h3>
+          <ul className="list-disc list-inside space-y-1 text-blue-700 dark:text-blue-300">
+            <li>Standard delivery time: 3-5 working days</li>
+            <li>Delivery time for "Pre-Order": 25-35 working days</li>
+            <li>Delivery charge: 120 TK</li>
+            <li>Free delivery on orders above 2000 TK</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Pre-order Notice */}
+      {hasPreOrder && (
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 rounded">
+            <p className="font-bold text-yellow-800 dark:text-yellow-200">
+              Pre-order items require 60% advance payment
+            </p>
+            <p className="text-yellow-700 dark:text-yellow-300 mt-1">
+              Please send the payment to bKash: 01722786111
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
