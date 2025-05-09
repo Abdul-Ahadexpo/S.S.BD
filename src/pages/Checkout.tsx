@@ -56,73 +56,136 @@ function Checkout() {
     }
   }, [navigate]);
 
-  const generateReceipt = async () => {
-    const receiptElement = document.createElement('div');
-    receiptElement.innerHTML = `
-      <div style="padding: 20px; font-family: Arial, sans-serif;">
-        <h2 style="text-align: center; color: #2563eb;">Spin Strike - Order Receipt</h2>
-        <p style="text-align: center; color: #666;">Order #${orderId}</p>
-        <hr style="margin: 20px 0;" />
-        
-        <div style="margin-bottom: 20px;">
-          <h3 style="color: #1f2937;">Customer Details</h3>
-          <p>Name: ${formData.name}</p>
-          <p>Phone: ${formData.phone}</p>
-          <p>Address: ${formData.address}</p>
-          <p>Email: ${formData.email}</p>
-        </div>
 
-        <div style="margin-bottom: 20px;">
-          <h3 style="color: #1f2937;">Order Details</h3>
-          ${cart.map(item => `
-            <div style="margin-bottom: 10px;">
-              <p style="margin: 0;">${item.name} ${item.selectedVariant ? `(${item.selectedVariant})` : ''}</p>
-              <p style="margin: 0; color: #666;">Quantity: ${item.quantity} × ${item.price} TK</p>
-            </div>
-          `).join('')}
-        </div>
 
-        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-          <p style="display: flex; justify-content: space-between;">
-            <span>Subtotal:</span>
-            <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0)} TK</span>
-          </p>
-          <p style="display: flex; justify-content: space-between;">
-            <span>Delivery Charge:</span>
-            <span>120 TK</span>
-          </p>
-          ${isGiftWrapped ? `
-            <p style="display: flex; justify-content: space-between;">
-              <span>Gift Wrapping:</span>
-              <span>20 TK</span>
-            </p>
-          ` : ''}
-          <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
-            <span>Total:</span>
-            <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 120 + (isGiftWrapped ? 20 : 0)} TK</span>
-          </p>
-        </div>
 
-        <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
-          <p>Thank you for shopping with Spin Strike!</p>
-          <p>For any queries, contact us at: spinstrikebd@gmail.com</p>
-        </div>
+
+
+
+const generateReceipt = async () => {
+  const receiptElement = document.createElement('div');
+  receiptElement.innerHTML = `
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .receipt-container {
+        padding: 30px;
+        max-width: 800px;
+        margin: auto;
+      }
+      .header {
+        text-align: center;
+        color: #2563eb;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .order-id {
+        text-align: center;
+        color: #666;
+        margin-top: 5px;
+        font-size: 16px;
+      }
+      .section-title {
+        font-size: 18px;
+        color: #1f2937;
+        margin-bottom: 10px;
+        margin-top: 20px;
+      }
+      .section-content {
+        font-size: 16px;
+        color: #333;
+      }
+      .total {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 12px;
+        color: #666;
+      }
+      .footer a {
+        color: #2563eb;
+        text-decoration: none;
+      }
+    </style>
+
+    <div class="receipt-container">
+      <div class="header">Spin Strike - Order Receipt</div>
+      <div class="order-id">Order #${orderId}</div>
+      <hr style="margin: 20px 0;" />
+
+      <div class="section-title">Customer Details</div>
+      <div class="section-content">
+        <p>Name: ${formData.name}</p>
+        <p>Phone: ${formData.phone}</p>
+        <p>Address: ${formData.address}</p>
+        <p>Email: ${formData.email}</p>
       </div>
-    `;
 
-    document.body.appendChild(receiptElement);
-    
-    try {
-      const canvas = await html2canvas(receiptElement);
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgData = canvas.toDataURL('image/png');
-      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-      pdf.save(`spin-strike-receipt-${orderId}.pdf`);
-    } finally {
-      document.body.removeChild(receiptElement);
-    }
-  };
+      <div class="section-title">Order Details</div>
+      <div class="section-content">
+        ${cart.map(item => `
+          <div style="margin-bottom: 10px;">
+            <p style="margin: 0;">${item.name} ${item.selectedVariant ? `(${item.selectedVariant})` : ''}</p>
+            <p style="margin: 0; color: #666;">Quantity: ${item.quantity} × ${item.price} TK</p>
+          </div>
+        `).join('')}
+      </div>
 
+      <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+        <p class="total">
+          <span>Subtotal:</span>
+          <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0)} TK</span>
+        </p>
+        <p class="total">
+          <span>Delivery Charge:</span>
+          <span>120 TK</span>
+        </p>
+        ${isGiftWrapped ? `
+          <p class="total">
+            <span>Gift Wrapping:</span>
+            <span>20 TK</span>
+          </p>
+        ` : ''}
+        <p class="total" style="font-weight: bold;">
+          <span>Total:</span>
+          <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 120 + (isGiftWrapped ? 20 : 0)} TK</span>
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>Thank you for shopping with Spin Strike!</p>
+        <p>For any queries, contact us at: <a href="mailto:spinstrikebd@gmail.com">spinstrikebd@gmail.com</a></p>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(receiptElement);
+
+  try {
+    const canvas = await html2canvas(receiptElement);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+    pdf.save(`spin-strike-receipt-${orderId}.pdf`);
+  } finally {
+    document.body.removeChild(receiptElement);
+  }
+};
+
+  
+
+
+
+
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
