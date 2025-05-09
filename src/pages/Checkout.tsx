@@ -65,104 +65,53 @@ function Checkout() {
 const generateReceipt = async () => {
   const receiptElement = document.createElement('div');
   receiptElement.innerHTML = `
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
-      .receipt-container {
-        padding: 30px;
-        max-width: 800px;
-        margin: auto;
-      }
-      .header {
-        text-align: center;
-        color: #2563eb;
-        font-size: 24px;
-        font-weight: bold;
-      }
-      .order-id {
-        text-align: center;
-        color: #666;
-        margin-top: 5px;
-        font-size: 16px;
-      }
-      .section-title {
-        font-size: 18px;
-        color: #1f2937;
-        margin-bottom: 10px;
-        margin-top: 20px;
-      }
-      .section-content {
-        font-size: 16px;
-        color: #333;
-      }
-      .total {
-        display: flex;
-        justify-content: space-between;
-        font-weight: bold;
-        margin-top: 10px;
-      }
-      .footer {
-        text-align: center;
-        margin-top: 30px;
-        font-size: 12px;
-        color: #666;
-      }
-      .footer a {
-        color: #2563eb;
-        text-decoration: none;
-      }
-    </style>
+    <div style="padding: 40px; font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto;">
+      <h2 style="text-align: center; color: #2563eb; margin-bottom: 20px;">Spin Strike - Order Receipt</h2>
+      <p style="text-align: center; color: #666; font-size: 16px;">Order #${orderId}</p>
+      <hr style="margin: 30px 0; border-top: 2px solid #eee;" />
 
-    <div class="receipt-container">
-      <div class="header">Spin Strike - Order Receipt</div>
-      <div class="order-id">Order #${orderId}</div>
-      <hr style="margin: 20px 0;" />
-
-      <div class="section-title">Customer Details</div>
-      <div class="section-content">
-        <p>Name: ${formData.name}</p>
-        <p>Phone: ${formData.phone}</p>
-        <p>Address: ${formData.address}</p>
-        <p>Email: ${formData.email}</p>
+      <div style="margin-bottom: 30px;">
+        <h3 style="color: #1f2937; font-size: 18px; margin-bottom: 10px;">Customer Details</h3>
+        <p style="margin: 8px 0; font-size: 16px;">Name: <strong>${formData.name}</strong></p>
+        <p style="margin: 8px 0; font-size: 16px;">Phone: <strong>${formData.phone}</strong></p>
+        <p style="margin: 8px 0; font-size: 16px;">Address: <strong>${formData.address}</strong></p>
+        <p style="margin: 8px 0; font-size: 16px;">Email: <strong>${formData.email}</strong></p>
       </div>
 
-      <div class="section-title">Order Details</div>
-      <div class="section-content">
+      <div style="margin-bottom: 30px;">
+        <h3 style="color: #1f2937; font-size: 18px; margin-bottom: 10px;">Order Details</h3>
         ${cart.map(item => `
-          <div style="margin-bottom: 10px;">
-            <p style="margin: 0;">${item.name} ${item.selectedVariant ? `(${item.selectedVariant})` : ''}</p>
-            <p style="margin: 0; color: #666;">Quantity: ${item.quantity} × ${item.price} TK</p>
+          <div style="margin-bottom: 15px;">
+            <p style="margin: 0; font-size: 16px;">${item.name} ${item.selectedVariant ? `(${item.selectedVariant})` : ''}</p>
+            <p style="margin: 5px 0; color: #666; font-size: 14px;">Quantity: ${item.quantity} × ${item.price} TK</p>
           </div>
         `).join('')}
       </div>
 
-      <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-        <p class="total">
+      <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+        <p style="display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 12px;">
           <span>Subtotal:</span>
           <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0)} TK</span>
         </p>
-        <p class="total">
+        <p style="display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 12px;">
           <span>Delivery Charge:</span>
           <span>120 TK</span>
         </p>
         ${isGiftWrapped ? `
-          <p class="total">
+          <p style="display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 12px;">
             <span>Gift Wrapping:</span>
             <span>20 TK</span>
           </p>
         ` : ''}
-        <p class="total" style="font-weight: bold;">
+        <p style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 20px;">
           <span>Total:</span>
           <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 120 + (isGiftWrapped ? 20 : 0)} TK</span>
         </p>
       </div>
 
-      <div class="footer">
+      <div style="margin-top: 40px; text-align: center; color: #666; font-size: 14px;">
         <p>Thank you for shopping with Spin Strike!</p>
-        <p>For any queries, contact us at: <a href="mailto:spinstrikebd@gmail.com">spinstrikebd@gmail.com</a></p>
+        <p>For any queries, contact us at: <strong>spinstrikebd@gmail.com</strong></p>
       </div>
     </div>
   `;
@@ -179,6 +128,7 @@ const generateReceipt = async () => {
     document.body.removeChild(receiptElement);
   }
 };
+
 
   
 
