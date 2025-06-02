@@ -151,7 +151,7 @@ function Checkout() {
       await Swal.fire({
         title: 'Pre-order Payment Required',
         html: `
-          <p>To pre-order, you need to send 60% of the total payment in advance to this Bkash number:</p>
+          <p>To pre-order, you need to send 25% of the total payment in advance to this Bkash number:</p>
           <p class="text-xl font-bold mt-4">01722786111</p>
         `,
         icon: 'info',
@@ -325,7 +325,7 @@ function Checkout() {
         <div className="max-w-2xl mx-auto mb-8">
           <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 rounded">
             <p className="font-bold text-yellow-800 dark:text-yellow-200">
-              Pre-order items require 60% advance payment
+              Pre-order items require 25% advance payment
             </p>
             <p className="text-yellow-700 dark:text-yellow-300 mt-1">
               Please send the payment to bKash: 01722786111
