@@ -226,7 +226,7 @@ function ProductDetails() {
           {isPreOrder && (
             <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 rounded">
               <p className="font-bold text-yellow-800 dark:text-yellow-200">
-                Pre-order requires 60% advance payment
+                Pre-order requires 25% advance payment
               </p>
             </div>
           )}
