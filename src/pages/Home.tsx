@@ -125,7 +125,8 @@ function Home() {
     const cartItem = {
       ...product,
       selectedVariant: variant,
-      quantity: 1
+      quantity: 1,
+      selected: true // Add default selected state
     };
 
     const isProductInCart = existingCart.some((item: any) => 
@@ -237,7 +238,6 @@ function Home() {
       <div className="flex flex-col space-y-4 mb-8">
         <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white">Spin Strike</h1>
         
-        {/* Search and Filters - Mobile Optimized */}
         <div className="flex flex-col space-y-4">
           <div className="relative">
             <input
@@ -277,7 +277,7 @@ function Home() {
       </div>
 
       {/* Product Grid - Mobile First */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {displayProducts.map((product) => (
           <div 
             key={product.id}
@@ -300,7 +300,6 @@ function Home() {
                 <Share2 className="h-5 w-5 text-gray-600 dark:text-gray-300" />
               </button>
               
-              {/* Stock Badge */}
               <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${
                 product.quantity === 'Out of Stock'
                   ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
@@ -319,44 +318,47 @@ function Home() {
                 {product.name}
               </h3>
               
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                  {product.price} TK
-                </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {product.category}
-                </span>
-              </div>
+              <div className="flex flex-col space-y-3">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-baseline space-x-1">
+                    <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{product.price}</span>
+                    <span className="text-blue-600 dark:text-blue-400">TK</span>
+                  </div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {product.category}
+                  </span>
+                </div>
 
-              {product.variants && product.variants.length > 0 && (
-                <select
-                  value={selectedVariant[product.id] || ''}
-                  onChange={(e) => {
+                {product.variants && product.variants.length > 0 && (
+                  <select
+                    value={selectedVariant[product.id] || ''}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      handleVariantChange(product.id, e.target.value);
+                    }}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                  >
+                    <option value="">Select Color</option>
+                    {product.variants.map((variant, index) => (
+                      <option key={index} value={variant.color} disabled={variant.stock === 0}>
+                        {variant.color} {variant.stock === 0 ? '(Out of Stock)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                <button
+                  onClick={(e) => {
                     e.stopPropagation();
-                    handleVariantChange(product.id, e.target.value);
+                    addToCart(product);
                   }}
-                  className="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                  disabled={product.quantity === 'Out of Stock'}
+                  className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 flex items-center justify-center space-x-2"
                 >
-                  <option value="">Select Color</option>
-                  {product.variants.map((variant, index) => (
-                    <option key={index} value={variant.color} disabled={variant.stock === 0}>
-                      {variant.color} {variant.stock === 0 ? '(Out of Stock)' : ''}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addToCart(product);
-                }}
-                disabled={product.quantity === 'Out of Stock'}
-                className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 flex items-center justify-center space-x-2"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                <span>Add to Cart</span>
-              </button>
+                  <ShoppingCart className="h-5 w-5" />
+                  <span>Add to Cart</span>
+                </button>
+              </div>
             </div>
           </div>
         ))}
