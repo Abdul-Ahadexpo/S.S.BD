@@ -12,6 +12,7 @@ interface Product {
   quantity: number;
   imageUrl: string;
   selectedVariant?: string;
+  selected: boolean;
 }
 
 interface CartAd {
@@ -39,16 +40,21 @@ function Cart() {
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
-      setCart(JSON.parse(savedCart));
+      const parsedCart = JSON.parse(savedCart);
+      // Ensure all cart items have a selected property
+      const cartWithSelection = parsedCart.map((item: Product) => ({
+        ...item,
+        selected: item.selected ?? true
+      }));
+      setCart(cartWithSelection);
+      localStorage.setItem('cart', JSON.stringify(cartWithSelection));
     }
 
-    // Load gift wrap preference
     const giftWrap = localStorage.getItem('giftWrap');
     if (giftWrap) {
       setIsGiftWrapped(JSON.parse(giftWrap));
     }
 
-    // Load active cart ad
     const cartAdsRef = ref(db, 'cartAds');
     const unsubscribe = onValue(cartAdsRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -64,6 +70,17 @@ function Cart() {
 
     return () => unsubscribe();
   }, []);
+
+  const toggleItemSelection = (productId: string, variant?: string) => {
+    const newCart = cart.map(item => {
+      if (item.id === productId && item.selectedVariant === variant) {
+        return { ...item, selected: !item.selected };
+      }
+      return item;
+    });
+    setCart(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
+  };
 
   const removeFromCart = (productId: string, variant?: string) => {
     const newCart = cart.filter(item => !(item.id === productId && item.selectedVariant === variant));
@@ -124,7 +141,8 @@ function Cart() {
   };
 
   const calculateTotal = () => {
-    const subtotal = cart.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
+    const selectedItems = cart.filter(item => item.selected);
+    const subtotal = selectedItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
     const discount = appliedCoupon ? appliedCoupon.discount : 0;
     const giftWrapFee = isGiftWrapped ? GIFT_WRAP_CHARGE : 0;
     const total = subtotal + DELIVERY_CHARGE + giftWrapFee - discount;
@@ -137,6 +155,23 @@ function Cart() {
   };
 
   const { subtotal, discount, giftWrapFee, total } = calculateTotal();
+
+  const handleCheckout = () => {
+    const selectedItems = cart.filter(item => item.selected);
+    if (selectedItems.length === 0) {
+      Swal.fire({
+        title: 'No Items Selected',
+        text: 'Please select at least one item to checkout',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+    
+    // Update cart to only include selected items
+    localStorage.setItem('cart', JSON.stringify(selectedItems));
+    navigate('/checkout');
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -187,11 +222,19 @@ function Cart() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             {cart.map((item) => (
               <div key={`${item.id}-${item.selectedVariant}`} className="flex items-center border-b py-4">
-                <img 
-                  src={item.imageUrl} 
-                  alt={item.name} 
-                  className="w-20 h-20 object-cover rounded"
-                />
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="checkbox"
+                    checked={item.selected}
+                    onChange={() => toggleItemSelection(item.id, item.selectedVariant)}
+                    className="h-5 w-5 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                  />
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.name} 
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                </div>
                 <div className="flex-1 ml-4">
                   <h3 className="text-lg font-semibold">{item.name}</h3>
                   {item.selectedVariant && (
@@ -287,7 +330,7 @@ function Cart() {
           </div>
           <div className="text-center">
             <button
-              onClick={() => navigate('/checkout')}
+              onClick={handleCheckout}
               className="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600"
             >
               Proceed to Checkout
