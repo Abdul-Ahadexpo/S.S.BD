@@ -24,7 +24,7 @@ function HelpGuide() {
           <div>
             <h3 class="text-lg font-bold mb-2">Pre-order Information:</h3>
             <ul class="list-disc list-inside space-y-2">
-              <li>Pre-order requires 60% advance payment</li>
+              <li>Pre-order requires 25% advance payment</li>
               <li>Send payment to bKash: 01722786111</li>
               <li>Include your order number in the payment reference</li>
             </ul>
