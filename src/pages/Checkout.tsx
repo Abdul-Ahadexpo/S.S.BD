@@ -56,86 +56,73 @@ function Checkout() {
     }
   }, [navigate]);
 
+  const generateReceipt = async () => {
+    const receiptElement = document.createElement('div');
+    receiptElement.innerHTML = `
+      <div style="padding: 20px; font-family: Arial, sans-serif;">
+        <h2 style="text-align: center; color: #2563eb;">Spin Strike - Order Receipt</h2>
+        <p style="text-align: center; color: #666;">Order #${orderId}</p>
+        <hr style="margin: 20px 0;" />
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #1f2937;">Customer Details</h3>
+          <p>Name: ${formData.name}</p>
+          <p>Phone: ${formData.phone}</p>
+          <p>Address: ${formData.address}</p>
+          <p>Email: ${formData.email}</p>
+        </div>
 
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #1f2937;">Order Details</h3>
+          ${cart.map(item => `
+            <div style="margin-bottom: 10px;">
+              <p style="margin: 0;">${item.name} ${item.selectedVariant ? `(${item.selectedVariant})` : ''}</p>
+              <p style="margin: 0; color: #666;">Quantity: ${item.quantity} × ${item.price} TK</p>
+            </div>
+          `).join('')}
+        </div>
 
-
-
-
-
-const generateReceipt = async () => {
-  const receiptElement = document.createElement('div');
-  receiptElement.innerHTML = `
-    <div style="padding: 40px; font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto;">
-      <h2 style="text-align: center; color: #2563eb; margin-bottom: 20px;">Spin Strike - Order Receipt</h2>
-      <p style="text-align: center; color: #666; font-size: 16px;">Order #${orderId}</p>
-      <hr style="margin: 30px 0; border-top: 2px solid #eee;" />
-
-      <div style="margin-bottom: 30px;">
-        <h3 style="color: #1f2937; font-size: 18px; margin-bottom: 10px;">Customer Details</h3>
-        <p style="margin: 8px 0; font-size: 16px;">Name: <strong>${formData.name}</strong></p>
-        <p style="margin: 8px 0; font-size: 16px;">Phone: <strong>${formData.phone}</strong></p>
-        <p style="margin: 8px 0; font-size: 16px;">Address: <strong>${formData.address}</strong></p>
-        <p style="margin: 8px 0; font-size: 16px;">Email: <strong>${formData.email}</strong></p>
-      </div>
-
-      <div style="margin-bottom: 30px;">
-        <h3 style="color: #1f2937; font-size: 18px; margin-bottom: 10px;">Order Details</h3>
-        ${cart.map(item => `
-          <div style="margin-bottom: 15px;">
-            <p style="margin: 0; font-size: 16px;">${item.name} ${item.selectedVariant ? `(${item.selectedVariant})` : ''}</p>
-            <p style="margin: 5px 0; color: #666; font-size: 14px;">Quantity: ${item.quantity} × ${item.price} TK</p>
-          </div>
-        `).join('')}
-      </div>
-
-      <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
-        <p style="display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 12px;">
-          <span>Subtotal:</span>
-          <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0)} TK</span>
-        </p>
-        <p style="display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 12px;">
-          <span>Delivery Charge:</span>
-          <span>120 TK</span>
-        </p>
-        ${isGiftWrapped ? `
-          <p style="display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 12px;">
-            <span>Gift Wrapping:</span>
-            <span>20 TK</span>
+        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+          <p style="display: flex; justify-content: space-between;">
+            <span>Subtotal:</span>
+            <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0)} TK</span>
           </p>
-        ` : ''}
-        <p style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; margin-top: 20px;">
-          <span>Total:</span>
-          <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 120 + (isGiftWrapped ? 20 : 0)} TK</span>
-        </p>
+          <p style="display: flex; justify-content: space-between;">
+            <span>Delivery Charge:</span>
+            <span>120 TK</span>
+          </p>
+          ${isGiftWrapped ? `
+            <p style="display: flex; justify-content: space-between;">
+              <span>Gift Wrapping:</span>
+              <span>20 TK</span>
+            </p>
+          ` : ''}
+          <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
+            <span>Total:</span>
+            <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 120 + (isGiftWrapped ? 20 : 0)} TK</span>
+          </p>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
+          <p>Thank you for shopping with Spin Strike!</p>
+          <p>For any queries, contact us at: spinstrikebd@gmail.com</p>
+        </div>
       </div>
+    `;
 
-      <div style="margin-top: 40px; text-align: center; color: #666; font-size: 14px;">
-        <p>Thank you for shopping with Spin Strike!</p>
-        <p>For any queries, contact us at: <strong>spinstrikebd@gmail.com</strong></p>
-      </div>
-    </div>
-  `;
+    document.body.appendChild(receiptElement);
+    
+    try {
+      const canvas = await html2canvas(receiptElement);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      pdf.save(`spin-strike-receipt-${orderId}.pdf`);
+    } finally {
+      document.body.removeChild(receiptElement);
+    }
+  };
 
-  document.body.appendChild(receiptElement);
-
-  try {
-    const canvas = await html2canvas(receiptElement);
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-    pdf.save(`spin-strike-receipt-${orderId}.pdf`);
-  } finally {
-    document.body.removeChild(receiptElement);
-  }
-};
-
-
-  
-
-
-
-
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
