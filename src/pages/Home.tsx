@@ -150,7 +150,7 @@ function Home() {
       Swal.fire({
         title: 'Pre-order Payment Required',
         html: `
-          <p>To confirm your pre-order, please send 60% advance payment to:</p>
+          <p>To confirm your pre-order, please send 25% advance payment to:</p>
           <p class="text-xl font-bold mt-4">bKash: 01722786111</p>
           <p class="mt-2 text-sm">Include your order number as reference when sending payment.</p>
         `,
