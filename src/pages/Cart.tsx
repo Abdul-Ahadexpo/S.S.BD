@@ -4,6 +4,7 @@ import { ref, onValue, get } from 'firebase/database';
 import { db } from '../firebase';
 import { Trash2, ExternalLink, Tag, Gift } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Product {
   id: string;
@@ -187,7 +188,8 @@ function Cart() {
               ❌
             </button>
 
-            <p className="text-xs text-gray-500 mb-2 font-semibold uppercase tracking-wide">Advertisement</p>
+            <p className="text-xs text-gray-500 mb-2 font-semibol
+d uppercase tracking-wide">Advertisement</p>
             <div className="border-t border-b border-gray-200 mb-2"></div>
 
             <a
@@ -220,37 +222,46 @@ function Cart() {
       ) : (
         <>
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            {cart.map((item) => (
-              <div key={`${item.id}-${item.selectedVariant}`} className="flex items-center border-b py-4">
-                <div className="flex items-center space-x-4">
-                  <input
-                    type="checkbox"
-                    checked={item.selected}
-                    onChange={() => toggleItemSelection(item.id, item.selectedVariant)}
-                    className="h-5 w-5 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
-                  />
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.name} 
-                    className="w-20 h-20 object-cover rounded"
-                  />
-                </div>
-                <div className="flex-1 ml-4">
-                  <h3 className="text-lg font-semibold">{item.name}</h3>
-                  {item.selectedVariant && (
-                    <p className="text-gray-600">Color: {item.selectedVariant}</p>
-                  )}
-                  <p className="text-gray-600">Quantity: {item.quantity || 1}</p>
-                  <p className="text-gray-800">{item.price}TK</p>
-                </div>
-                <button
-                  onClick={() => removeFromCart(item.id, item.selectedVariant)}
-                  className="text-red-500 hover:text-red-700"
+            <AnimatePresence>
+              {cart.map((item) => (
+                <motion.div
+                  key={`${item.id}-${item.selectedVariant}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex items-center border-b py-4"
                 >
-                  <Trash2 className="h-6 w-6" />
-                </button>
-              </div>
-            ))}
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="checkbox"
+                      checked={item.selected}
+                      onChange={() => toggleItemSelection(item.id, item.selectedVariant)}
+                      className="h-5 w-5 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
+                    />
+                    <img 
+                      src={item.imageUrl} 
+                      alt={item.name} 
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  </div>
+                  <div className="flex-1 ml-4">
+                    <h3 className="text-lg font-semibold">{item.name}</h3>
+                    {item.selectedVariant && (
+                      <p className="text-gray-600">Color: {item.selectedVariant}</p>
+                    )}
+                    <p className="text-gray-600">Quantity: {item.quantity || 1}</p>
+                    <p className="text-gray-800">{item.price}TK</p>
+                  </div>
+                  <button
+                    onClick={() => removeFromCart(item.id, item.selectedVariant)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 className="h-6 w-6" />
+                  </button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
 
             <div className="mt-6 border-t pt-4">
               <div className="mb-4">
@@ -302,39 +313,78 @@ function Cart() {
                 </label>
               </div>
 
-              <div className="flex justify-between text-lg font-semibold">
-                <span>Subtotal:</span>
-                <span>{subtotal}TK</span>
-              </div>
-              <div className="flex justify-between text-lg font-semibold mt-2">
-                <span>Delivery Charge:</span>
-                <span>{DELIVERY_CHARGE}TK</span>
-              </div>
-              {giftWrapFee > 0 && (
-                <div className="flex justify-between text-lg font-semibold mt-2 text-pink-600">
-                  <span>Gift Wrapping:</span>
-                  <span>{giftWrapFee}TK</span>
-                </div>
-              )}
-              {discount > 0 && (
-                <div className="flex justify-between text-lg font-semibold mt-2 text-green-600">
-                  <span>Discount:</span>
-                  <span>-{discount}TK</span>
-                </div>
-              )}
-              <div className="flex justify-between text-xl font-bold mt-4">
-                <span>Total:</span>
-                <span>{total}TK</span>
-              </div>
+              <motion.div layout className="space-y-2">
+                <motion.div 
+                  className="flex justify-between text-lg font-semibold"
+                  layout
+                >
+                  <span>Subtotal:</span>
+                  <motion.span
+                    key={subtotal}
+                    initial={{ scale: 1.1 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {subtotal}TK
+                  </motion.span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between text-lg font-semibold"
+                  layout
+                >
+                  <span>Delivery Charge:</span>
+                  <span>{DELIVERY_CHARGE}TK</span>
+                </motion.div>
+                {giftWrapFee > 0 && (
+                  <motion.div 
+                    className="flex justify-between text-lg font-semibold text-pink-600"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    layout
+                  >
+                    <span>Gift Wrapping:</span>
+                    <span>{giftWrapFee}TK</span>
+                  </motion.div>
+                )}
+                {discount > 0 && (
+                  <motion.div 
+                    className="flex justify-between text-lg font-semibold text-green-600"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    layout
+                  >
+                    <span>Discount:</span>
+                    <span>-{discount}TK</span>
+                  </motion.div>
+                )}
+                <motion.div 
+                  className="flex justify-between text-xl font-bold mt-4 pt-2 border-t"
+                  layout
+                >
+                  <span>Total:</span>
+                  <motion.span
+                    key={total}
+                    initial={{ scale: 1.1 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {total}TK
+                  </motion.span>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
           <div className="text-center">
-            <button
+            <motion.button
               onClick={handleCheckout}
               className="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Proceed to Checkout
-            </button>
+            </motion.button>
           </div>
         </>
       )}
