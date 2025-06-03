@@ -9,6 +9,7 @@ import Admin from './pages/Admin';
 import Checkout from './pages/Checkout';
 import Reviews from './pages/Reviews';
 import ProductDetails from './pages/ProductDetails';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/profile" element={<Profile />} />
             </Routes>
           </div>
           <HelpGuide />
@@ -33,4 +35,4 @@ function App() {
   );
 }
 
-export default App;
+export default App
