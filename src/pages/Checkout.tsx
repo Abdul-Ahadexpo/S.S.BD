@@ -4,6 +4,7 @@ import { Shield, Truck, HeadphonesIcon, Gift } from 'lucide-react';
 import Swal from 'sweetalert2';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function Checkout() {
   const navigate = useNavigate();
@@ -56,6 +57,17 @@ function Checkout() {
     }
   }, [navigate]);
 
+  const calculateTotal = () => {
+    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const giftWrapFee = isGiftWrapped ? 20 : 0;
+    return {
+      subtotal,
+      deliveryCharge: 120,
+      giftWrapFee,
+      total: subtotal + 120 + giftWrapFee
+    };
+  };
+
   const generateReceipt = async () => {
     const receiptElement = document.createElement('div');
     receiptElement.innerHTML = `
@@ -85,7 +97,7 @@ function Checkout() {
         <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
           <p style="display: flex; justify-content: space-between;">
             <span>Subtotal:</span>
-            <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0)} TK</span>
+            <span>${calculateTotal().subtotal} TK</span>
           </p>
           <p style="display: flex; justify-content: space-between;">
             <span>Delivery Charge:</span>
@@ -99,7 +111,7 @@ function Checkout() {
           ` : ''}
           <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
             <span>Total:</span>
-            <span>${cart.reduce((total, item) => total + (item.price * item.quantity), 0) + 120 + (isGiftWrapped ? 20 : 0)} TK</span>
+            <span>${calculateTotal().total} TK</span>
           </p>
         </div>
 
@@ -163,6 +175,8 @@ function Checkout() {
     const generatedOrderId = `SS-${timestamp.toString(36)}`;
     setOrderId(generatedOrderId);
     setOrderTimestamp(timestamp);
+
+    const { subtotal, deliveryCharge, giftWrapFee, total } = calculateTotal();
     
     const orderData = {
       access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
@@ -175,6 +189,12 @@ function Checkout() {
       phone: formData.phone,
       address: formData.address,
       email: formData.email,
+      orderSummary: `
+        Subtotal: ${subtotal} TK
+        Delivery Charge: ${deliveryCharge} TK
+        ${isGiftWrapped ? `Gift Wrapping: ${giftWrapFee} TK\n` : ''}
+        Total Amount: ${total} TK
+      `,
       cartItems: Object.values(
         cart.reduce((acc: any, item: any) => {
           const key = `${item.name}${item.selectedVariant ? ` - ${item.selectedVariant}` : ''}`;
@@ -207,6 +227,29 @@ function Checkout() {
       });
 
       if (response.ok) {
+        // Save order to profile history
+        const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+        const orderHistory = profileData.orderHistory || [];
+        
+        orderHistory.push({
+          orderId: generatedOrderId,
+          timestamp: timestamp,
+          items: cart,
+          total: total,
+          address: formData.address,
+          isGiftWrapped: isGiftWrapped,
+          status: 'Pending'
+        });
+
+        localStorage.setItem('profileData', JSON.stringify({
+          ...profileData,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          orderHistory
+        }));
+
         localStorage.removeItem('cart');
         localStorage.removeItem('giftWrap');
         
@@ -284,6 +327,7 @@ function Checkout() {
   };
 
   const hasPreOrder = cart.some(item => item.quantity === 'Pre-order');
+  const { subtotal, deliveryCharge, giftWrapFee, total } = calculateTotal();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -305,6 +349,86 @@ function Checkout() {
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active Support</span>
           </div>
         </div>
+      </div>
+
+      {/* Order Summary */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+        >
+          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Order Summary</h2>
+          <div className="space-y-4">
+            {cart.map((item, index) => (
+              <motion.div 
+                key={`${item.id}-${item.selectedVariant}`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center space-x-4 border-b pb-4"
+              >
+                <img 
+                  src={item.imageUrl} 
+                  alt={item.name}
+                  className="w-16 h-16 object-cover rounded"
+                />
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-800 dark:text-white">{item.name}</h3>
+                  {item.selectedVariant && (
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Color: {item.selectedVariant}</p>
+                  )}
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Quantity: {item.quantity} × {item.price} TK
+                  </p>
+                </div>
+                <p className="font-medium text-gray-800 dark:text-white">
+                  {item.price * item.quantity} TK
+                </p>
+              </motion.div>
+            ))}
+
+            <motion.div 
+              className="pt-4 space-y-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="flex justify-between text-gray-600 dark:text-gray-300">
+                <span>Subtotal:</span>
+                <motion.span
+                  key={subtotal}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {subtotal} TK
+                </motion.span>
+              </div>
+              <div className="flex justify-between text-gray-600 dark:text-gray-300">
+                <span>Delivery Charge:</span>
+                <span>{deliveryCharge} TK</span>
+              </div>
+              {isGiftWrapped && (
+                <div className="flex justify-between text-gray-600 dark:text-gray-300">
+                  <span>Gift Wrapping:</span>
+                  <span>{giftWrapFee} TK</span>
+                </div>
+              )}
+              <div className="flex justify-between text-lg font-semibold text-gray-800 dark:text-white pt-2 border-t">
+                <span>Total:</span>
+                <motion.span
+                  key={total}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {total} TK
+                </motion.span>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Delivery Time Notice */}
