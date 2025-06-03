@@ -176,7 +176,7 @@ function Cart() {
 
   return (
     <div className="container mx-auto px-4 py-8">
- <h1 className="text-3xl font-bold mb-8" style={{ color: "#D1D5DB" }}>
+ <h1 className="text-3xl font-bold mb-8" style={{ color: "##a4acb8" }}>
   Shopping Cart
 </h1>
 
