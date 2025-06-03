@@ -535,7 +535,9 @@ function Checkout() {
               
               <span className="flex items-center space-x-2">
                 <Gift className="h-5 w-5 text-pink-500" />
-                <span>Add Gift Wrapping (+20 TK)</span>
+          <span style={{ color: "#a4acb8" }}>
+  Add Gift Wrapping (+20 TK)
+</span>
               </span>
             </label>
           </div>
