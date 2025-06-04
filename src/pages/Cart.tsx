@@ -1,397 +1,654 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ref, onValue, get } from 'firebase/database';
-import { db } from '../firebase';
-import { Trash2, ExternalLink, Tag, Gift } from 'lucide-react';
+import { Shield, Truck, HeadphonesIcon, Gift } from 'lucide-react';
 import Swal from 'sweetalert2';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  imageUrl: string;
-  selectedVariant?: string;
-  selected: boolean;
-}
-
-interface CartAd {
-  imageUrl: string;
-  linkUrl: string;
-  isActive: boolean;
-}
-
-interface Coupon {
-  code: string;
-  discount: number;
-  isActive: boolean;
-}
-
-function Cart() {
-  const [cart, setCart] = useState<Product[]>([]);
-  const [cartAd, setCartAd] = useState<CartAd | null>(null);
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
-  const [isGiftWrapped, setIsGiftWrapped] = useState(false);
+function Checkout() {
   const navigate = useNavigate();
-  const DELIVERY_CHARGE = 120;
-  const GIFT_WRAP_CHARGE = 20;
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    email: '',
+    message: '',
+    couponCode: ''
+  });
+  const [cart, setCart] = useState<any[]>([]);
+  const [isGiftWrapped, setIsGiftWrapped] = useState(false);
+  const [orderTimestamp, setOrderTimestamp] = useState<number | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      const parsedCart = JSON.parse(savedCart);
-      // Ensure all cart items have a selected property
-      const cartWithSelection = parsedCart.map((item: Product) => ({
-        ...item,
-        selected: item.selected ?? true
-      }));
-      setCart(cartWithSelection);
-      localStorage.setItem('cart', JSON.stringify(cartWithSelection));
-    }
-
+    // Load cart items
+    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+    setCart(cartItems);
+    
+    // Load gift wrap preference
     const giftWrap = localStorage.getItem('giftWrap');
     if (giftWrap) {
       setIsGiftWrapped(JSON.parse(giftWrap));
     }
 
-    const cartAdsRef = ref(db, 'cartAds');
-    const unsubscribe = onValue(cartAdsRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const adsData = snapshot.val();
-        const activeAds = Object.values(adsData as Record<string, CartAd>)
-          .filter(ad => ad.isActive);
-        if (activeAds.length > 0) {
-          const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
-          setCartAd(randomAd);
-        }
-      }
-    });
+    // Load saved user info
+    const savedInfo = localStorage.getItem('userCheckoutInfo');
+    if (savedInfo) {
+      const parsedInfo = JSON.parse(savedInfo);
+      setFormData(prev => ({
+        ...prev,
+        name: parsedInfo.name || '',
+        phone: parsedInfo.phone || '',
+        address: parsedInfo.address || '',
+        email: parsedInfo.email || ''
+      }));
+    }
 
-    return () => unsubscribe();
-  }, []);
-
-  const toggleItemSelection = (productId: string, variant?: string) => {
-    const newCart = cart.map(item => {
-      if (item.id === productId && item.selectedVariant === variant) {
-        return { ...item, selected: !item.selected };
-      }
-      return item;
-    });
-    setCart(newCart);
-    localStorage.setItem('cart', JSON.stringify(newCart));
-  };
-
-  const removeFromCart = (productId: string, variant?: string) => {
-    const newCart = cart.filter(item => !(item.id === productId && item.selectedVariant === variant));
-    setCart(newCart);
-    localStorage.setItem('cart', JSON.stringify(newCart));
-  };
-
-  const applyCoupon = async () => {
-    if (!couponCode) {
+    if (cartItems.length === 0) {
       Swal.fire({
+        title: 'Empty Cart',
+        text: 'Please add products to your cart before checking out.',
         icon: 'warning',
-        title: 'Enter Coupon Code',
-        text: 'Please enter a coupon code to apply',
-        background: '#1f2937',
-        color: '#fff'
+        confirmButtonText: 'Go to Shop'
+      }).then(() => {
+        navigate('/');
       });
-      return;
     }
-
-    const couponsRef = ref(db, 'coupons');
-    const snapshot = await get(couponsRef);
-    
-    if (snapshot.exists()) {
-      const couponsData = snapshot.val();
-      const coupon = Object.values(couponsData as Record<string, Coupon>)
-        .find(c => c.code === couponCode.toUpperCase() && c.isActive);
-
-      if (coupon) {
-        setAppliedCoupon(coupon);
-        Swal.fire({
-          icon: 'success',
-          title: 'Coupon Applied!',
-          text: `Discount of ${coupon.discount} TK has been applied`,
-          background: '#1f2937',
-          color: '#fff'
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Invalid Coupon',
-          text: 'The coupon code is invalid or inactive',
-          background: '#1f2937',
-          color: '#fff'
-        });
-      }
-    }
-  };
-
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCode('');
-  };
-
-  const handleGiftWrapToggle = () => {
-    const newValue = !isGiftWrapped;
-    setIsGiftWrapped(newValue);
-    localStorage.setItem('giftWrap', JSON.stringify(newValue));
-  };
+  }, [navigate]);
 
   const calculateTotal = () => {
-    const selectedItems = cart.filter(item => item.selected);
-    const subtotal = selectedItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
-    const discount = appliedCoupon ? appliedCoupon.discount : 0;
-    const giftWrapFee = isGiftWrapped ? GIFT_WRAP_CHARGE : 0;
-    const total = subtotal + DELIVERY_CHARGE + giftWrapFee - discount;
+    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const giftWrapFee = isGiftWrapped ? 20 : 0;
     return {
       subtotal,
-      discount,
+      deliveryCharge: 120,
       giftWrapFee,
-      total: total < 0 ? 0 : total
+      total: subtotal + 120 + giftWrapFee
     };
   };
 
-  const { subtotal, discount, giftWrapFee, total } = calculateTotal();
+  const generateEmailContent = (orderData: any) => {
+    const { items, total, address, isGiftWrapped, couponCode } = orderData;
+    
+    const itemsList = items.map((item: any) => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+          <img src="${item.imageUrl}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+          ${item.name}
+          ${item.selectedVariant ? `<br><span style="color: #666;">Color: ${item.selectedVariant}</span>` : ''}
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+          ${item.quantity}x
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+          ${item.price} TK
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+          ${item.price * item.quantity} TK
+        </td>
+      </tr>
+    `).join('');
 
-  const handleCheckout = () => {
-    const selectedItems = cart.filter(item => item.selected);
-    if (selectedItems.length === 0) {
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb; text-align: center;">Order Confirmation</h2>
+        <p style="color: #666; text-align: center;">Order #${orderData.orderId}</p>
+        
+        <div style="margin: 20px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px;">
+          <h3 style="color: #1f2937; margin-bottom: 10px;">Order Summary</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #f3f4f6;">
+                <th style="padding: 10px; text-align: left;">Image</th>
+                <th style="padding: 10px; text-align: left;">Product</th>
+                <th style="padding: 10px; text-align: left;">Quantity</th>
+                <th style="padding: 10px; text-align: left;">Price</th>
+                <th style="padding: 10px; text-align: left;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsList}
+            </tbody>
+          </table>
+          
+          <div style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
+            <p style="display: flex; justify-content: space-between;">
+              <span>Subtotal:</span>
+              <span>${total - 120} TK</span>
+            </p>
+            <p style="display: flex; justify-content: space-between;">
+              <span>Delivery Charge:</span>
+              <span>120 TK</span>
+            </p>
+            ${isGiftWrapped ? `
+              <p style="display: flex; justify-content: space-between; color: #e11d48;">
+                <span>Gift Wrapping:</span>
+                <span>20 TK</span>
+              </p>
+            ` : ''}
+            ${couponCode ? `
+              <p style="display: flex; justify-content: space-between; color: #059669;">
+                <span>Coupon Applied (${couponCode}):</span>
+                <span>-${orderData.discount} TK</span>
+              </p>
+            ` : ''}
+            <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+              <span>Total:</span>
+              <span>${total} TK</span>
+            </p>
+          </div>
+        </div>
+
+        <div style="margin: 20px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px;">
+          <h3 style="color: #1f2937; margin-bottom: 10px;">Delivery Information</h3>
+          <p style="margin: 5px 0;">Address: ${address}</p>
+          ${isGiftWrapped ? '<p style="color: #e11d48; margin: 5px 0;">✨ This order will be gift wrapped</p>' : ''}
+        </div>
+
+        <div style="text-align: center; color: #666; margin-top: 20px;">
+          <p>Thank you for shopping with Spin Strike!</p>
+          <p style="font-size: 12px;">For any queries, contact us at: spinstrikebd@gmail.com</p>
+        </div>
+      </div>
+    `;
+  };
+
+  const generateReceipt = async () => {
+    const receiptElement = document.createElement('div');
+    receiptElement.innerHTML = `
+      <div style="padding: 20px; font-family: Arial, sans-serif;">
+        <h2 style="text-align: center; color: #2563eb;">Spin Strike - Order Receipt</h2>
+        <p style="text-align: center; color: #666;">Order #${orderId}</p>
+        <hr style="margin: 20px 0;" />
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #1f2937;">Customer Details</h3>
+          <p>Name: ${formData.name}</p>
+          <p>Phone: ${formData.phone}</p>
+          <p>Address: ${formData.address}</p>
+          <p>Email: ${formData.email}</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #1f2937;">Order Details</h3>
+          ${cart.map(item => `
+            <div style="margin-bottom: 10px;">
+              <p style="margin: 0;">${item.name} ${item.selectedVariant ? `(${item.selectedVariant})` : ''}</p>
+              <p style="margin: 0; color: #666;">Quantity: ${item.quantity} × ${item.price} TK</p>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+          <p style="display: flex; justify-content: space-between;">
+            <span>Subtotal:</span>
+            <span>${calculateTotal().subtotal} TK</span>
+          </p>
+          <p style="display: flex; justify-content: space-between;">
+            <span>Delivery Charge:</span>
+            <span>120 TK</span>
+          </p>
+          ${isGiftWrapped ? `
+            <p style="display: flex; justify-content: space-between;">
+              <span>Gift Wrapping:</span>
+              <span>20 TK</span>
+            </p>
+          ` : ''}
+          <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px;">
+            <span>Total:</span>
+            <span>${calculateTotal().total} TK</span>
+          </p>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
+          <p>Thank you for shopping with Spin Strike!</p>
+          <p>For any queries, contact us at: spinstrikebd@gmail.com</p>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(receiptElement);
+    
+    try {
+      const canvas = await html2canvas(receiptElement);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      pdf.save(`spin-strike-receipt-${orderId}.pdf`);
+    } finally {
+      document.body.removeChild(receiptElement);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (cart.length === 0) {
       Swal.fire({
-        title: 'No Items Selected',
-        text: 'Please select at least one item to checkout',
+        title: 'Empty Cart',
+        text: 'Please add products to your cart before checking out.',
         icon: 'warning',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'Go to Shop'
+      }).then(() => {
+        navigate('/');
       });
       return;
     }
+
+    // Save user info for future use
+    localStorage.setItem('userCheckoutInfo', JSON.stringify({
+      name: formData.name,
+      phone: formData.phone,
+      address: formData.address,
+      email: formData.email
+    }));
+
+    const hasPreOrder = cart.some(item => item.quantity === 'Pre-order');
+    if (hasPreOrder) {
+      await Swal.fire({
+        title: 'Pre-order Payment Required',
+        html: `
+          <p>To pre-order, you need to send 25% of the total payment in advance to this Bkash number:</p>
+          <p class="text-xl font-bold mt-4">01722786111</p>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Proceed'
+      });
+    }
     
-    // Update cart to only include selected items
-    localStorage.setItem('cart', JSON.stringify(selectedItems));
-    navigate('/checkout');
+    const timestamp = Date.now();
+    const generatedOrderId = `SS-${timestamp.toString(36)}`;
+    setOrderId(generatedOrderId);
+    setOrderTimestamp(timestamp);
+
+    const { subtotal, deliveryCharge, giftWrapFee, total } = calculateTotal();
+    
+    const orderData = {
+      access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
+      orderId: generatedOrderId,
+      timestamp: timestamp,
+      isGiftWrapped: isGiftWrapped,
+      Coupon_code: formData.couponCode,
+      message: formData.message,
+      name: formData.name,
+      phone: formData.phone,
+      address: formData.address,
+      email: formData.email,
+      orderSummary: `
+        Subtotal: ${subtotal} TK
+        Delivery Charge: ${deliveryCharge} TK
+        ${isGiftWrapped ? `Gift Wrapping: ${giftWrapFee} TK\n` : ''}
+        Total Amount: ${total} TK
+      `,
+      cartItems: Object.values(
+        cart.reduce((acc: any, item: any) => {
+          const key = `${item.name}${item.selectedVariant ? ` - ${item.selectedVariant}` : ''}`;
+          if (acc[key]) {
+            acc[key].quantity += item.quantity || 1;
+            acc[key].totalPrice += item.price * (item.quantity || 1);
+          } else {
+            acc[key] = {
+              name: item.name,
+              variant: item.selectedVariant,
+              price: item.price,
+              quantity: item.quantity || 1,
+              totalPrice: item.price * (item.quantity || 1),
+            };
+          }
+          return acc;
+        }, {})
+      ).map((item: any) => {
+        return `${item.quantity}x ${item.name}${item.variant ? ` (${item.variant})` : ''}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
+      }).join("\n\n"),
+      emailTemplate: generateEmailContent({
+        orderId: generatedOrderId,
+        items: cart,
+        total,
+        address: formData.address,
+        isGiftWrapped,
+        couponCode: formData.couponCode,
+        discount: 0 // Update this with actual discount calculation
+      })
+    };
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (response.ok) {
+        // Save order to profile history
+        const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+        const orderHistory = profileData.orderHistory || [];
+        
+        orderHistory.push({
+          orderId: generatedOrderId,
+          timestamp: timestamp,
+          items: cart,
+          total: total,
+          address: formData.address,
+          isGiftWrapped: isGiftWrapped,
+          status: 'Pending'
+        });
+
+        localStorage.setItem('profileData', JSON.stringify({
+          ...profileData,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          orderHistory
+        }));
+
+        localStorage.removeItem('cart');
+        localStorage.removeItem('giftWrap');
+        
+        await generateReceipt();
+
+        Swal.fire({
+          title: 'Order Placed Successfully!',
+          html: `
+            <p>Thank you for your order, ${formData.name}!</p>
+            <p class="mt-4">Your order ID is: <strong>${generatedOrderId}</strong></p>
+            <p class="mt-2 text-sm">You can modify your order within the next 10 minutes.</p>
+          `,
+          icon: 'success',
+          showCancelButton: true,
+          confirmButtonText: 'Go to Home',
+          cancelButtonText: 'Modify Order'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate('/');
+          } else {
+            // Show modify order options
+            Swal.fire({
+              title: 'Modify Order',
+              html: `
+                <div class="space-y-4">
+                  <button class="w-full bg-blue-500 text-white px-4 py-2 rounded" onclick="window.modifyAddress()">
+                    Edit Address
+                  </button>
+                  <button class="w-full bg-red-500 text-white px-4 py-2 rounded" onclick="window.cancelOrder()">
+                    Cancel Order
+                  </button>
+                  <button class="w-full bg-green-500 text-white px-4 py-2 rounded" onclick="window.addMoreProducts()">
+                    Add More Products
+                  </button>
+                </div>
+              `,
+              showConfirmButton: false,
+              showCloseButton: true,
+              didOpen: () => {
+                // Add window functions for the buttons
+                (window as any).modifyAddress = () => {
+                  Swal.close();
+                  // Handle address modification
+                };
+                (window as any).cancelOrder = () => {
+                  Swal.close();
+                  // Handle order cancellation
+                };
+                (window as any).addMoreProducts = () => {
+                  navigate('/');
+                };
+              }
+            });
+          }
+        });
+
+        setFormData({
+          name: '',
+          phone: '',
+          address: '',
+          email: '',
+          message: '',
+          couponCode: ''
+        });
+      } else {
+        throw new Error("Failed to submit your order.");
+      }
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to submit order. Please try again.',
+        icon: 'error'
+      });
+    }
   };
+
+  const hasPreOrder = cart.some(item => item.quantity === 'Pre-order');
+  const { subtotal, deliveryCharge, giftWrapFee, total } = calculateTotal();
 
   return (
     <div className="container mx-auto px-4 py-8">
- <h1 className="text-3xl font-bold mb-8" style={{ color: "#a4acb8" }}>
-  Shopping Cart
-</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center dark:text-white">Checkout</h1>
+      
+      {/* Trust Badges */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <div className="grid grid-cols-3 gap-4 bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md">
+          <div className="flex flex-col items-center text-center">
+            <Shield className="h-8 w-8 text-green-500 mb-2" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">100% Secure Payment</span>
+          </div>
+          <div className="flex flex-col items-center text-center">
+            <Truck className="h-8 w-8 text-blue-500 mb-2" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Fast Delivery</span>
+          </div>
+          <div className="flex flex-col items-center text-center">
+            <HeadphonesIcon className="h-8 w-8 text-purple-500 mb-2" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active Support</span>
+          </div>
+        </div>
+      </div>
 
-      {cartAd && (
-        <div className="mt-12 flex justify-center">
-          <div className="w-[240px] sm:w-[280px] md:w-[320px] border rounded-lg shadow-lg bg-white p-4 text-center relative overflow-hidden">
-            <button 
-              onClick={() => setCartAd(null)} 
-              className="absolute top-2 right-2 text-lg text-gray-500 hover:text-gray-700 focus:outline-none"
+      {/* Order Summary */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+        >
+          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Order Summary</h2>
+          <div className="space-y-4">
+            {cart.map((item, index) => (
+              <motion.div 
+                key={`${item.id}-${item.selectedVariant}`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center space-x-4 border-b pb-4"
+              >
+                <img 
+                  src={item.imageUrl} 
+                  alt={item.name}
+                  className="w-16 h-16 object-cover rounded"
+                />
+                <div className="flex-1">
+                  <h3 className="font-medium text-gray-800 dark:text-white">{item.name}</h3>
+                  {item.selectedVariant && (
+                    <p className="text-sm text-gray-600 dark:text-gray-300">Color: {item.selectedVariant}</p>
+                  )}
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Quantity: {item.quantity} × {item.price} TK
+                  </p>
+                </div>
+                <p className="font-medium text-gray-800 dark:text-white">
+                  {item.price * item.quantity} TK
+                </p>
+              </motion.div>
+            ))}
+
+            <motion.div 
+              className="pt-4 space-y-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
             >
-              ❌
-            </button>
-
-            <p className="text-xs text-gray-500 mb-2 font-semibol
-d uppercase tracking-wide">Advertisement</p>
-            <div className="border-t border-b border-gray-200 mb-2"></div>
-
-            <a
-              href={cartAd.linkUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block group relative"
-            >
-              <img 
-                src={cartAd.imageUrl} 
-                alt="Advertisement"
-                className="w-full h-auto max-h-60 object-cover rounded-md transition-transform duration-300 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300 flex items-center justify-center">
-                <ExternalLink className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" size={20} />
+              <div className="flex justify-between text-gray-600 dark:text-gray-300">
+                <span>Subtotal:</span>
+                <motion.span
+                  key={subtotal}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {subtotal} TK
+                </motion.span>
               </div>
-            </a>
+              <div className="flex justify-between text-gray-600 dark:text-gray-300">
+                <span>Delivery Charge:</span>
+                <span>{deliveryCharge} TK</span>
+              </div>
+              {isGiftWrapped && (
+                <div className="flex justify-between text-gray-600 dark:text-gray-300">
+                  <span>Gift Wrapping:</span>
+                  <span>{giftWrapFee} TK</span>
+                </div>
+              )}
+              <div className="flex justify-between text-lg font-semibold text-gray-800 dark:text-white pt-2 border-t">
+                <span>Total:</span>
+                <motion.span
+                  key={total}
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {total} TK
+                </motion.span>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
 
-            <p className="text-sm text-gray-600 mt-2">
-              Discover amazing things!
+      {/* Delivery Time Notice */}
+      <div className="max-w-2xl mx-auto mb-8">
+        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+          <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">Delivery Information</h3>
+          <ul className="list-disc list-inside space-y-1 text-blue-700 dark:text-blue-300">
+            <li>Standard delivery time: 3-5 working days</li>
+            <li>Delivery time for "Pre-Order": 25-35 working days</li>
+            <li>Delivery charge: 120 TK</li>
+            <li>Free delivery on orders above 2000 TK</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Pre-order Notice */}
+      {hasPreOrder && (
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 rounded">
+            <p className="font-bold text-yellow-800 dark:text-yellow-200">
+              Pre-order items require 25% advance payment
+            </p>
+            <p className="text-yellow-700 dark:text-yellow-300 mt-1">
+              Please send the payment to bKash: 01722786111
             </p>
           </div>
         </div>
       )}
 
-      {cart.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-xl text-gray-600">Your cart is empty</p>
-        </div>
-      ) : (
-        <>
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <AnimatePresence>
-              {cart.map((item) => (
-                <motion.div
-                  key={`${item.id}-${item.selectedVariant}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex items-center border-b py-4"
-                >
-                  <div className="flex items-center space-x-4">
-                    <input
-                      type="checkbox"
-                      checked={item.selected}
-                      onChange={() => toggleItemSelection(item.id, item.selectedVariant)}
-                      className="h-5 w-5 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
-                    />
-                    <img 
-                      src={item.imageUrl} 
-                      alt={item.name} 
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                  </div>
-                  <div className="flex-1 ml-4">
-                    <h3 className="text-lg font-semibold">{item.name}</h3>
-                    {item.selectedVariant && (
-                      <p className="text-gray-600">Color: {item.selectedVariant}</p>
-                    )}
-                    <p className="text-gray-600">Quantity: {item.quantity || 1}</p>
-                    <p className="text-gray-800">{item.price}TK</p>
-                  </div>
-                  <button
-                    onClick={() => removeFromCart(item.id, item.selectedVariant)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-6 w-6" />
-                  </button>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-
-            <div className="mt-6 border-t pt-4">
-              <div className="mb-4">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    placeholder="Enter coupon code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-                    disabled={appliedCoupon !== null}
-                  />
-                  {appliedCoupon ? (
-                    <button
-                      onClick={removeCoupon}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                    >
-                      Remove
-                    </button>
-                  ) : (
-                    <button
-                      onClick={applyCoupon}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                    >
-                      Apply
-                    </button>
-                  )}
-                </div>
-                {appliedCoupon && (
-                  <div className="mt-2 flex items-center text-green-600">
-                    <Tag className="h-4 w-4 mr-1" />
-                    <span className="text-sm">Coupon applied: {appliedCoupon.discount} TK off</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="mb-4">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isGiftWrapped}
-                    onChange={handleGiftWrapToggle}
-                    className="form-checkbox h-5 w-5 text-blue-500"
-                  />
-                  <span className="flex items-center space-x-2">
-                    <Gift className="h-5 w-5 text-pink-500" />
-                    <span>Add Gift Wrapping (+20 TK)</span>
-                  </span>
-                </label>
-              </div>
-
-              <motion.div layout className="space-y-2">
-                <motion.div 
-                  className="flex justify-between text-lg font-semibold"
-                  layout
-                >
-                  <span>Subtotal:</span>
-                  <motion.span
-                    key={subtotal}
-                    initial={{ scale: 1.1 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {subtotal}TK
-                  </motion.span>
-                </motion.div>
-                <motion.div 
-                  className="flex justify-between text-lg font-semibold"
-                  layout
-                >
-                  <span>Delivery Charge:</span>
-                  <span>{DELIVERY_CHARGE}TK</span>
-                </motion.div>
-                {giftWrapFee > 0 && (
-                  <motion.div 
-                    className="flex justify-between text-lg font-semibold text-pink-600"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    layout
-                  >
-                    <span>Gift Wrapping:</span>
-                    <span>{giftWrapFee}TK</span>
-                  </motion.div>
-                )}
-                {discount > 0 && (
-                  <motion.div 
-                    className="flex justify-between text-lg font-semibold text-green-600"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    layout
-                  >
-                    <span>Discount:</span>
-                    <span>-{discount}TK</span>
-                  </motion.div>
-                )}
-                <motion.div 
-                  className="flex justify-between text-xl font-bold mt-4 pt-2 border-t"
-                  layout
-                >
-                  <span>Total:</span>
-                  <motion.span
-                    key={total}
-                    initial={{ scale: 1.1 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {total}TK
-                  </motion.span>
-                </motion.div>
-              </motion.div>
-            </div>
+      <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Name</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              required
+            />
           </div>
-          <div className="text-center">
-            <motion.button
-              onClick={handleCheckout}
-              className="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Proceed to Checkout
-            </motion.button>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Phone</label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              required
+            />
           </div>
-        </>
-      )}
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Address</label>
+            <textarea
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              rows={3}
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Email</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Message (Optional)</label>
+            <textarea
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              rows={3}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Coupon Code (Optional)</label>
+            <input
+              type="text"
+              value={formData.couponCode}
+              onChange={(e) => setFormData({ ...formData, couponCode: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isGiftWrapped}
+                onChange={(e) => setIsGiftWrapped(e.target.checked)}
+                className="form-checkbox h-5 w-5 text-blue-500"
+              />
+              
+              <span className="flex items-center space-x-2">
+                <Gift className="h-5 w-5 text-pink-500" />
+                <span style={{ color: "#a4acb8" }}>
+                  Add Gift Wrapping (+20 TK)
+                </span>
+              </span>
+            </label>
+          </div>
+          
+          <button
+            type="submit"
+            className="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-200"
+          >
+            Place Order
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
 
-export default Cart;
+export default Checkout;
