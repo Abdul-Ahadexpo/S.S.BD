@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { db } from '../firebase';
-import { ShoppingCart, Search, ArrowUpDown, Filter, Share2, X } from 'lucide-react';
+import { ShoppingCart, Search, ChevronDown, Filter, Share2, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProductVariant {
   color: string;
@@ -36,9 +37,10 @@ function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState<'none' | 'asc' | 'desc'>('none');
+  const [sortOrder, setSortOrder] = useState<'none' | 'pre-order' | 'asc' | 'desc'>('none');
   const [selectedVariant, setSelectedVariant] = useState<{ [key: string]: string }>({});
   const [displayImages, setDisplayImages] = useState<{ [key: string]: string }>({});
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
 
   useEffect(() => {
     const productsRef = ref(db, 'products');
@@ -61,7 +63,7 @@ function Home() {
         }
 
         setProducts(productsList);
-        filterProducts(productsList, selectedCategory, searchTerm);
+        filterProducts(productsList, selectedCategory, searchTerm, sortOrder);
         
         const initialDisplayImages = productsList.reduce((acc, product) => ({
           ...acc,
@@ -88,7 +90,7 @@ function Home() {
     };
   }, []);
 
-  const filterProducts = (productsList: Product[], category: string, search: string) => {
+  const filterProducts = (productsList: Product[], category: string, search: string, sort: string) => {
     let filtered = productsList;
 
     if (category !== 'all') {
@@ -102,11 +104,29 @@ function Home() {
       );
     }
 
-    if (sortOrder !== 'none') {
-      filtered = sortProducts(filtered, sortOrder);
+    if (sort === 'pre-order') {
+      filtered = filtered.filter(product => product.quantity === 'Pre-order');
+    } else if (sort === 'asc' || sort === 'desc') {
+      filtered = sortProducts(filtered, sort);
     }
 
     setDisplayProducts(filtered);
+  };
+
+  const sortProducts = (productsToSort: Product[], order: 'asc' | 'desc') => {
+    return [...productsToSort].sort((a, b) => {
+      if (order === 'asc') {
+        return a.price - b.price;
+      } else {
+        return b.price - a.price;
+      }
+    });
+  };
+
+  const handleSortChange = (newOrder: 'none' | 'pre-order' | 'asc' | 'desc') => {
+    setSortOrder(newOrder);
+    filterProducts(products, selectedCategory, searchTerm, newOrder);
+    setIsSortDropdownOpen(false);
   };
 
   const addToCart = (product: Product) => {
@@ -126,7 +146,7 @@ function Home() {
       ...product,
       selectedVariant: variant,
       quantity: 1,
-      selected: true // Add default selected state
+      selected: true
     };
 
     const isProductInCart = existingCart.some((item: any) => 
@@ -181,29 +201,13 @@ function Home() {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
-    filterProducts(products, selectedCategory, term);
+    filterProducts(products, selectedCategory, term, sortOrder);
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const category = e.target.value;
     setSelectedCategory(category);
-    filterProducts(products, category, searchTerm);
-  };
-
-  const sortProducts = (productsToSort: Product[], order: 'asc' | 'desc') => {
-    return [...productsToSort].sort((a, b) => {
-      if (order === 'asc') {
-        return a.price - b.price;
-      } else {
-        return b.price - a.price;
-      }
-    });
-  };
-
-  const handleSort = () => {
-    const newOrder = sortOrder === 'none' ? 'asc' : sortOrder === 'asc' ? 'desc' : 'none';
-    setSortOrder(newOrder);
-    filterProducts(products, selectedCategory, searchTerm);
+    filterProducts(products, category, searchTerm, sortOrder);
   };
 
   const handleVariantChange = (productId: string, color: string) => {
@@ -266,12 +270,74 @@ function Home() {
               </select>
             </div>
             
-            <button
-              onClick={handleSort}
-              className="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600"
-            >
-              <ArrowUpDown size={20} />
-            </button>
+            <div className="relative">
+              <motion.button
+                onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                className="px-4 py-3 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center space-x-2"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Filter size={20} />
+                <span>Sort</span>
+                <motion.div
+                  animate={{ rotate: isSortDropdownOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronDown size={20} />
+                </motion.div>
+              </motion.button>
+
+              <AnimatePresence>
+                {isSortDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 z-50"
+                  >
+                    <div className="py-1">
+                      <motion.button
+                        whileHover={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
+                        onClick={() => handleSortChange('none')}
+                        className={`w-full px-4 py-2 text-left ${
+                          sortOrder === 'none' ? 'text-blue-500 font-medium' : 'text-gray-800 dark:text-white'
+                        }`}
+                      >
+                        Default
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
+                        onClick={() => handleSortChange('pre-order')}
+                        className={`w-full px-4 py-2 text-left ${
+                          sortOrder === 'pre-order' ? 'text-blue-500 font-medium' : 'text-gray-800 dark:text-white'
+                        }`}
+                      >
+                        Pre-order Only
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
+                        onClick={() => handleSortChange('asc')}
+                        className={`w-full px-4 py-2 text-left ${
+                          sortOrder === 'asc' ? 'text-blue-500 font-medium' : 'text-gray-800 dark:text-white'
+                        }`}
+                      >
+                        Price: Low to High
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
+                        onClick={() => handleSortChange('desc')}
+                        className={`w-full px-4 py-2 text-left ${
+                          sortOrder === 'desc' ? 'text-blue-500 font-medium' : 'text-gray-800 dark:text-white'
+                        }`}
+                      >
+                        Price: High to Low
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
