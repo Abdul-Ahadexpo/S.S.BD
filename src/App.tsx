@@ -6,6 +6,9 @@ import HelpGuide from './components/HelpGuide';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
 import Admin from './pages/Admin';
+import AdminEmployeePortal from './pages/AdminEmployeePortal';
+import EmployeeLogin from './pages/EmployeeLogin';
+import EmployeeDashboard from './pages/EmployeeDashboard';
 import Checkout from './pages/Checkout';
 import Reviews from './pages/Reviews';
 import ProductDetails from './pages/ProductDetails';
@@ -21,7 +24,10 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/admin-ep" element={<AdminEmployeePortal />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/employee/login" element={<EmployeeLogin />} />
+              <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/product/:id" element={<ProductDetails />} />
@@ -35,4 +41,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
