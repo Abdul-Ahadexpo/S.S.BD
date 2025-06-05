@@ -39,6 +39,19 @@ function HelpGuide() {
               <li>Free delivery on orders above 2000 TK</li>
             </ul>
           </div>
+
+          <div>
+            <h3 class="text-lg font-bold mb-2">Profile Management:</h3>
+            <ul class="list-disc list-inside space-y-2">
+              <li>View and track all your orders in one place</li>
+              <li>Edit your profile information anytime</li>
+              <li>Export profile data to backup your information</li>
+              <li>Import profile data to restore on other devices</li>
+              <li>Modify orders within 10 minutes of placing them</li>
+              <li>Copy order IDs for easy reference</li>
+              <li>Delete individual orders or clear entire history</li>
+            </ul>
+          </div>
           
           <div>
             <h3 class="text-lg font-bold mb-2">Need Help?</h3>
