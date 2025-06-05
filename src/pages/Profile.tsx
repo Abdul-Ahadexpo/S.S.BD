@@ -215,16 +215,16 @@ function Profile() {
 
       <div className="max-w-4xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Profile Information</h2>
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap justify-center sm:justify-end gap-2">
               {!isEditing ? (
                 <>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={startEditing}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 min-w-[100px] justify-center"
                   >
                     <Edit2 className="h-4 w-4" />
                     <span>Edit</span>
@@ -233,7 +233,7 @@ function Profile() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={exportProfile}
-                    className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                    className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 min-w-[100px] justify-center"
                   >
                     <Download className="h-4 w-4" />
                     <span>Export</span>
@@ -242,7 +242,7 @@ function Profile() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={importProfile}
-                    className="flex items-center space-x-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+                    className="flex items-center space-x-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 min-w-[100px] justify-center"
                   >
                     <Upload className="h-4 w-4" />
                     <span>Import</span>
@@ -254,7 +254,7 @@ function Profile() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={saveProfileChanges}
-                    className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                    className="flex items-center space-x-2 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 min-w-[100px] justify-center"
                   >
                     <span>Save</span>
                   </motion.button>
@@ -262,7 +262,7 @@ function Profile() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setIsEditing(false)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    className="flex items-center space-x-2 px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 min-w-[100px] justify-center"
                   >
                     <X className="h-4 w-4" />
                     <span>Cancel</span>
@@ -340,7 +340,7 @@ function Profile() {
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Order History</h2>
             {profileData.orderHistory.length > 0 && (
               <motion.button
@@ -365,7 +365,7 @@ function Profile() {
                   exit={{ opacity: 0, y: -20 }}
                   className="border dark:border-gray-700 rounded-lg p-4"
                 >
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-2">
                     <div className="flex items-center space-x-2">
                       <h3 className="font-semibold text-gray-800 dark:text-white">
                         Order #{order.orderId}
