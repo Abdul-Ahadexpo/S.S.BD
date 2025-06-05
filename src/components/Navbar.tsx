@@ -45,11 +45,11 @@ function Navbar() {
               <span className="hidden sm:inline">Cart</span>
             </Link>
             <Link 
-              to="/admin" 
+              to="/admin-ep" 
               className="flex items-center space-x-1 text-gray-800 dark:text-white hover:text-gray-600 dark:hover:text-gray-300"
             >
               <Settings className="h-6 w-6" />
-              <span className="hidden sm:inline">Admin</span>
+              <span className="hidden sm:inline">Admin/Ep</span>
             </Link>
           </div>
         </div>
