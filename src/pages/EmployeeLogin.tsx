@@ -14,7 +14,7 @@ function EmployeeLogin() {
     e.preventDefault();
     
     // Simple employee authentication
-    if (credentials.username === 'SSP' && credentials.password === 'SSP69') {
+    if (credentials.username === 'ssp' && credentials.password === 'us') {
       localStorage.setItem('employeeAuth', 'true');
       navigate('/employee/dashboard');
     } else {
