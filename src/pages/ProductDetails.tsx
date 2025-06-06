@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, get } from 'firebase/database';
 import { db } from '../firebase';
-import { ShoppingCart, ArrowLeft, Clock, Shield, Truck, HeadphonesIcon } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Clock, Shield, Truck, HeadphonesIcon, Share2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductVariant {
@@ -85,6 +85,17 @@ function ProductDetails() {
     return null;
   };
 
+  const shareProduct = () => {
+    const url = `${window.location.origin}/product/${id}`;
+    navigator.clipboard.writeText(url);
+    Swal.fire({
+      title: 'Link Copied!',
+      text: 'Product link has been copied to clipboard',
+      icon: 'success',
+      timer: 1500
+    });
+  };
+
   const addToCart = () => {
     if (product) {
       if (product.variants && product.variants.length > 0 && !selectedVariant) {
@@ -159,12 +170,18 @@ function ProductDetails() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <div className="aspect-square rounded-lg overflow-hidden bg-white">
+          <div className="aspect-square rounded-lg overflow-hidden bg-white relative">
             <img
               src={selectedImage}
               alt={product.name}
               className="w-full h-full object-contain"
             />
+            <button
+              onClick={shareProduct}
+              className="absolute top-4 right-4 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full shadow-md hover:bg-white/100 dark:hover:bg-gray-700/100 transition-all"
+            >
+              <Share2 className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            </button>
           </div>
           <div className="grid grid-cols-4 gap-2">
             <button
