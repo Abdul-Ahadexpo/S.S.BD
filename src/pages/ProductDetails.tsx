@@ -58,6 +58,8 @@ function ProductDetails() {
     };
 
     fetchProduct();
+    // Scroll to top when ID changes
+    window.scrollTo(0, 0);
   }, [id]);
 
   const handleVariantChange = (color: string) => {
@@ -86,7 +88,7 @@ function ProductDetails() {
   };
 
   const shareProduct = () => {
-    const url = `${window.location.origin}/product/${id}`;
+    const url = `${window.location.origin}/?id=${id}`;
     navigator.clipboard.writeText(url);
     Swal.fire({
       title: 'Link Copied!',
@@ -144,6 +146,11 @@ function ProductDetails() {
   const handleBuyNow = () => {
     addToCart();
     navigate('/checkout');
+  };
+
+  const handleRecommendationClick = (productId: string) => {
+    navigate(`/product/${productId}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (!product) {
@@ -319,7 +326,7 @@ function ProductDetails() {
             {recommendations.map((rec) => (
               <div
                 key={rec.id}
-                onClick={() => navigate(`/product/${rec.id}`)}
+                onClick={() => handleRecommendationClick(rec.id)}
                 className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
               >
                 <div className="aspect-square">
