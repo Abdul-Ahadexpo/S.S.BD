@@ -68,91 +68,38 @@ function Checkout() {
     };
   };
 
-  const generateEmailContent = (orderData: any) => {
-    const { items, total, address, isGiftWrapped, couponCode } = orderData;
+  const generateSimpleEmailContent = (orderData: any) => {
+    const { items, total, address, phone, isGiftWrapped, couponCode, message } = orderData;
+    const subtotal = total - 120 - (isGiftWrapped ? 20 : 0);
     
-    const itemsList = items.map((item: any) => `
-      <tr>
-        <td style="padding: 10px; border-bottom: 1px solid #eee;">
-          <img src="${item.imageUrl}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-        </td>
-        <td style="padding: 10px; border-bottom: 1px solid #eee;">
-          ${item.name}
-          ${item.selectedVariant ? `<br><span style="color: #666;">Color: ${item.selectedVariant}</span>` : ''}
-        </td>
-        <td style="padding: 10px; border-bottom: 1px solid #eee;">
-          ${item.quantity}x
-        </td>
-        <td style="padding: 10px; border-bottom: 1px solid #eee;">
-          ${item.price} TK
-        </td>
-        <td style="padding: 10px; border-bottom: 1px solid #eee;">
-          ${item.price * item.quantity} TK
-        </td>
-      </tr>
-    `).join('');
-
     return `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb; text-align: center;">Order Confirmation</h2>
-        <p style="color: #666; text-align: center;">Order #${orderData.orderId}</p>
-        
-        <div style="margin: 20px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px;">
-          <h3 style="color: #1f2937; margin-bottom: 10px;">Order Summary</h3>
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr style="background-color: #f3f4f6;">
-                <th style="padding: 10px; text-align: left;">Image</th>
-                <th style="padding: 10px; text-align: left;">Product</th>
-                <th style="padding: 10px; text-align: left;">Quantity</th>
-                <th style="padding: 10px; text-align: left;">Price</th>
-                <th style="padding: 10px; text-align: left;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsList}
-            </tbody>
-          </table>
-          
-          <div style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
-            <p style="display: flex; justify-content: space-between;">
-              <span>Subtotal:</span>
-              <span>${total - 120} TK</span>
-            </p>
-            <p style="display: flex; justify-content: space-between;">
-              <span>Delivery Charge:</span>
-              <span>120 TK</span>
-            </p>
-            ${isGiftWrapped ? `
-              <p style="display: flex; justify-content: space-between; color: #e11d48;">
-                <span>Gift Wrapping:</span>
-                <span>20 TK</span>
-              </p>
-            ` : ''}
-            ${couponCode ? `
-              <p style="display: flex; justify-content: space-between; color: #059669;">
-                <span>Coupon Applied (${couponCode}):</span>
-                <span>-${orderData.discount} TK</span>
-              </p>
-            ` : ''}
-            <p style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
-              <span>Total:</span>
-              <span>${total} TK</span>
-            </p>
-          </div>
-        </div>
+ORDER CONFIRMATION
 
-        <div style="margin: 20px 0; padding: 20px; background-color: #f9fafb; border-radius: 8px;">
-          <h3 style="color: #1f2937; margin-bottom: 10px;">Delivery Information</h3>
-          <p style="margin: 5px 0;">Address: ${address}</p>
-          ${isGiftWrapped ? '<p style="color: #e11d48; margin: 5px 0;">✨ This order will be gift wrapped</p>' : ''}
-        </div>
+Order ID: ${orderData.orderId}
+Customer: ${orderData.name}
+Email: ${orderData.email}
+Phone: ${phone}
 
-        <div style="text-align: center; color: #666; margin-top: 20px;">
-          <p>Thank you for shopping with Spin Strike!</p>
-          <p style="font-size: 12px;">For any queries, contact us at: spinstrikebd@gmail.com</p>
-        </div>
-      </div>
+DELIVERY ADDRESS:
+${address}
+
+ORDER DETAILS:
+${items.map((item: any) => 
+  `• ${item.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''} - Qty: ${item.quantity} - Price: ${item.price} TK`
+).join('\n')}
+
+PRICING BREAKDOWN:
+Subtotal: ${subtotal} TK
+Delivery Charge: 120 TK${isGiftWrapped ? '\nGift Wrapping: 20 TK' : ''}
+Total Amount: ${total} TK
+
+${couponCode ? `Coupon Code Used: ${couponCode}\n` : ''}${message ? `Customer Message: ${message}\n` : ''}${isGiftWrapped ? 'Note: This order includes gift wrapping\n' : ''}
+Thank you for shopping with Spin Strike!
+
+For any queries, contact us at:
+Phone: +8801521722011
+Email: spinstrikebd@gmail.com
+Facebook: Spin Strike BD
     `;
   };
 
@@ -270,47 +217,28 @@ function Checkout() {
       access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
       orderId: generatedOrderId,
       timestamp: timestamp,
-      isGiftWrapped: isGiftWrapped,
-      Coupon_code: formData.couponCode,
-      message: formData.message,
       name: formData.name,
       phone: formData.phone,
       address: formData.address,
       email: formData.email,
-      orderSummary: `
-        Subtotal: ${subtotal} TK
-        Delivery Charge: ${deliveryCharge} TK
-        ${isGiftWrapped ? `Gift Wrapping: ${giftWrapFee} TK\n` : ''}
-        Total Amount: ${total} TK
-      `,
-      cartItems: Object.values(
-        cart.reduce((acc: any, item: any) => {
-          const key = `${item.name}${item.selectedVariant ? ` - ${item.selectedVariant}` : ''}`;
-          if (acc[key]) {
-            acc[key].quantity += item.quantity || 1;
-            acc[key].totalPrice += item.price * (item.quantity || 1);
-          } else {
-            acc[key] = {
-              name: item.name,
-              variant: item.selectedVariant,
-              price: item.price,
-              quantity: item.quantity || 1,
-              totalPrice: item.price * (item.quantity || 1),
-            };
-          }
-          return acc;
-        }, {})
-      ).map((item: any) => {
-        return `${item.quantity}x ${item.name}${item.variant ? ` (${item.variant})` : ''}\nPrice: BDT ${item.price}\nTotal: BDT ${item.totalPrice.toFixed(2)}`;
-      }).join("\n\n"),
-      emailTemplate: generateEmailContent({
+      message: formData.message,
+      couponCode: formData.couponCode,
+      isGiftWrapped: isGiftWrapped,
+      items: cart,
+      total: total,
+      subject: `New Order - ${generatedOrderId}`,
+      from_name: "Spin Strike Customer",
+      emailContent: generateSimpleEmailContent({
         orderId: generatedOrderId,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        message: formData.message,
+        couponCode: formData.couponCode,
         items: cart,
         total,
-        address: formData.address,
-        isGiftWrapped,
-        couponCode: formData.couponCode,
-        discount: 0 // Update this with actual discount calculation
+        isGiftWrapped
       })
     };
 
@@ -320,7 +248,12 @@ function Checkout() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(orderData),
+        body: JSON.stringify({
+          access_key: orderData.access_key,
+          subject: orderData.subject,
+          from_name: orderData.from_name,
+          message: orderData.emailContent
+        }),
       });
 
       if (response.ok) {
@@ -334,6 +267,7 @@ function Checkout() {
           items: cart,
           total: total,
           address: formData.address,
+          phone: formData.phone,
           isGiftWrapped: isGiftWrapped,
           status: 'Pending'
         });
