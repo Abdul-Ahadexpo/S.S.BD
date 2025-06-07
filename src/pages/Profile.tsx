@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Upload, Clock, FileText, Copy, Trash2, Edit2, X } from 'lucide-react';
+import { Download, Upload, Clock, FileText, Copy, Trash2, Edit2, X, Phone, MapPin, Ban } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface OrderHistory {
@@ -9,6 +9,7 @@ interface OrderHistory {
   items: any[];
   total: number;
   address: string;
+  phone?: string;
   isGiftWrapped: boolean;
   status: string;
 }
@@ -80,6 +81,164 @@ function Profile() {
       address: profileData.address
     });
     setIsEditing(true);
+  };
+
+  const canModifyOrder = (timestamp: number) => {
+    const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
+    return Date.now() - timestamp < tenMinutes;
+  };
+
+  const cancelOrder = async (orderId: string) => {
+    const result = await Swal.fire({
+      title: 'Cancel Order',
+      text: 'Are you sure you want to cancel this order?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, cancel it',
+      cancelButtonText: 'No, keep it',
+      confirmButtonColor: '#ef4444'
+    });
+
+    if (result.isConfirmed) {
+      const updatedHistory = profileData.orderHistory.map(order => 
+        order.orderId === orderId 
+          ? { ...order, status: 'Cancelled' }
+          : order
+      );
+      
+      const updatedProfile = {
+        ...profileData,
+        orderHistory: updatedHistory
+      };
+      
+      setProfileData(updatedProfile);
+      localStorage.setItem('profileData', JSON.stringify(updatedProfile));
+
+      Swal.fire({
+        title: 'Order Cancelled!',
+        text: 'Your order has been cancelled successfully',
+        icon: 'success',
+        timer: 2000
+      });
+    }
+  };
+
+  const sendOrderUpdateEmail = async (order: OrderHistory, newPhone: string, newAddress: string) => {
+    const subtotal = order.total - 120 - (order.isGiftWrapped ? 20 : 0);
+    
+    const emailData = {
+      access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
+      subject: `Order Update - ${order.orderId}`,
+      from_name: "Spin Strike",
+      to: profileData.email,
+      message: `
+ORDER UPDATE NOTIFICATION
+
+Order ID: ${order.orderId}
+Customer: ${profileData.name}
+Email: ${profileData.email}
+
+UPDATED DELIVERY INFORMATION:
+Phone: ${newPhone}
+Address: ${newAddress}
+
+ORDER DETAILS:
+${order.items.map(item => 
+  `• ${item.name}${item.selectedVariant ? ` (${item.selectedVariant})` : ''} - Qty: ${item.quantity} - Price: ${item.price} TK`
+).join('\n')}
+
+PRICING BREAKDOWN:
+Subtotal: ${subtotal} TK
+Delivery Charge: 120 TK${order.isGiftWrapped ? '\nGift Wrapping: 20 TK' : ''}
+Total Amount: ${order.total} TK
+
+${order.isGiftWrapped ? 'Note: This order includes gift wrapping\n' : ''}
+Order Status: ${order.status}
+Order Date: ${new Date(order.timestamp).toLocaleString()}
+
+Thank you for shopping with Spin Strike!
+For any queries, contact us at: spinstrikebd@gmail.com
+      `
+    };
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(emailData),
+      });
+
+      if (response.ok) {
+        console.log('Order update email sent successfully');
+      }
+    } catch (error) {
+      console.error('Failed to send order update email:', error);
+    }
+  };
+
+  const changeOrderDetails = async (orderId: string, currentAddress: string, currentPhone?: string) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Update Order Details',
+      html: `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <input id="swal-phone" class="swal2-input" placeholder="Phone Number" value="${currentPhone || profileData.phone}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Address</label>
+            <textarea id="swal-address" class="swal2-textarea" placeholder="Delivery Address" rows="3">${currentAddress}</textarea>
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Update Details',
+      cancelButtonText: 'Cancel',
+      preConfirm: () => {
+        const phone = (document.getElementById('swal-phone') as HTMLInputElement).value;
+        const address = (document.getElementById('swal-address') as HTMLTextAreaElement).value;
+        
+        if (!phone || !address) {
+          Swal.showValidationMessage('Please fill in all fields');
+          return false;
+        }
+        
+        return { phone, address };
+      }
+    });
+
+    if (formValues) {
+      const order = profileData.orderHistory.find(o => o.orderId === orderId);
+      
+      const updatedHistory = profileData.orderHistory.map(order => 
+        order.orderId === orderId 
+          ? { ...order, address: formValues.address, phone: formValues.phone }
+          : order
+      );
+      
+      const updatedProfile = {
+        ...profileData,
+        orderHistory: updatedHistory
+      };
+      
+      setProfileData(updatedProfile);
+      localStorage.setItem('profileData', JSON.stringify(updatedProfile));
+
+      // Send email notification about the update
+      if (order) {
+        await sendOrderUpdateEmail(order, formValues.phone, formValues.address);
+      }
+
+      Swal.fire({
+        title: 'Details Updated!',
+        text: 'Order details have been updated successfully. A confirmation email has been sent.',
+        icon: 'success',
+        timer: 3000
+      });
+    }
   };
 
   const deleteOrder = async (orderId: string) => {
@@ -397,6 +556,11 @@ function Profile() {
                   <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center mb-4">
                     <Clock className="h-4 w-4 mr-1" />
                     {new Date(order.timestamp).toLocaleString()}
+                    {canModifyOrder(order.timestamp) && order.status === 'Pending' && (
+                      <span className="ml-2 px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-xs rounded-full">
+                        Can modify
+                      </span>
+                    )}
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
@@ -422,20 +586,62 @@ function Profile() {
                     ))}
                   </div>
 
-                  <div className="flex flex-wrap justify-between items-center pt-4 border-t dark:border-gray-700">
-                    <div className="space-y-1">
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Delivery to: {order.address}
-                      </p>
+                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center pt-4 border-t dark:border-gray-700 gap-4">
+                    <div className="space-y-1 flex-1">
+                      <div className="flex items-start space-x-2">
+                        <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {order.address}
+                        </p>
+                      </div>
+                      {order.phone && (
+                        <div className="flex items-center space-x-2">
+                          <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                            {order.phone}
+                          </p>
+                        </div>
+                      )}
                       {order.isGiftWrapped && (
                         <p className="text-sm text-pink-600 dark:text-pink-400">
-                          Gift wrapped
+                          ✨ This order will be gift wrapped
                         </p>
                       )}
                     </div>
-                    <p className="text-lg font-semibold text-gray-800 dark:text-white">
-                      Total: {order.total} TK
-                    </p>
+                    
+                    <div className="flex flex-col items-end space-y-2">
+                      <p className="text-lg font-semibold text-gray-800 dark:text-white">
+                        Total: {order.total} TK
+                      </p>
+                      
+                      {/* Order Action Buttons */}
+                      {order.status === 'Pending' && (
+                        <div className="flex flex-wrap gap-2">
+                          {canModifyOrder(order.timestamp) && (
+                            <>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => changeOrderDetails(order.orderId, order.address, order.phone)}
+                                className="flex items-center space-x-1 px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
+                              >
+                                <Edit2 className="h-3 w-3" />
+                                <span>Edit Details</span>
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => cancelOrder(order.orderId)}
+                                className="flex items-center space-x-1 px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                              >
+                                <Ban className="h-3 w-3" />
+                                <span>Cancel</span>
+                              </motion.button>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               ))}
