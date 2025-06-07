@@ -47,9 +47,12 @@ function HelpGuide() {
               <li>Edit your profile information anytime</li>
               <li>Export profile data to backup your information</li>
               <li>Import profile data to restore on other devices</li>
-              <li>Modify orders within 10 minutes of placing them</li>
-              <li>Copy order IDs for easy reference</li>
-              <li>Delete individual orders or clear entire history</li>
+              <li><strong>Order Management:</strong></li>
+              <li style="margin-left: 20px;">• Modify orders within 10 minutes of placing them</li>
+              <li style="margin-left: 20px;">• Edit delivery address and phone number</li>
+              <li style="margin-left: 20px;">• Cancel orders if they're still pending</li>
+              <li style="margin-left: 20px;">• Copy order IDs for easy reference</li>
+              <li style="margin-left: 20px;">• Delete individual orders or clear entire history</li>
             </ul>
           </div>
           
