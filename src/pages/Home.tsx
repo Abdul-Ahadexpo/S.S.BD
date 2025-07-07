@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, onValue } from 'firebase/database';
 import { db } from '../firebase';
-import { ShoppingCart, Search, ChevronDown, Filter, Share2, X } from 'lucide-react';
+import { ShoppingCart, Search, ChevronDown, Filter, Share2, X, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,6 +23,7 @@ interface Product {
   variants?: ProductVariant[];
   additionalImages?: string[];
   createdAt: number;
+  isExclusive?: boolean;
 }
 
 interface Category {
@@ -30,11 +31,22 @@ interface Category {
   name: string;
 }
 
+interface Banner {
+  id: string;
+  title: string;
+  subtitle: string;
+  imageUrl: string;
+  linkUrl: string;
+  isActive: boolean;
+}
+
 function Home() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState<'none' | 'pre-order' | 'asc' | 'desc'>('none');
@@ -42,9 +54,20 @@ function Home() {
   const [displayImages, setDisplayImages] = useState<{ [key: string]: string }>({});
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
 
+  // Auto-slide banners every 5 seconds
+  useEffect(() => {
+    if (banners.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [banners.length]);
+
   useEffect(() => {
     const productsRef = ref(db, 'products');
     const categoriesRef = ref(db, 'categories');
+    const bannersRef = ref(db, 'banners');
     const urlParams = new URLSearchParams(window.location.search);
     const productId = urlParams.get('id');
 
@@ -59,7 +82,15 @@ function Home() {
         if (productId) {
           productsList = productsList.filter(product => product.id === productId);
         } else {
-          productsList = productsList.sort(() => Math.random() - 0.5);
+          // Sort products: exclusive first, then random
+          const exclusiveProducts = productsList.filter(product => product.isExclusive);
+          const regularProducts = productsList.filter(product => !product.isExclusive);
+          
+          // Randomize regular products
+          const shuffledRegular = regularProducts.sort(() => Math.random() - 0.5);
+          
+          // Combine: exclusive first, then shuffled regular
+          productsList = [...exclusiveProducts, ...shuffledRegular];
         }
 
         setProducts(productsList);
@@ -84,9 +115,22 @@ function Home() {
       }
     });
 
+    const unsubscribeBanners = onValue(bannersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const bannersList = Object.entries(data).map(([id, banner]) => ({
+          id,
+          ...(banner as Omit<Banner, 'id'>)
+        })).filter(banner => banner.isActive);
+        setBanners(bannersList);
+        setCurrentBannerIndex(0); // Reset to first banner when banners change
+      }
+    });
+
     return () => {
       unsubscribeProducts();
       unsubscribeCategories();
+      unsubscribeBanners();
     };
   }, []);
 
@@ -237,12 +281,117 @@ function Home() {
     navigate(`/product/${productId}`);
   };
 
+  const handleBannerClick = (linkUrl: string) => {
+    if (linkUrl) {
+      window.open(linkUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const nextBanner = () => {
+    setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
+  };
+
+  const prevBanner = () => {
+    setCurrentBannerIndex((prev) => (prev - 1 + banners.length) % banners.length);
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col space-y-4 mb-8">
-        <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white">Spin Strike</h1>
+    <div className="container mx-auto px-4 py-4 md:py-8">
+      {/* Banner Section with Carousel */}
+      {banners.length > 0 && (
+        <div className="mb-6 md:mb-8">
+          <div className="relative rounded-xl overflow-hidden shadow-lg">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentBannerIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className={`relative h-48 md:h-64 lg:h-80 ${
+                  banners[currentBannerIndex]?.linkUrl ? 'cursor-pointer group' : ''
+                }`}
+                onClick={() => handleBannerClick(banners[currentBannerIndex]?.linkUrl)}
+              >
+                <img
+                  src={banners[currentBannerIndex]?.imageUrl}
+                  alt={banners[currentBannerIndex]?.title}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                  <div className="text-center text-white px-4">
+                    <motion.h2
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="text-xl md:text-3xl lg:text-4xl font-bold mb-2"
+                    >
+                      {banners[currentBannerIndex]?.title}
+                    </motion.h2>
+                    {banners[currentBannerIndex]?.subtitle && (
+                      <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-sm md:text-lg lg:text-xl"
+                      >
+                        {banners[currentBannerIndex]?.subtitle}
+                      </motion.p>
+                    )}
+                    {banners[currentBannerIndex]?.linkUrl && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="mt-4 flex items-center justify-center space-x-2 text-white/80 group-hover:text-white transition-colors"
+                      >
+                        <span className="text-sm">Click to explore</span>
+                        <ExternalLink className="h-4 w-4" />
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Banner Navigation */}
+            {banners.length > 1 && (
+              <>
+                <button
+                  onClick={prevBanner}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <button
+                  onClick={nextBanner}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+
+                {/* Banner Indicators */}
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                  {banners.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentBannerIndex(index)}
+                      className={`w-3 h-3 rounded-full transition-colors ${
+                        index === currentBannerIndex ? 'bg-white' : 'bg-white/50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col space-y-4 mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">Spin Strike</h1>
         
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-3">
           <div className="relative">
             <input
               type="text"
@@ -278,7 +427,7 @@ function Home() {
                 whileTap={{ scale: 0.98 }}
               >
                 <Filter size={20} />
-                <span>Sort</span>
+                <span className="hidden sm:inline">Sort</span>
                 <motion.div
                   animate={{ rotate: isSortDropdownOpen ? 180 : 0 }}
                   transition={{ duration: 0.2 }}
@@ -342,14 +491,23 @@ function Home() {
         </div>
       </div>
 
-      {/* Product Grid - Mobile First */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Product Grid - Mobile Optimized */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
         {displayProducts.map((product) => (
-          <div 
+          <motion.div 
             key={product.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
             onClick={() => handleProductClick(product.id)}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl relative cursor-pointer"
           >
+            {product.isExclusive && (
+              <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                ⭐ EXCLUSIVE
+              </div>
+            )}
+            
             <div className="relative pb-[100%]">
               <img 
                 src={displayImages[product.id] || product.imageUrl}
@@ -363,10 +521,10 @@ function Home() {
                 }}
                 className="absolute top-2 right-2 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full shadow-md"
               >
-                <Share2 className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                <Share2 className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               </button>
               
-              <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${
+              <div className={`absolute ${product.isExclusive ? 'top-10' : 'top-2'} ${product.isExclusive ? 'left-2' : 'left-2'} px-2 py-1 rounded-full text-xs font-medium ${
                 product.quantity === 'Out of Stock'
                   ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                   : product.quantity === 'Pre-order'
@@ -379,18 +537,18 @@ function Home() {
               </div>
             </div>
 
-            <div className="p-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2 line-clamp-2">
+            <div className="p-3 md:p-4">
+              <h3 className="text-sm md:text-lg font-semibold text-gray-800 dark:text-white mb-2 line-clamp-2">
                 {product.name}
               </h3>
               
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col space-y-2 md:space-y-3">
                 <div className="flex justify-between items-center">
                   <div className="flex items-baseline space-x-1">
-                    <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{product.price}</span>
-                    <span className="text-blue-600 dark:text-blue-400">TK</span>
+                    <span className="text-lg md:text-xl font-bold text-blue-600 dark:text-blue-400">{product.price}</span>
+                    <span className="text-sm text-blue-600 dark:text-blue-400">TK</span>
                   </div>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
                     {product.category}
                   </span>
                 </div>
@@ -402,7 +560,7 @@ function Home() {
                       e.stopPropagation();
                       handleVariantChange(product.id, e.target.value);
                     }}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                    className="w-full px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
                   >
                     <option value="">Select Color</option>
                     {product.variants.map((variant, index) => (
@@ -419,16 +577,25 @@ function Home() {
                     addToCart(product);
                   }}
                   disabled={product.quantity === 'Out of Stock'}
-                  className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 flex items-center justify-center space-x-2"
+                  className="w-full bg-blue-500 text-white px-3 md:px-4 py-2 text-xs md:text-sm rounded-lg hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 flex items-center justify-center space-x-1 md:space-x-2"
                 >
-                  <ShoppingCart className="h-5 w-5" />
+                  <ShoppingCart className="h-3 w-3 md:h-5 md:w-5" />
                   <span>Add to Cart</span>
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
+
+      {/* No Products Message */}
+      {displayProducts.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500 dark:text-gray-400 text-lg">
+            {searchTerm || selectedCategory !== 'all' ? 'No products found matching your criteria.' : 'No products available.'}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

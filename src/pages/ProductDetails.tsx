@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ref, get } from 'firebase/database';
+import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
 import { ShoppingCart, ArrowLeft, Clock, Shield, Truck, HeadphonesIcon, Share2 } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -30,6 +30,7 @@ function ProductDetails() {
   const [selectedVariant, setSelectedVariant] = useState<string>('');
   const [recommendations, setRecommendations] = useState<Product[]>([]);
   const [selectedImage, setSelectedImage] = useState<string>('');
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -43,6 +44,7 @@ function ProductDetails() {
         };
         setProduct(productData);
         setSelectedImage(productData.imageUrl);
+        setQuantity(1); // Reset quantity when product changes
         
         // Fetch recommendations
         const productsRef = ref(db, 'products');
@@ -71,20 +73,9 @@ function ProductDetails() {
       } else {
         setSelectedImage(product.imageUrl);
       }
+      // Reset quantity when variant changes
+      setQuantity(1);
     }
-  };
-
-  const getDeliveryEstimate = () => {
-    if (product) {
-      if (product.quantity === 'Pre-order') {
-        return '25-35 days';
-      } else if (product.quantity === 'Out of Stock') {
-        return null;
-      } else {
-        return '3-5 days';
-      }
-    }
-    return null;
   };
 
   const shareProduct = () => {
@@ -96,6 +87,52 @@ function ProductDetails() {
       icon: 'success',
       timer: 1500
     });
+  };
+
+  const getMaxQuantity = () => {
+    if (!product) return 0;
+    
+    // If product has variants, check the selected variant's stock
+    if (product.variants && product.variants.length > 0) {
+      if (selectedVariant) {
+        const variant = product.variants.find(v => v.color === selectedVariant);
+        return variant?.stock || 0;
+      }
+      return 0; // No variant selected
+    }
+    
+    // For products without variants, check the quantity field
+    if (typeof product.quantity === 'number') {
+      return product.quantity;
+    }
+    
+    // For string quantities like "In Stock", "Pre-order", "Out of Stock"
+    if (product.quantity === 'Out of Stock') {
+      return 0;
+    }
+    
+    // For "In Stock" or "Pre-order", assume available (return a reasonable number)
+    return 999;
+  };
+
+  const getStockStatus = () => {
+    if (!product) return { status: 'Out of Stock', color: 'red' };
+    
+    const maxQty = getMaxQuantity();
+    
+    if (maxQty === 0) {
+      return { status: 'Out of Stock', color: 'red' };
+    }
+    
+    if (product.quantity === 'Pre-order') {
+      return { status: 'Pre-order Available', color: 'yellow' };
+    }
+    
+    if (maxQty <= 3 && maxQty > 0) {
+      return { status: `Only ${maxQty} left`, color: 'yellow' };
+    }
+    
+    return { status: 'In Stock', color: 'green' };
   };
 
   const addToCart = () => {
@@ -110,11 +147,33 @@ function ProductDetails() {
         return;
       }
 
+      const maxQty = getMaxQuantity();
+      if (maxQty === 0) {
+        Swal.fire({
+          title: 'Out of Stock',
+          text: 'This item is currently out of stock',
+          icon: 'warning',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+
+      if (quantity > maxQty && maxQty !== 999) {
+        Swal.fire({
+          title: 'Invalid Quantity',
+          text: `Maximum available quantity is ${maxQty}`,
+          icon: 'warning',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+
       const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
       const cartItem = {
         ...product,
         selectedVariant,
-        quantity: 1
+        quantity,
+        selected: true
       };
 
       const isProductInCart = existingCart.some((item: any) => 
@@ -134,12 +193,25 @@ function ProductDetails() {
       const newCart = [...existingCart, cartItem];
       localStorage.setItem('cart', JSON.stringify(newCart));
       
-      Swal.fire({
-        title: 'Success!',
-        text: 'Product added to cart',
-        icon: 'success',
-        timer: 1500
-      });
+      if (product.quantity === 'Pre-order') {
+        Swal.fire({
+          title: 'Pre-order Payment Required',
+          html: `
+            <p>To confirm your pre-order, please send 25% advance payment to:</p>
+            <p class="text-xl font-bold mt-4">bKash: 01722786111</p>
+            <p class="mt-2 text-sm">Include your order number as reference when sending payment.</p>
+          `,
+          icon: 'info',
+          confirmButtonText: 'Got it!'
+        });
+      } else {
+        Swal.fire({
+          title: 'Success!',
+          text: 'Product added to cart',
+          icon: 'success',
+          timer: 1500
+        });
+      }
     }
   };
 
@@ -161,15 +233,15 @@ function ProductDetails() {
     );
   }
 
-  const deliveryEstimate = getDeliveryEstimate();
-  const isPreOrder = product.quantity === 'Pre-order';
-  const isOutOfStock = product.quantity === 'Out of Stock';
+  const maxQty = getMaxQuantity();
+  const stockStatus = getStockStatus();
+  const isOutOfStock = maxQty === 0;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <button
         onClick={() => navigate('/')}
-        className="flex items-center text-gray-600 hover:text-gray-800 mb-6"
+        className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 mb-6"
       >
         <ArrowLeft className="mr-2" size={20} />
         Back to Products
@@ -228,32 +300,15 @@ function ProductDetails() {
           {/* Stock Status */}
           <div className="flex items-center space-x-2">
             <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-              isOutOfStock 
+              stockStatus.color === 'red' 
                 ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                : isPreOrder
+                : stockStatus.color === 'yellow'
                 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                 : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
             }`}>
-              {isOutOfStock ? 'Out of Stock' : isPreOrder ? 'Pre-order' : 'In Stock'}
+              {stockStatus.status}
             </div>
           </div>
-
-          {/* Delivery Estimate */}
-          {deliveryEstimate && (
-            <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
-              <Clock size={20} />
-              <span>Estimated delivery: {deliveryEstimate}</span>
-            </div>
-          )}
-
-          {/* Pre-order Notice */}
-          {isPreOrder && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 rounded">
-              <p className="font-bold text-yellow-800 dark:text-yellow-200">
-                Pre-order requires 25% advance payment
-              </p>
-            </div>
-          )}
 
           <div className="prose dark:prose-invert max-w-none">
             <p className="text-gray-600 dark:text-gray-300">{product.description}</p>
@@ -277,10 +332,26 @@ function ProductDetails() {
                 ))}
               </select>
             </div>
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Status: {typeof product.quantity === 'number' ? `${product.quantity} in stock` : product.quantity}
-            </p>
+          ) : null}
+
+          {/* Quantity Selector */}
+          {!isOutOfStock && maxQty !== 999 && (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                Quantity
+              </label>
+              <select
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                {[...Array(Math.min(maxQty, 10))].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
 
           <div className="flex space-x-4">

@@ -12,6 +12,7 @@ interface Review {
   reviewText: string;
   purchaseDate: string;
   images: string[];
+  timestamp?: number; // Add timestamp for sorting
 }
 
 function Reviews() {
@@ -28,7 +29,28 @@ function Reviews() {
           id,
           ...(review as Omit<Review, 'id'>)
         }));
-        setReviews(reviewsList);
+        
+        // Sort reviews by timestamp (most recent first) or by purchase date if no timestamp
+        const sortedReviews = reviewsList.sort((a, b) => {
+          // If both have timestamps, use them
+          if (a.timestamp && b.timestamp) {
+            return b.timestamp - a.timestamp;
+          }
+          
+          // If no timestamps, try to parse purchase dates
+          const dateA = new Date(a.purchaseDate).getTime();
+          const dateB = new Date(b.purchaseDate).getTime();
+          
+          // If dates are valid, use them
+          if (!isNaN(dateA) && !isNaN(dateB)) {
+            return dateB - dateA;
+          }
+          
+          // Fallback to string comparison of purchase dates
+          return b.purchaseDate.localeCompare(a.purchaseDate);
+        });
+        
+        setReviews(sortedReviews);
       }
     });
 
@@ -62,6 +84,14 @@ function Reviews() {
           />
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
+      </div>
+
+      {/* Reviews Count */}
+      <div className="text-center mb-6">
+        <p className="text-gray-600 dark:text-gray-400">
+          Showing {filteredReviews.length} review{filteredReviews.length !== 1 ? 's' : ''} 
+          {searchTerm && ` for "${searchTerm}"`}
+        </p>
       </div>
 
       {/* Reviews Grid */}
@@ -116,6 +146,15 @@ function Reviews() {
           </motion.div>
         ))}
       </div>
+
+      {/* No Reviews Message */}
+      {filteredReviews.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500 dark:text-gray-400 text-lg">
+            {searchTerm ? 'No reviews found matching your search.' : 'No reviews available yet.'}
+          </p>
+        </div>
+      )}
 
       {/* Image Popup */}
       {selectedImage && (
