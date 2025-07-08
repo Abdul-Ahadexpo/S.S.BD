@@ -220,6 +220,23 @@ function ProductDetails() {
     navigate('/checkout');
   };
 
+  const calculatePreOrderAdvance = () => {
+    if (product && product.quantity === 'Pre-order') {
+      const productTotal = product.price * quantity;
+      const deliveryFee = productTotal >= 2000 ? 0 : 120;
+      const totalAmount = productTotal + deliveryFee;
+      const advanceAmount = Math.ceil(totalAmount * 0.25); // 25% advance, rounded up
+      return {
+        productTotal,
+        deliveryFee,
+        totalAmount,
+        advanceAmount,
+        isFreeDelivery: deliveryFee === 0
+      };
+    }
+    return null;
+  };
+
   const handleRecommendationClick = (productId: string) => {
     navigate(`/product/${productId}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -236,6 +253,7 @@ function ProductDetails() {
   const maxQty = getMaxQuantity();
   const stockStatus = getStockStatus();
   const isOutOfStock = maxQty === 0;
+  const preOrderInfo = calculatePreOrderAdvance();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -310,6 +328,47 @@ function ProductDetails() {
             </div>
           </div>
 
+          {/* Pre-order Payment Notice */}
+          {preOrderInfo && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <h3 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-3 flex items-center">
+                <Clock className="h-5 w-5 mr-2" />
+                Pre-order Payment Required
+              </h3>
+              <div className="space-y-2 text-sm text-yellow-700 dark:text-yellow-300">
+                <div className="flex justify-between">
+                  <span>Product Total ({quantity} × {product.price} TK):</span>
+                  <span className="font-medium">{preOrderInfo.productTotal} TK</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Delivery Charge:</span>
+                  <span className={`font-medium ${preOrderInfo.isFreeDelivery ? 'text-green-600' : ''}`}>
+                    {preOrderInfo.isFreeDelivery ? 'FREE' : `${preOrderInfo.deliveryFee} TK`}
+                  </span>
+                </div>
+                {preOrderInfo.isFreeDelivery && (
+                  <div className="text-green-600 text-xs">
+                    🎉 Free delivery on orders over 2000 TK!
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-yellow-300 dark:border-yellow-700 pt-2">
+                  <span>Total Amount:</span>
+                  <span className="font-medium">{preOrderInfo.totalAmount} TK</span>
+                </div>
+                <div className="flex justify-between bg-yellow-100 dark:bg-yellow-800/30 p-2 rounded">
+                  <span className="font-semibold">25% Advance Payment:</span>
+                  <span className="font-bold text-lg">{preOrderInfo.advanceAmount} TK</span>
+                </div>
+              </div>
+              <div className="mt-3 p-3 bg-yellow-100 dark:bg-yellow-800/30 rounded border-l-4 border-yellow-400">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  <strong>Payment Instructions:</strong><br />
+                  Send <strong>{preOrderInfo.advanceAmount} TK</strong> to bKash: <strong>01722786111</strong><br />
+                  Include your order number as reference when sending payment.
+                </p>
+              </div>
+            </div>
+          )}
           <div className="prose dark:prose-invert max-w-none">
             <p className="text-gray-600 dark:text-gray-300">{product.description}</p>
           </div>

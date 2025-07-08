@@ -60,17 +60,18 @@ function Checkout() {
   const calculateTotal = () => {
     const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
     const giftWrapFee = isGiftWrapped ? 20 : 0;
+    const deliveryCharge = subtotal >= 2000 ? 0 : 120;
     return {
       subtotal,
-      deliveryCharge: 120,
+      deliveryCharge,
       giftWrapFee,
-      total: subtotal + 120 + giftWrapFee
+      total: subtotal + deliveryCharge + giftWrapFee
     };
   };
 
   const generateSimpleEmailContent = (orderData: any) => {
-    const { items, total, address, phone, isGiftWrapped, couponCode, message } = orderData;
-    const subtotal = total - 120 - (isGiftWrapped ? 20 : 0);
+    const { items, total, address, phone, isGiftWrapped, couponCode, message, deliveryCharge } = orderData;
+    const subtotal = total - deliveryCharge - (isGiftWrapped ? 20 : 0);
     
     return `
 ORDER CONFIRMATION
@@ -90,7 +91,7 @@ ${items.map((item: any) =>
 
 PRICING BREAKDOWN:
 Subtotal: ${subtotal} TK
-Delivery Charge: 120 TK${isGiftWrapped ? '\nGift Wrapping: 20 TK' : ''}
+Delivery Charge: ${deliveryCharge === 0 ? 'FREE (Order over 2000 TK)' : `${deliveryCharge} TK`}${isGiftWrapped ? '\nGift Wrapping: 20 TK' : ''}
 Total Amount: ${total} TK
 
 ${couponCode ? `Coupon Code Used: ${couponCode}\n` : ''}${message ? `Customer Message: ${message}\n` : ''}${isGiftWrapped ? 'Note: This order includes gift wrapping\n' : ''}
@@ -224,6 +225,7 @@ Facebook: Spin Strike BD
       message: formData.message,
       couponCode: formData.couponCode,
       isGiftWrapped: isGiftWrapped,
+      deliveryCharge: deliveryCharge,
       items: cart,
       total: total,
       subject: `New Order - ${generatedOrderId}`,
@@ -238,7 +240,8 @@ Facebook: Spin Strike BD
         couponCode: formData.couponCode,
         items: cart,
         total,
-        isGiftWrapped
+        isGiftWrapped,
+        deliveryCharge
       })
     };
 
@@ -269,6 +272,7 @@ Facebook: Spin Strike BD
           address: formData.address,
           phone: formData.phone,
           isGiftWrapped: isGiftWrapped,
+          deliveryCharge: deliveryCharge,
           status: 'Pending'
         });
 
@@ -438,8 +442,16 @@ Facebook: Spin Strike BD
               </div>
               <div className="flex justify-between text-gray-600 dark:text-gray-300">
                 <span>Delivery Charge:</span>
-                <span>{deliveryCharge} TK</span>
+                <span className={deliveryCharge === 0 ? 'text-green-600 font-medium' : ''}>
+                  {deliveryCharge === 0 ? 'FREE' : `${deliveryCharge} TK`}
+                </span>
               </div>
+              {subtotal >= 2000 && deliveryCharge === 0 && (
+                <div className="flex justify-between text-sm text-green-600 font-medium">
+                  <span>🎉 Free delivery on orders over 2000 TK!</span>
+                  <span></span>
+                </div>
+              )}
               {isGiftWrapped && (
                 <div className="flex justify-between text-gray-600 dark:text-gray-300">
                   <span>Gift Wrapping:</span>
@@ -470,7 +482,7 @@ Facebook: Spin Strike BD
             <li>Standard delivery time: 3-5 working days</li>
             <li>Delivery time for "Pre-Order": 25-35 working days</li>
             <li>Delivery charge: 120 TK</li>
-            <li>Free delivery on orders above 2000 TK</li>
+            <li className="font-semibold">🎉 Free delivery on orders over 2000 TK</li>
           </ul>
         </div>
       </div>

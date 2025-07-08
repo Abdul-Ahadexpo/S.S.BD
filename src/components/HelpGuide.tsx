@@ -36,7 +36,7 @@ function HelpGuide() {
               <li>Standard delivery time: 3-5 working days</li>
               <li>Delivery time for "Pre-Order": 25-35 working days</li>
               <li>Delivery charge: 120 TK</li>
-              <li>Free delivery on orders above 2000 TK</li>
+              <li><strong>🎉 Free delivery on orders over 2000 TK</strong></li>
             </ul>
           </div>
 

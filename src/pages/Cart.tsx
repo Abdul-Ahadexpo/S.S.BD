@@ -158,16 +158,18 @@ function Cart() {
     const subtotal = selectedItems.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
     const discount = appliedCoupon ? appliedCoupon.discount : 0;
     const giftWrapFee = isGiftWrapped ? GIFT_WRAP_CHARGE : 0;
-    const total = subtotal + DELIVERY_CHARGE + giftWrapFee - discount;
+    const deliveryCharge = subtotal >= 2000 ? 0 : DELIVERY_CHARGE;
+    const total = subtotal + deliveryCharge + giftWrapFee - discount;
     return {
       subtotal,
       discount,
       giftWrapFee,
+      deliveryCharge,
       total: total < 0 ? 0 : total
     };
   };
 
-  const { subtotal, discount, giftWrapFee, total } = calculateTotal();
+  const { subtotal, discount, giftWrapFee, deliveryCharge, total } = calculateTotal();
 
   const handleCheckout = () => {
     const selectedItems = cart.filter(item => item.selected);
@@ -366,8 +368,21 @@ function Cart() {
                   layout
                 >
                   <span>Delivery Charge:</span>
-                  <span>{DELIVERY_CHARGE}TK</span>
+                  <span className={deliveryCharge === 0 ? 'text-green-600' : ''}>
+                    {deliveryCharge === 0 ? 'FREE' : `${deliveryCharge}TK`}
+                  </span>
                 </motion.div>
+                {subtotal >= 2000 && deliveryCharge === 0 && (
+                  <motion.div 
+                    className="flex justify-between text-sm text-green-600"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    layout
+                  >
+                    <span>🎉 Free delivery on orders over 2000 TK!</span>
+                    <span></span>
+                  </motion.div>
+                )}
                 {giftWrapFee > 0 && (
                   <motion.div 
                     className="flex justify-between text-lg font-semibold text-pink-600"

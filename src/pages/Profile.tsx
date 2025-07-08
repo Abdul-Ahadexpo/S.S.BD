@@ -11,6 +11,7 @@ interface OrderHistory {
   address: string;
   phone?: string;
   isGiftWrapped: boolean;
+  deliveryCharge?: number;
   status: string;
 }
 
@@ -124,7 +125,8 @@ function Profile() {
   };
 
   const sendOrderUpdateEmail = async (order: OrderHistory, newPhone: string, newAddress: string) => {
-    const subtotal = order.total - 120 - (order.isGiftWrapped ? 20 : 0);
+    const deliveryCharge = order.deliveryCharge || (order.total - (order.total - 120 - (order.isGiftWrapped ? 20 : 0)) >= 2000 ? 0 : 120);
+    const subtotal = order.total - deliveryCharge - (order.isGiftWrapped ? 20 : 0);
     
     const emailData = {
       access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
@@ -149,7 +151,7 @@ ${order.items.map(item =>
 
 PRICING BREAKDOWN:
 Subtotal: ${subtotal} TK
-Delivery Charge: 120 TK${order.isGiftWrapped ? '\nGift Wrapping: 20 TK' : ''}
+Delivery Charge: ${deliveryCharge === 0 ? 'FREE (Order over 2000 TK)' : `${deliveryCharge} TK`}${order.isGiftWrapped ? '\nGift Wrapping: 20 TK' : ''}
 Total Amount: ${order.total} TK
 
 ${order.isGiftWrapped ? 'Note: This order includes gift wrapping\n' : ''}
