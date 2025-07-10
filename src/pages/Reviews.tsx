@@ -59,9 +59,9 @@ function Reviews() {
 
   // Filter reviews based on search term
   const filteredReviews = reviews.filter(review => 
-    review.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    review.buyerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    review.reviewText.toLowerCase().includes(searchTerm.toLowerCase())
+    (review.productName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (review.buyerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (review.reviewText || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const showImagePopup = (imageUrl: string) => {

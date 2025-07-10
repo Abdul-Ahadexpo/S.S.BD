@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
-import { ShoppingCart, ArrowLeft, Clock, Shield, Truck, HeadphonesIcon, Share2 } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Clock, Shield, Truck, HeadphonesIcon, Share2, Star, User, Calendar } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductVariant {
@@ -23,12 +23,22 @@ interface Product {
   variants?: ProductVariant[];
 }
 
+interface Review {
+  id: string;
+  buyerName: string;
+  productName: string;
+  reviewText: string;
+  purchaseDate: string;
+  images: string[];
+  linkedProductId?: string;
+}
 function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string>('');
   const [recommendations, setRecommendations] = useState<Product[]>([]);
+  const [productReviews, setProductReviews] = useState<Review[]>([]);
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
 
@@ -55,6 +65,25 @@ function ProductDetails() {
             .filter(p => p.id !== id && p.category === productData.category)
             .slice(0, 4);
           setRecommendations(allProducts);
+        }
+        
+        // Fetch reviews linked to this product
+        const reviewsRef = ref(db, 'reviews');
+        const reviewsSnapshot = await get(reviewsRef);
+        if (reviewsSnapshot.exists()) {
+          const allReviews = Object.entries(reviewsSnapshot.val())
+            .map(([key, value]) => ({ id: key, ...value as Omit<Review, 'id'> }))
+            .filter(review => review.linkedProductId === id)
+            .sort((a, b) => {
+              // Sort by timestamp if available, otherwise by purchase date
+              if (a.timestamp && b.timestamp) {
+                return b.timestamp - a.timestamp;
+              }
+              const dateA = new Date(a.purchaseDate).getTime();
+              const dateB = new Date(b.purchaseDate).getTime();
+              return dateB - dateA;
+            });
+          setProductReviews(allReviews);
         }
       }
     };
@@ -470,6 +499,74 @@ function ProductDetails() {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{rec.name}</h3>
                   <p className="text-blue-600 dark:text-blue-400 font-bold">{rec.price} TK</p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Product Reviews Section */}
+      {productReviews.length > 0 && (
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white flex items-center">
+            <Star className="h-6 w-6 mr-2 text-yellow-400" />
+            Customer Reviews ({productReviews.length})
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {productReviews.map((review) => (
+              <div
+                key={review.id}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-full">
+                      <User className="h-4 w-4 text-blue-500 dark:text-blue-300" />
+                    </div>
+                    <span className="font-semibold text-gray-800 dark:text-white">{review.buyerName}</span>
+                  </div>
+                  <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                    <Calendar className="h-3 w-3" />
+                    <span className="text-xs">{review.purchaseDate}</span>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-4">
+                  <p className="text-gray-600 dark:text-gray-300 italic">{review.reviewText}</p>
+                </div>
+                
+                {review.images && review.images.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {review.images.slice(0, 3).map((image, index) => (
+                      <div key={index} className="relative aspect-square">
+                        <img
+                          src={image}
+                          alt={`Review image ${index + 1}`}
+                          className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => {
+                            // Show image in popup
+                            Swal.fire({
+                              imageUrl: image,
+                              imageAlt: `Review image ${index + 1}`,
+                              showConfirmButton: false,
+                              showCloseButton: true,
+                              customClass: {
+                                image: 'max-h-96 object-contain'
+                              }
+                            });
+                          }}
+                        />
+                      </div>
+                    ))}
+                    {review.images.length > 3 && (
+                      <div className="aspect-square bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center">
+                        <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                          +{review.images.length - 3} more
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

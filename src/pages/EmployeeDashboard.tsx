@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, push, update, onValue, set } from 'firebase/database';
 import { db } from '../firebase';
-import { Plus, Edit2, Save, X, Image as ImageIcon, Star, Megaphone } from 'lucide-react';
+import { Plus, Edit2, Save, X, Image as ImageIcon, Star, Megaphone, MessageSquare } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductVariant {
@@ -33,13 +33,24 @@ interface Banner {
   isActive: boolean;
 }
 
+interface Review {
+  id: string;
+  buyerName: string;
+  productName: string;
+  reviewText: string;
+  purchaseDate: string;
+  images: string[];
+  linkedProductId?: string;
+}
+
 function EmployeeDashboard() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [banners, setBanners] = useState<Banner[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'banners'>('products');
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [activeTab, setActiveTab] = useState<'products' | 'banners' | 'reviews'>('products');
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
     name: '',
     description: '',
@@ -107,10 +118,24 @@ function EmployeeDashboard() {
       }
     });
 
+    // Fetch reviews
+    const reviewsRef = ref(db, 'reviews');
+    const unsubscribeReviews = onValue(reviewsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const reviewsList = Object.entries(data).map(([id, review]) => ({
+          id,
+          ...(review as Omit<Review, 'id'>)
+        }));
+        setReviews(reviewsList);
+      }
+    });
+
     return () => {
       unsubscribeProducts();
       unsubscribeCategories();
       unsubscribeBanners();
+      unsubscribeReviews();
     };
   }, [navigate]);
 
@@ -299,6 +324,46 @@ function EmployeeDashboard() {
     }
   };
 
+  const linkReviewToProduct = async (reviewId: string, productId: string) => {
+    try {
+      const reviewRef = ref(db, `reviews/${reviewId}`);
+      await update(reviewRef, { linkedProductId: productId });
+      
+      Swal.fire({
+        title: 'Success',
+        text: 'Review linked to product successfully',
+        icon: 'success',
+        timer: 1500
+      });
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to link review to product',
+        icon: 'error'
+      });
+    }
+  };
+
+  const unlinkReviewFromProduct = async (reviewId: string) => {
+    try {
+      const reviewRef = ref(db, `reviews/${reviewId}`);
+      await update(reviewRef, { linkedProductId: null });
+      
+      Swal.fire({
+        title: 'Success',
+        text: 'Review unlinked from product successfully',
+        icon: 'success',
+        timer: 1500
+      });
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to unlink review from product',
+        icon: 'error'
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-white">Employee Dashboard</h1>
@@ -329,6 +394,19 @@ function EmployeeDashboard() {
           <div className="flex items-center space-x-2">
             <Megaphone className="h-5 w-5" />
             <span>Banners</span>
+          </div>
+        </button>
+        <button
+          onClick={() => setActiveTab('reviews')}
+          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+            activeTab === 'reviews'
+              ? 'bg-green-500 text-white'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            <MessageSquare className="h-5 w-5" />
+            <span>Reviews</span>
           </div>
         </button>
       </div>
@@ -800,6 +878,98 @@ function EmployeeDashboard() {
             </div>
           </div>
         </>
+      )}
+
+      {activeTab === 'reviews' && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">Manage Reviews</h2>
+          <div className="space-y-6">
+            {reviews.map((review) => (
+              <div key={review.id} className="border dark:border-gray-700 rounded-lg p-6">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                        {review.buyerName}
+                      </h3>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        ({review.purchaseDate})
+                      </span>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 mb-2">
+                      <strong>Product:</strong> {review.productName}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      <strong>Review:</strong> {review.reviewText}
+                    </p>
+                    
+                    {/* Show linked product */}
+                    {review.linkedProductId && (
+                      <div className="mb-4">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                          Linked to: {products.find(p => p.id === review.linkedProductId)?.name || 'Unknown Product'}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Review images */}
+                    {review.images && review.images.length > 0 && (
+                      <div className="grid grid-cols-4 gap-2 mb-4">
+                        {review.images.map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`Review image ${index + 1}`}
+                            className="w-16 h-16 object-cover rounded-lg"
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-col space-y-2">
+                    {/* Link to product dropdown */}
+                    <select
+                      value={review.linkedProductId || ''}
+                      onChange={(e) => {
+                        const productId = e.target.value;
+                        if (productId) {
+                          linkReviewToProduct(review.id, productId);
+                        } else {
+                          if (review.linkedProductId) {
+                            unlinkReviewFromProduct(review.id);
+                          }
+                        }
+                      }}
+                      className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                    >
+                      <option value="">{review.linkedProductId ? 'Unlink from Product' : 'Select Product to Link'}</option>
+                      {products.map((product) => (
+                        <option key={product.id} value={product.id}>
+                          {product.name}
+                        </option>
+                      ))}
+                    </select>
+                    
+                    {review.linkedProductId && (
+                      <button
+                        onClick={() => unlinkReviewFromProduct(review.id)}
+                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                      >
+                        Unlink
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {reviews.length === 0 && (
+              <p className="text-center text-gray-500 dark:text-gray-400">
+                No reviews available yet
+              </p>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
