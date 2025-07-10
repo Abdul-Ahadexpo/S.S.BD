@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, push, update, onValue, set } from 'firebase/database';
 import { db } from '../firebase';
-import { Plus, Edit2, Save, X, Image as ImageIcon, Star, Megaphone, MessageSquare } from 'lucide-react';
+import { Plus, Edit2, Save, X, Image as ImageIcon, Star, Megaphone, MessageSquare, Upload, Link as LinkIcon, Loader } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductVariant {
@@ -74,7 +74,144 @@ function EmployeeDashboard() {
     linkUrl: '',
     isActive: true
   });
+  const [uploadingImages, setUploadingImages] = useState<{ [key: string]: boolean }>({});
 
+  // ImgBB API configuration
+  const IMGBB_API_KEY = '80e36fc64660321209fefca92146c6f0';
+
+  const uploadImageToImgBB = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('key', IMGBB_API_KEY);
+
+    try {
+      const response = await fetch('https://api.imgbb.com/1/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        return data.data.url;
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('ImgBB upload error:', error);
+      throw error;
+    }
+  };
+
+  const handleImageUpload = async (file: File, fieldType: string, index?: number) => {
+    const uploadKey = `${fieldType}-${index || 0}`;
+    setUploadingImages(prev => ({ ...prev, [uploadKey]: true }));
+
+    try {
+      const imageUrl = await uploadImageToImgBB(file);
+      
+      if (fieldType === 'main') {
+        setNewProduct(prev => ({ ...prev, imageUrl }));
+      } else if (fieldType === 'additional' && typeof index === 'number') {
+        setNewProduct(prev => {
+          const newImages = [...(prev.additionalImages || [])];
+          newImages[index] = imageUrl;
+          return { ...prev, additionalImages: newImages };
+        });
+      } else if (fieldType === 'variant') {
+        setNewVariant(prev => ({ ...prev, imageUrl }));
+      } else if (fieldType === 'banner') {
+        setNewBanner(prev => ({ ...prev, imageUrl }));
+      }
+
+      Swal.fire({
+        title: 'Success!',
+        text: 'Image uploaded successfully',
+        icon: 'success',
+        timer: 1500
+      });
+    } catch (error) {
+      Swal.fire({
+        title: 'Upload Failed',
+        text: 'Failed to upload image. Please try again.',
+        icon: 'error'
+      });
+    } finally {
+      setUploadingImages(prev => ({ ...prev, [uploadKey]: false }));
+    }
+  };
+
+  const ImageUploadField = ({ 
+    label, 
+    value, 
+    onChange, 
+    fieldType, 
+    index, 
+    placeholder 
+  }: {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+    fieldType: string;
+    index?: number;
+    placeholder: string;
+  }) => {
+    const uploadKey = `${fieldType}-${index || 0}`;
+    const isUploading = uploadingImages[uploadKey];
+
+    return (
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          {label}
+        </label>
+        <div className="space-y-2">
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={placeholder}
+              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="flex space-x-1">
+              <label className={`px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer flex items-center space-x-1 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                {isUploading ? (
+                  <Loader className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+                <span className="text-sm">Upload</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && !isUploading) {
+                      handleImageUpload(file, fieldType, index);
+                    }
+                  }}
+                  className="hidden"
+                  disabled={isUploading}
+                />
+              </label>
+            </div>
+          </div>
+          {value && (
+            <div className="mt-2">
+              <img 
+                src={value} 
+                alt="Preview" 
+                className="w-20 h-20 object-cover rounded-lg border border-gray-300"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('employeeAuth') === 'true';
     if (!isAuthenticated) {
@@ -327,7 +464,7 @@ function EmployeeDashboard() {
   const linkReviewToProduct = async (reviewId: string, productId: string) => {
     try {
       const reviewRef = ref(db, `reviews/${reviewId}`);
-      await update(reviewRef, { linkedProductId: productId });
+      await update(reviewRef, { linkedProductId: productId || null });
       
       Swal.fire({
         title: 'Success',
@@ -361,6 +498,120 @@ function EmployeeDashboard() {
         text: 'Failed to unlink review from product',
         icon: 'error'
       });
+    }
+  };
+
+  const editReview = async (reviewId: string, currentReview: Review) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Edit Review',
+      html: `
+        <div class="space-y-4 text-left">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Buyer Name</label>
+            <input id="swal-buyer-name" class="swal2-input" value="${currentReview.buyerName}" placeholder="Buyer Name">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+            <input id="swal-product-name" class="swal2-input" value="${currentReview.productName}" placeholder="Product Name">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+            <input id="swal-purchase-date" class="swal2-input" value="${currentReview.purchaseDate}" placeholder="Purchase Date">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Review Text</label>
+            <textarea id="swal-review-text" class="swal2-textarea" rows="4" placeholder="Review Text">${currentReview.reviewText}</textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Image URLs (one per line)</label>
+            <textarea id="swal-images" class="swal2-textarea" rows="3" placeholder="Image URLs (one per line)">${currentReview.images ? currentReview.images.join('\n') : ''}</textarea>
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Update Review',
+      cancelButtonText: 'Cancel',
+      width: '600px',
+      preConfirm: () => {
+        const buyerName = (document.getElementById('swal-buyer-name') as HTMLInputElement).value;
+        const productName = (document.getElementById('swal-product-name') as HTMLInputElement).value;
+        const purchaseDate = (document.getElementById('swal-purchase-date') as HTMLInputElement).value;
+        const reviewText = (document.getElementById('swal-review-text') as HTMLTextAreaElement).value;
+        const imagesText = (document.getElementById('swal-images') as HTMLTextAreaElement).value;
+        
+        if (!buyerName || !productName || !purchaseDate || !reviewText) {
+          Swal.showValidationMessage('Please fill in all required fields');
+          return false;
+        }
+        
+        const images = imagesText.split('\n').filter(url => url.trim() !== '');
+        
+        return { buyerName, productName, purchaseDate, reviewText, images };
+      }
+    });
+
+    if (formValues) {
+      try {
+        const reviewRef = ref(db, `reviews/${reviewId}`);
+        const updatedReview = {
+          ...currentReview,
+          buyerName: formValues.buyerName,
+          productName: formValues.productName,
+          purchaseDate: formValues.purchaseDate,
+          reviewText: formValues.reviewText,
+          images: formValues.images,
+          timestamp: Date.now() // Update timestamp when edited
+        };
+        
+        await update(reviewRef, updatedReview);
+        
+        Swal.fire({
+          title: 'Success',
+          text: 'Review updated successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to update review',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const deleteReview = async (reviewId: string) => {
+    const result = await Swal.fire({
+      title: 'Delete Review',
+      text: 'Are you sure you want to delete this review? This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#ef4444'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const reviewRef = ref(db, `reviews/${reviewId}`);
+        // Use remove() instead of set(null) to properly delete the review
+        await set(reviewRef, null);
+        
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Review has been deleted successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to delete review',
+          icon: 'error'
+        });
+      }
     }
   };
 
@@ -459,14 +710,12 @@ function EmployeeDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Main Image URL
-                  </label>
-                  <input
-                    type="text"
+                  <ImageUploadField
+                    label="Main Product Image"
                     value={newProduct.imageUrl}
-                    onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    onChange={(value) => setNewProduct({ ...newProduct, imageUrl: value })}
+                    fieldType="main"
+                    placeholder="Enter image URL or upload image"
                   />
                 </div>
 
@@ -524,18 +773,18 @@ function EmployeeDashboard() {
                 </label>
                 <div className="space-y-3">
                   {newProduct.additionalImages?.map((url, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <ImageIcon className="h-5 w-5 text-gray-400" />
-                      <input
-                        type="text"
+                    <div key={index}>
+                      <ImageUploadField
+                        label={`Additional Image ${index + 1}`}
                         value={url}
-                        onChange={(e) => {
+                        onChange={(value) => {
                           const newImages = [...(newProduct.additionalImages || [])];
-                          newImages[index] = e.target.value;
+                          newImages[index] = value;
                           setNewProduct({ ...newProduct, additionalImages: newImages });
                         }}
-                        placeholder={`Additional Image URL ${index + 1}`}
-                        className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                        fieldType="additional"
+                        index={index}
+                        placeholder={`Enter image URL or upload image`}
                       />
                     </div>
                   ))}
@@ -566,10 +815,39 @@ function EmployeeDashboard() {
                     type="text"
                     value={newVariant.imageUrl}
                     onChange={(e) => setNewVariant({ ...newVariant, imageUrl: e.target.value })}
-                    placeholder="Variant Image URL (Optional)"
+                    placeholder="Enter image URL"
                     className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   />
+                  <label className={`px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer flex items-center space-x-1 ${uploadingImages['variant-0'] ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    {uploadingImages['variant-0'] ? (
+                      <Loader className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    <span className="text-sm">Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file && !uploadingImages['variant-0']) {
+                          handleImageUpload(file, 'variant');
+                        }
+                      }}
+                      className="hidden"
+                      disabled={uploadingImages['variant-0']}
+                    />
+                  </label>
                 </div>
+                {newVariant.imageUrl && (
+                  <div className="mt-2">
+                    <img 
+                      src={newVariant.imageUrl} 
+                      alt="Variant Preview" 
+                      className="w-16 h-16 object-cover rounded-lg border border-gray-300"
+                    />
+                  </div>
+                )}
                 <button
                   onClick={handleAddVariant}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
@@ -764,15 +1042,12 @@ function EmployeeDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Banner Image URL *
-                  </label>
-                  <input
-                    type="text"
+                  <ImageUploadField
+                    label="Banner Image *"
                     value={newBanner.imageUrl}
-                    onChange={(e) => setNewBanner({ ...newBanner, imageUrl: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter image URL"
+                    onChange={(value) => setNewBanner({ ...newBanner, imageUrl: value })}
+                    fieldType="banner"
+                    placeholder="Enter image URL or upload image"
                   />
                 </div>
 
@@ -936,14 +1211,14 @@ function EmployeeDashboard() {
                         if (productId) {
                           linkReviewToProduct(review.id, productId);
                         } else {
-                          if (review.linkedProductId) {
-                            unlinkReviewFromProduct(review.id);
-                          }
+                          unlinkReviewFromProduct(review.id);
                         }
                       }}
                       className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                     >
-                      <option value="">{review.linkedProductId ? 'Unlink from Product' : 'Select Product to Link'}</option>
+                      <option value="">
+                        {review.linkedProductId ? 'Unlink from Product' : 'Select Product to Link'}
+                      </option>
                       {products.map((product) => (
                         <option key={product.id} value={product.id}>
                           {product.name}
@@ -951,14 +1226,20 @@ function EmployeeDashboard() {
                       ))}
                     </select>
                     
-                    {review.linkedProductId && (
+                    <div className="flex space-x-2">
                       <button
-                        onClick={() => unlinkReviewFromProduct(review.id)}
+                        onClick={() => editReview(review.id, review)}
+                        className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteReview(review.id)}
                         className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
                       >
-                        Unlink
+                        Delete
                       </button>
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>
