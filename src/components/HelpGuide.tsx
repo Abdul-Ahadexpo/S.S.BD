@@ -60,7 +60,7 @@ function HelpGuide() {
             <h3 class="text-lg font-bold mb-2">Need Help?</h3>
             <p>Contact us through:</p>
             <ul class="list-disc list-inside space-y-2">
-              <li>Phone: +8801521722011</li>
+              <li>Phone: +8801722786111</li>
               <li>Email: spinstrikebd@gmail.com</li>
               <li>Facebook: Spin Strike BD</li>
             </ul>

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import HelpGuide from './components/HelpGuide';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
@@ -34,6 +35,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
             </Routes>
           </div>
+          <Footer />
           <HelpGuide />
         </div>
       </Router>

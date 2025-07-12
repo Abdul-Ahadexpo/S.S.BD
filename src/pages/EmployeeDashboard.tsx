@@ -50,7 +50,7 @@ function EmployeeDashboard() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'banners' | 'reviews'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'banners' | 'reviews' | 'footer'>('products');
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
     name: '',
     description: '',
@@ -75,6 +75,18 @@ function EmployeeDashboard() {
     isActive: true
   });
   const [uploadingImages, setUploadingImages] = useState<{ [key: string]: boolean }>({});
+  const [footerData, setFooterData] = useState({
+    companyName: '',
+    description: '',
+    email: '',
+    phone: '',
+    address: '',
+    socialLinks: {
+      facebook: '',
+      instagram: '',
+      youtube: ''
+    }
+  });
 
   // ImgBB API configuration
   const IMGBB_API_KEY = '80e36fc64660321209fefca92146c6f0';
@@ -268,11 +280,21 @@ function EmployeeDashboard() {
       }
     });
 
+    // Load footer data
+    const footerRef = ref(db, 'footerData');
+    const unsubscribeFooter = onValue(footerRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        setFooterData(prev => ({ ...prev, ...data }));
+      }
+    });
+
     return () => {
       unsubscribeProducts();
       unsubscribeCategories();
       unsubscribeBanners();
       unsubscribeReviews();
+      unsubscribeFooter();
     };
   }, [navigate]);
 
@@ -635,6 +657,25 @@ function EmployeeDashboard() {
     }
   };
 
+  const handleFooterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await set(ref(db, 'footerData'), footerData);
+      Swal.fire({
+        title: 'Success!',
+        text: 'Footer information updated successfully',
+        icon: 'success',
+        timer: 1500
+      });
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to update footer information',
+        icon: 'error'
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-white">Employee Dashboard</h1>
@@ -679,6 +720,12 @@ function EmployeeDashboard() {
             <MessageSquare className="h-5 w-5" />
             <span>Reviews</span>
           </div>
+        </button>
+        <button
+          onClick={() => setActiveTab('footer')}
+          className={`px-4 py-2 rounded-lg ${activeTab === 'footer' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+        >
+          Footer
         </button>
       </div>
 
@@ -1173,6 +1220,133 @@ function EmployeeDashboard() {
             </div>
           </div>
         </>
+      )}
+
+      {activeTab === 'footer' && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-4">Manage Footer</h2>
+          
+          <form onSubmit={handleFooterSubmit} className="space-y-6">
+            {/* Company Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Company Information</h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                <input
+                  type="text"
+                  value={footerData.companyName}
+                  onChange={(e) => setFooterData({ ...footerData, companyName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  placeholder="Enter company name"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  value={footerData.description}
+                  onChange={(e) => setFooterData({ ...footerData, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  rows={3}
+                  placeholder="Brief description about your company"
+                />
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Contact Information</h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={footerData.email}
+                  onChange={(e) => setFooterData({ ...footerData, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  placeholder="contact@company.com"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input
+                  type="tel"
+                  value={footerData.phone}
+                  onChange={(e) => setFooterData({ ...footerData, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  placeholder="+8801XXXXXXXXX"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <textarea
+                  value={footerData.address}
+                  onChange={(e) => setFooterData({ ...footerData, address: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  rows={2}
+                  placeholder="Your business address"
+                />
+              </div>
+            </div>
+
+            {/* Social Media Links */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Social Media Links</h3>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Facebook URL</label>
+                <input
+                  type="url"
+                  value={footerData.socialLinks.facebook}
+                  onChange={(e) => setFooterData({ 
+                    ...footerData, 
+                    socialLinks: { ...footerData.socialLinks, facebook: e.target.value }
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  placeholder="https://facebook.com/yourpage"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Instagram URL</label>
+                <input
+                  type="url"
+                  value={footerData.socialLinks.instagram}
+                  onChange={(e) => setFooterData({ 
+                    ...footerData, 
+                    socialLinks: { ...footerData.socialLinks, instagram: e.target.value }
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  placeholder="https://instagram.com/yourpage"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">YouTube URL</label>
+                <input
+                  type="url"
+                  value={footerData.socialLinks.youtube}
+                  onChange={(e) => setFooterData({ 
+                    ...footerData, 
+                    socialLinks: { ...footerData.socialLinks, youtube: e.target.value }
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  placeholder="https://youtube.com/yourchannel"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Update Footer Information
+            </button>
+          </form>
+        </div>
       )}
 
       {activeTab === 'reviews' && (
