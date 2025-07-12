@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ref, onValue, get } from 'firebase/database';
 import { db } from '../firebase';
 import { Trash2, ExternalLink, Tag, Gift, Plus, Minus } from 'lucide-react';
@@ -254,14 +254,21 @@ function Cart() {
                       onChange={() => toggleItemSelection(item.id, item.selectedVariant)}
                       className="h-5 w-5 text-blue-500 rounded border-gray-300 focus:ring-blue-500"
                     />
-                    <img 
-                      src={item.imageUrl} 
-                      alt={item.name} 
-                      className="w-20 h-20 object-cover rounded"
-                    />
+                    <Link to={`/product/${item.id}`} className="block">
+                      <img 
+                        src={item.imageUrl} 
+                        alt={item.name} 
+                        className="w-20 h-20 object-cover rounded hover:opacity-80 transition-opacity cursor-pointer"
+                      />
+                    </Link>
                   </div>
                   <div className="flex-1 ml-4">
-                    <h3 className="text-lg font-semibold">{item.name}</h3>
+                    <Link 
+                      to={`/product/${item.id}`} 
+                      className="text-lg font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+                    >
+                      {item.name}
+                    </Link>
                     {item.selectedVariant && (
                       <p className="text-gray-600">Color: {item.selectedVariant}</p>
                     )}
