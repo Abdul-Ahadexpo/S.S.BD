@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ref, push, update, onValue, set } from 'firebase/database';
+import { ref, push, update, onValue, set, get } from 'firebase/database';
 import { db } from '../firebase';
 import { Plus, Edit2, Save, X, Image as ImageIcon, Star, Megaphone, MessageSquare, Upload, Link as LinkIcon, Loader } from 'lucide-react';
 import Swal from 'sweetalert2';
@@ -463,8 +463,24 @@ function EmployeeDashboard() {
 
   const linkReviewToProduct = async (reviewId: string, productId: string) => {
     try {
+      // First, get the current review data to preserve it
       const reviewRef = ref(db, `reviews/${reviewId}`);
-      await update(reviewRef, { linkedProductId: productId || null });
+      const reviewSnapshot = await get(reviewRef);
+      
+      if (reviewSnapshot.exists()) {
+        const currentReviewData = reviewSnapshot.val();
+        
+        // Update only the linkedProductId field while preserving all other data
+        const updatedReviewData = {
+          ...currentReviewData,
+          linkedProductId: productId
+        };
+        
+        // Use set to replace the entire review with updated data
+        await set(reviewRef, updatedReviewData);
+      } else {
+        throw new Error('Review not found');
+      }
       
       Swal.fire({
         title: 'Success',
@@ -483,8 +499,21 @@ function EmployeeDashboard() {
 
   const unlinkReviewFromProduct = async (reviewId: string) => {
     try {
+      // First, get the current review data to preserve it
       const reviewRef = ref(db, `reviews/${reviewId}`);
-      await update(reviewRef, { linkedProductId: null });
+      const reviewSnapshot = await get(reviewRef);
+      
+      if (reviewSnapshot.exists()) {
+        const currentReviewData = reviewSnapshot.val();
+        
+        // Remove the linkedProductId field while preserving all other data
+        const { linkedProductId, ...updatedReviewData } = currentReviewData;
+        
+        // Use set to replace the entire review with updated data (without linkedProductId)
+        await set(reviewRef, updatedReviewData);
+      } else {
+        throw new Error('Review not found');
+      }
       
       Swal.fire({
         title: 'Success',
@@ -498,87 +527,6 @@ function EmployeeDashboard() {
         text: 'Failed to unlink review from product',
         icon: 'error'
       });
-    }
-  };
-
-  const editReview = async (reviewId: string, currentReview: Review) => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Edit Review',
-      html: `
-        <div class="space-y-4 text-left">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Buyer Name</label>
-            <input id="swal-buyer-name" class="swal2-input" value="${currentReview.buyerName}" placeholder="Buyer Name">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-            <input id="swal-product-name" class="swal2-input" value="${currentReview.productName}" placeholder="Product Name">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
-            <input id="swal-purchase-date" class="swal2-input" value="${currentReview.purchaseDate}" placeholder="Purchase Date">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Review Text</label>
-            <textarea id="swal-review-text" class="swal2-textarea" rows="4" placeholder="Review Text">${currentReview.reviewText}</textarea>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Image URLs (one per line)</label>
-            <textarea id="swal-images" class="swal2-textarea" rows="3" placeholder="Image URLs (one per line)">${currentReview.images ? currentReview.images.join('\n') : ''}</textarea>
-          </div>
-        </div>
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Update Review',
-      cancelButtonText: 'Cancel',
-      width: '600px',
-      preConfirm: () => {
-        const buyerName = (document.getElementById('swal-buyer-name') as HTMLInputElement).value;
-        const productName = (document.getElementById('swal-product-name') as HTMLInputElement).value;
-        const purchaseDate = (document.getElementById('swal-purchase-date') as HTMLInputElement).value;
-        const reviewText = (document.getElementById('swal-review-text') as HTMLTextAreaElement).value;
-        const imagesText = (document.getElementById('swal-images') as HTMLTextAreaElement).value;
-        
-        if (!buyerName || !productName || !purchaseDate || !reviewText) {
-          Swal.showValidationMessage('Please fill in all required fields');
-          return false;
-        }
-        
-        const images = imagesText.split('\n').filter(url => url.trim() !== '');
-        
-        return { buyerName, productName, purchaseDate, reviewText, images };
-      }
-    });
-
-    if (formValues) {
-      try {
-        const reviewRef = ref(db, `reviews/${reviewId}`);
-        const updatedReview = {
-          ...currentReview,
-          buyerName: formValues.buyerName,
-          productName: formValues.productName,
-          purchaseDate: formValues.purchaseDate,
-          reviewText: formValues.reviewText,
-          images: formValues.images,
-          timestamp: Date.now() // Update timestamp when edited
-        };
-        
-        await update(reviewRef, updatedReview);
-        
-        Swal.fire({
-          title: 'Success',
-          text: 'Review updated successfully',
-          icon: 'success',
-          timer: 1500
-        });
-      } catch (error) {
-        Swal.fire({
-          title: 'Error',
-          text: 'Failed to update review',
-          icon: 'error'
-        });
-      }
     }
   };
 
@@ -596,7 +544,6 @@ function EmployeeDashboard() {
     if (result.isConfirmed) {
       try {
         const reviewRef = ref(db, `reviews/${reviewId}`);
-        // Use remove() instead of set(null) to properly delete the review
         await set(reviewRef, null);
         
         Swal.fire({
@@ -609,6 +556,79 @@ function EmployeeDashboard() {
         Swal.fire({
           title: 'Error',
           text: 'Failed to delete review',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const editReview = async (review: Review) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Edit Review',
+      html: `
+        <div class="space-y-4 text-left">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Buyer Name</label>
+            <input id="swal-buyer-name" class="swal2-input" placeholder="Buyer Name" value="${review.buyerName || ''}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+            <input id="swal-product-name" class="swal2-input" placeholder="Product Name" value="${review.productName || ''}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+            <input id="swal-purchase-date" class="swal2-input" placeholder="Purchase Date" value="${review.purchaseDate || ''}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Review Text</label>
+            <textarea id="swal-review-text" class="swal2-textarea" placeholder="Review Text" rows="4">${review.reviewText || ''}</textarea>
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Update Review',
+      cancelButtonText: 'Cancel',
+      width: '600px',
+      preConfirm: () => {
+        const buyerName = (document.getElementById('swal-buyer-name') as HTMLInputElement).value;
+        const productName = (document.getElementById('swal-product-name') as HTMLInputElement).value;
+        const purchaseDate = (document.getElementById('swal-purchase-date') as HTMLInputElement).value;
+        const reviewText = (document.getElementById('swal-review-text') as HTMLTextAreaElement).value;
+        
+        if (!buyerName || !productName || !purchaseDate || !reviewText) {
+          Swal.showValidationMessage('Please fill in all fields');
+          return false;
+        }
+        
+        return { buyerName, productName, purchaseDate, reviewText };
+      }
+    });
+
+    if (formValues) {
+      try {
+        const reviewRef = ref(db, `reviews/${review.id}`);
+        const updatedReview = {
+          ...review,
+          buyerName: formValues.buyerName,
+          productName: formValues.productName,
+          purchaseDate: formValues.purchaseDate,
+          reviewText: formValues.reviewText,
+          timestamp: review.timestamp || Date.now() // Preserve existing timestamp or add new one
+        };
+        
+        await set(reviewRef, updatedReview);
+        
+        Swal.fire({
+          title: 'Success',
+          text: 'Review updated successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to update review',
           icon: 'error'
         });
       }
@@ -1182,7 +1202,7 @@ function EmployeeDashboard() {
                     {review.linkedProductId && (
                       <div className="mb-4">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                          Linked to: {products.find(p => p.id === review.linkedProductId)?.name || 'Unknown Product'}
+                          ✓ Linked to: {products.find(p => p.id === review.linkedProductId)?.name || 'Unknown Product'}
                         </span>
                       </div>
                     )}
@@ -1203,6 +1223,24 @@ function EmployeeDashboard() {
                   </div>
                   
                   <div className="flex flex-col space-y-2">
+                    {/* Edit and Delete buttons */}
+                    <div className="flex space-x-2 mb-2">
+                      <button
+                        onClick={() => editReview(review)}
+                        className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm flex items-center space-x-1"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => deleteReview(review.id)}
+                        className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm flex items-center space-x-1"
+                      >
+                        <X className="h-3 w-3" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                    
                     {/* Link to product dropdown */}
                     <select
                       value={review.linkedProductId || ''}
@@ -1211,13 +1249,15 @@ function EmployeeDashboard() {
                         if (productId) {
                           linkReviewToProduct(review.id, productId);
                         } else {
-                          unlinkReviewFromProduct(review.id);
+                          if (review.linkedProductId) {
+                            unlinkReviewFromProduct(review.id);
+                          }
                         }
                       }}
                       className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                     >
                       <option value="">
-                        {review.linkedProductId ? 'Unlink from Product' : 'Select Product to Link'}
+                        {review.linkedProductId ? '🔗 Linked - Click to Unlink' : '📎 Select Product to Link'}
                       </option>
                       {products.map((product) => (
                         <option key={product.id} value={product.id}>
@@ -1225,21 +1265,6 @@ function EmployeeDashboard() {
                         </option>
                       ))}
                     </select>
-                    
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => editReview(review.id, review)}
-                        className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deleteReview(review.id)}
-                        className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
-                      >
-                        Delete
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
