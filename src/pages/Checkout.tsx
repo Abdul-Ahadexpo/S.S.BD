@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Shield, Truck, HeadphonesIcon, Gift } from 'lucide-react';
 import Swal from 'sweetalert2';
 import html2canvas from 'html2canvas';
@@ -403,13 +403,20 @@ Facebook: Spin Strike BD
                 transition={{ delay: index * 0.1 }}
                 className="flex items-center space-x-4 border-b pb-4"
               >
-                <img 
-                  src={item.imageUrl} 
-                  alt={item.name}
-                  className="w-16 h-16 object-cover rounded"
-                />
+                <Link to={`/product/${item.id}`} className="block">
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.name}
+                    className="w-16 h-16 object-cover rounded hover:opacity-80 transition-opacity cursor-pointer"
+                  />
+                </Link>
                 <div className="flex-1">
-                  <h3 className="font-medium text-gray-800 dark:text-white">{item.name}</h3>
+                  <Link 
+                    to={`/product/${item.id}`} 
+                    className="font-medium text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer block"
+                  >
+                    {item.name}
+                  </Link>
                   {item.selectedVariant && (
                     <p className="text-sm text-gray-600 dark:text-gray-300">Color: {item.selectedVariant}</p>
                   )}
