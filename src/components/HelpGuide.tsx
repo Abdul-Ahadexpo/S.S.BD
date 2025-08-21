@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 function HelpGuide() {
   const showGuide = () => {
     Swal.fire({
-      title: 'How to Use Spin Strike',
+      title: 'How to Use SenTorial',
       html: `
         <div class="text-left space-y-4">
           <div>
@@ -61,8 +61,8 @@ function HelpGuide() {
             <p>Contact us through:</p>
             <ul class="list-disc list-inside space-y-2">
               <li>Phone: +8801722786111</li>
-              <li>Email: spinstrikebd@gmail.com</li>
-              <li>Facebook: Spin Strike BD</li>
+              <li>Email: spinstrike@gmail.com</li>
+              <li>Facebook: SenTorial</li>
             </ul>
           </div>
         </div>

@@ -18,6 +18,9 @@ export default {
           900: '#0c4a6e',
         },
       },
+      fontFamily: {
+        fascinate: ["Fascinate", "cursive"], // 👈 Added this
+      },
     },
   },
   plugins: [],

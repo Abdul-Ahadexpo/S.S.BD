@@ -389,7 +389,7 @@ function Home() {
       )}
 
       <div className="flex flex-col space-y-4 mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-center text-gray-800 dark:text-white">Spin Strike</h1>
+        <h1 className="text-2xl md:text-3xl font-fascinate text-center text-gray-800 dark:text-white">SenTorial</h1>
         
         <div className="flex flex-col space-y-3">
           <div className="relative">

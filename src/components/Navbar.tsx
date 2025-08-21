@@ -59,7 +59,7 @@ function Navbar() {
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2" onClick={closeMenu}>
               <Home className="h-6 w-6 text-gray-800 dark:text-white" />
-              <span className="font-bold text-xl text-gray-800 dark:text-white">Spin Strike</span>
+              <span className="font-fascinate text-xl text-gray-800 dark:text-white">SenTorial</span>
             </Link>
           </div>
 

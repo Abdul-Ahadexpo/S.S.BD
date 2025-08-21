@@ -95,12 +95,12 @@ Delivery Charge: ${deliveryCharge === 0 ? 'FREE (Order over 2000 TK)' : `${deliv
 Total Amount: ${total} TK
 
 ${couponCode ? `Coupon Code Used: ${couponCode}\n` : ''}${message ? `Customer Message: ${message}\n` : ''}${isGiftWrapped ? 'Note: This order includes gift wrapping\n' : ''}
-Thank you for shopping with Spin Strike!
+Thank you for shopping with SenTorial!
 
 For any queries, contact us at:
 Phone: +8801521722011
-Email: spinstrikebd@gmail.com
-Facebook: Spin Strike BD
+Email: spinstrike@gmail.com
+Facebook: Sentorial BD
     `;
   };
 
@@ -108,7 +108,7 @@ Facebook: Spin Strike BD
     const receiptElement = document.createElement('div');
     receiptElement.innerHTML = `
       <div style="padding: 20px; font-family: Arial, sans-serif;">
-        <h2 style="text-align: center; color: #2563eb;">Spin Strike - Order Receipt</h2>
+        <h2 style="text-align: center; color: #2563eb;">Sentorial - Order Receipt</h2>
         <p style="text-align: center; color: #666;">Order #${orderId}</p>
         <hr style="margin: 20px 0;" />
         
@@ -152,8 +152,8 @@ Facebook: Spin Strike BD
         </div>
 
         <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
-          <p>Thank you for shopping with Spin Strike!</p>
-          <p>For any queries, contact us at: spinstrikebd@gmail.com</p>
+          <p>Thank you for shopping with Sentorial!</p>
+          <p>For any queries, contact us at: sentorialbd@gmail.com</p>
         </div>
       </div>
     `;
@@ -165,7 +165,7 @@ Facebook: Spin Strike BD
       const pdf = new jsPDF('p', 'mm', 'a4');
       const imgData = canvas.toDataURL('image/png');
       pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-      pdf.save(`spin-strike-receipt-${orderId}.pdf`);
+      pdf.save(`sentorial-receipt-${orderId}.pdf`);
     } finally {
       document.body.removeChild(receiptElement);
     }
@@ -229,7 +229,7 @@ Facebook: Spin Strike BD
       items: cart,
       total: total,
       subject: `New Order - ${generatedOrderId}`,
-      from_name: "Spin Strike Customer",
+      from_name: "Sentorial Customer",
       emailContent: generateSimpleEmailContent({
         orderId: generatedOrderId,
         name: formData.name,

@@ -131,7 +131,7 @@ function Profile() {
     const emailData = {
       access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
       subject: `Order Update - ${order.orderId}`,
-      from_name: "Spin Strike",
+      from_name: "Sentorial",
       to: profileData.email,
       message: `
 ORDER UPDATE NOTIFICATION
@@ -158,7 +158,7 @@ ${order.isGiftWrapped ? 'Note: This order includes gift wrapping\n' : ''}
 Order Status: ${order.status}
 Order Date: ${new Date(order.timestamp).toLocaleString()}
 
-Thank you for shopping with Spin Strike!
+Thank you for shopping with Sentorial!
 For any queries, contact us at: spinstrikebd@gmail.com
       `
     };
@@ -317,6 +317,7 @@ For any queries, contact us at: spinstrikebd@gmail.com
     const link = document.createElement('a');
     link.href = url;
     link.download = 'spin-strike-profile.json';
+    link.download = 'sentorial-profile.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

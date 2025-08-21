@@ -18,7 +18,7 @@ interface FooterData {
 
 function Footer() {
   const [footerData, setFooterData] = useState<FooterData>({
-    companyName: 'Spin Strike',
+    companyName: 'SenTorial',
     description: 'Your trusted destination for quality products and exceptional service.',
     email: 'spinstrikebd@gmail.com',
     phone: '+8801521722011',
