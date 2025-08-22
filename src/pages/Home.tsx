@@ -396,9 +396,18 @@ function Home() {
 
       <div className="flex flex-col space-y-4 mb-6 md:mb-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-fascinate bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-4">
-            SenTorial
-          </h1>
+
+          
+        <h1 className="text-4xl md:text-6xl font-fascinate 
+  bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 
+  bg-clip-text text-transparent transition-transform duration-500 
+  animate-pulse [animation-duration:5s] drop-shadow-lg mb-4  hover:scale-110 hover:rotate-1 hover:drop-shadow-xl">
+  SenTorial
+</h1>
+
+
+
+          
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 font-light">
             Discover Premium Quality Products
           </p>
