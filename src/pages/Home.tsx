@@ -401,7 +401,7 @@ function Home() {
         <h1 className="text-4xl md:text-6xl font-fascinate 
   bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 
   bg-clip-text text-transparent transition-transform duration-500 
-  animate-pulse [animation-duration:5s] drop-shadow-lg mb-4  hover:scale-110 hover:rotate-1 hover:drop-shadow-xl">
+  animate-pulse [animation-duration:8s] drop-shadow-lg mb-4  hover:scale-110 hover:rotate-1 hover:drop-shadow-xl">
   SenTorial
 </h1>
 
