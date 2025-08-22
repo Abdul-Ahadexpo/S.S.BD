@@ -49,7 +49,7 @@ function Home() {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState<'none' | 'pre-order' | 'asc' | 'desc'>('none');
+  const [sortOrder, setSortOrder] = useState<'none' | 'pre-order' | 'in-stock' | 'asc' | 'desc'>('none');
   const [selectedVariant, setSelectedVariant] = useState<{ [key: string]: string }>({});
   const [displayImages, setDisplayImages] = useState<{ [key: string]: string }>({});
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
@@ -150,6 +150,12 @@ function Home() {
 
     if (sort === 'pre-order') {
       filtered = filtered.filter(product => product.quantity === 'Pre-order');
+    } else if (sort === 'in-stock') {
+      filtered = filtered.filter(product => 
+        product.quantity !== 'Pre-order' && 
+        product.quantity !== 'Out of Stock' && 
+        product.quantity !== 0
+      );
     } else if (sort === 'asc' || sort === 'desc') {
       filtered = sortProducts(filtered, sort);
     }
@@ -167,7 +173,7 @@ function Home() {
     });
   };
 
-  const handleSortChange = (newOrder: 'none' | 'pre-order' | 'asc' | 'desc') => {
+  const handleSortChange = (newOrder: 'none' | 'pre-order' | 'in-stock' | 'asc' | 'desc') => {
     setSortOrder(newOrder);
     filterProducts(products, selectedCategory, searchTerm, newOrder);
     setIsSortDropdownOpen(false);
@@ -389,7 +395,14 @@ function Home() {
       )}
 
       <div className="flex flex-col space-y-4 mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-fascinate text-center text-gray-800 dark:text-white">SenTorial</h1>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-6xl font-fascinate bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent mb-4">
+            SenTorial
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 font-light">
+            Discover Premium Quality Products
+          </p>
+        </div>
         
         <div className="flex flex-col space-y-3">
           <div className="relative">
@@ -398,7 +411,7 @@ function Home() {
               placeholder="Search products..."
               value={searchTerm}
               onChange={handleSearch}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg"
             />
             <Search className="absolute right-3 top-3.5 text-gray-400" size={20} />
           </div>
@@ -408,7 +421,7 @@ function Home() {
               <select
                 value={selectedCategory}
                 onChange={handleCategoryChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg"
               >
                 <option value="all">All Categories</option>
                 {categories.map((category) => (
@@ -422,7 +435,7 @@ function Home() {
             <div className="relative">
               <motion.button
                 onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                className="px-4 py-3 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center space-x-2"
+                className="px-4 py-3 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm text-gray-800 dark:text-white rounded-xl border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center space-x-2 shadow-lg"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -444,6 +457,7 @@ function Home() {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
                     className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 z-50"
+                    className="absolute right-0 mt-2 w-48 bg-white/95 dark:bg-gray-700/95 backdrop-blur-md rounded-xl shadow-xl border border-gray-200 dark:border-gray-600 z-50"
                   >
                     <div className="py-1">
                       <motion.button
@@ -463,6 +477,15 @@ function Home() {
                         }`}
                       >
                         Pre-order Only
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
+                        onClick={() => handleSortChange('in-stock')}
+                        className={`w-full px-4 py-2 text-left ${
+                          sortOrder === 'in-stock' ? 'text-blue-500 font-medium' : 'text-gray-800 dark:text-white'
+                        }`}
+                      >
+                        In Stock Only
                       </motion.button>
                       <motion.button
                         whileHover={{ backgroundColor: 'rgba(0,0,0,0.05)' }}
@@ -500,7 +523,7 @@ function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             onClick={() => handleProductClick(product.id)}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl relative cursor-pointer"
+            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl hover:scale-105 relative cursor-pointer border border-gray-200/50 dark:border-gray-700/50"
           >
             {product.isExclusive && (
               <div className="absolute top-2 left-2 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">

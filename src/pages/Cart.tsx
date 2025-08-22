@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ref, onValue, get } from 'firebase/database';
+import { ref, onValue, get, query, limitToFirst } from 'firebase/database';
 import { db } from '../firebase';
-import { Trash2, ExternalLink, Tag, Gift, Plus, Minus } from 'lucide-react';
+import { Trash2, ExternalLink, Tag, Gift, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -34,6 +34,7 @@ function Cart() {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [isGiftWrapped, setIsGiftWrapped] = useState(false);
+  const [recommendations, setRecommendations] = useState<Product[]>([]);
   const navigate = useNavigate();
   const DELIVERY_CHARGE = 120;
   const GIFT_WRAP_CHARGE = 20;
@@ -56,8 +57,24 @@ function Cart() {
       setIsGiftWrapped(JSON.parse(giftWrap));
     }
 
+    // Fetch product recommendations
+    const productsRef = ref(db, 'products');
+    const unsubscribeProducts = onValue(productsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const productsData = snapshot.val();
+        const productsList = Object.entries(productsData).map(([id, product]) => ({
+          id,
+          ...(product as Omit<Product, 'id'>)
+        }));
+        
+        // Get random products for recommendations
+        const shuffled = productsList.sort(() => Math.random() - 0.5);
+        setRecommendations(shuffled.slice(0, 8));
+      }
+    });
+
     const cartAdsRef = ref(db, 'cartAds');
-    const unsubscribe = onValue(cartAdsRef, (snapshot) => {
+    const unsubscribeAds = onValue(cartAdsRef, (snapshot) => {
       if (snapshot.exists()) {
         const adsData = snapshot.val();
         const activeAds = Object.values(adsData as Record<string, CartAd>)
@@ -69,7 +86,10 @@ function Cart() {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeProducts();
+      unsubscribeAds();
+    };
   }, []);
 
   const updateQuantity = (productId: string, variant: string | undefined, change: number) => {
@@ -188,6 +208,38 @@ function Cart() {
     navigate('/checkout');
   };
 
+  const addRecommendationToCart = (product: Product) => {
+    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cartItem = {
+      ...product,
+      quantity: 1,
+      selected: true
+    };
+
+    const isProductInCart = existingCart.some((item: any) => item.id === product.id);
+
+    if (isProductInCart) {
+      Swal.fire({
+        title: 'Already in Cart',
+        text: 'This item is already in your cart',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
+    const newCart = [...existingCart, cartItem];
+    localStorage.setItem('cart', JSON.stringify(newCart));
+    setCart(newCart);
+    
+    Swal.fire({
+      title: 'Success!',
+      text: 'Product added to cart',
+      icon: 'success',
+      timer: 1500
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8" style={{ color: "#D1D5DB" }}>
@@ -233,6 +285,64 @@ function Cart() {
       {cart.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-xl text-gray-600">Your cart is empty</p>
+          
+          {/* Recommendations for empty cart */}
+          {recommendations.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Discover Our Products</h2>
+              <div className="overflow-x-auto pb-4">
+                <div className="flex space-x-4 w-max">
+                  {recommendations.map((product) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden w-64 flex-shrink-0 cursor-pointer hover:shadow-xl transition-all duration-300"
+                      onClick={() => navigate(`/product/${product.id}`)}
+                    >
+                      <div className="aspect-square relative">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${
+                          product.quantity === 'Out of Stock'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            : product.quantity === 'Pre-order'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        }`}>
+                          {product.quantity === 'Out of Stock' ? 'Out of Stock' :
+                           product.quantity === 'Pre-order' ? 'Pre-order' :
+                           'In Stock'}
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2 line-clamp-2">
+                          {product.name}
+                        </h3>
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{product.price} TK</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">{product.category}</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addRecommendationToCart(product);
+                          }}
+                          disabled={product.quantity === 'Out of Stock'}
+                          className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 text-sm"
+                        >
+                          Add to Cart
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <>
@@ -431,6 +541,64 @@ function Cart() {
               </motion.div>
             </div>
           </div>
+          
+          {/* Recommendations for non-empty cart */}
+          {recommendations.length > 0 && (
+            <div className="mt-12">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">You might also like</h2>
+              <div className="overflow-x-auto pb-4">
+                <div className="flex space-x-4 w-max">
+                  {recommendations.slice(0, 6).map((product) => (
+                    <motion.div
+                      key={product.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden w-56 flex-shrink-0 cursor-pointer hover:shadow-xl transition-all duration-300"
+                      onClick={() => navigate(`/product/${product.id}`)}
+                    >
+                      <div className="aspect-square relative">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${
+                          product.quantity === 'Out of Stock'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            : product.quantity === 'Pre-order'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        }`}>
+                          {product.quantity === 'Out of Stock' ? 'Out of Stock' :
+                           product.quantity === 'Pre-order' ? 'Pre-order' :
+                           'In Stock'}
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <h3 className="text-base font-semibold text-gray-800 dark:text-white mb-2 line-clamp-2">
+                          {product.name}
+                        </h3>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{product.price} TK</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            addRecommendationToCart(product);
+                          }}
+                          disabled={product.quantity === 'Out of Stock'}
+                          className="w-full bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 text-sm"
+                        >
+                          Add to Cart
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="text-center">
             <motion.button
               onClick={handleCheckout}

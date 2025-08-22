@@ -32,22 +32,8 @@ function Reviews() {
         
         // Sort reviews by timestamp (most recent first) or by purchase date if no timestamp
         const sortedReviews = reviewsList.sort((a, b) => {
-          // If both have timestamps, use them
-          if (a.timestamp && b.timestamp) {
-            return b.timestamp - a.timestamp;
-          }
-          
-          // If no timestamps, try to parse purchase dates
-          const dateA = new Date(a.purchaseDate).getTime();
-          const dateB = new Date(b.purchaseDate).getTime();
-          
-          // If dates are valid, use them
-          if (!isNaN(dateA) && !isNaN(dateB)) {
-            return dateB - dateA;
-          }
-          
-          // Fallback to string comparison of purchase dates
-          return b.purchaseDate.localeCompare(a.purchaseDate);
+          // Random order - shuffle the array
+          return Math.random() - 0.5;
         });
         
         setReviews(sortedReviews);
