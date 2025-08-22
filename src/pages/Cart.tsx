@@ -541,6 +541,26 @@ function Cart() {
               </motion.div>
             </div>
           </div>
+
+
+
+   <div className="text-center">
+            <motion.button
+              onClick={handleCheckout}
+              className="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Proceed to Checkout
+            </motion.button>
+          </div>
+
+
+
+
+          
+
+
           
           {/* Recommendations for non-empty cart */}
           {recommendations.length > 0 && (
@@ -598,17 +618,11 @@ function Cart() {
               </div>
             </div>
           )}
+
+
           
-          <div className="text-center">
-            <motion.button
-              onClick={handleCheckout}
-              className="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Proceed to Checkout
-            </motion.button>
-          </div>
+          
+       
         </>
       )}
     </div>
