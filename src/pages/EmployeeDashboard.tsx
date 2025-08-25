@@ -1,8 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ref, push, update, onValue, set, get } from 'firebase/database';
+import { ref, push, update, onValue, set, get, remove } from 'firebase/database';
 import { db } from '../firebase';
-import { Plus, Edit2, Save, X, Image as ImageIcon, Star, Megaphone, MessageSquare, Upload, Link as LinkIcon, Loader } from 'lucide-react';
+import { 
+  Package, 
+  MessageSquare, 
+  Users, 
+  BarChart3, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Save, 
+  X, 
+  Upload, 
+  Download,
+  Search,
+  Link,
+  ExternalLink,
+  Building,
+  Mail,
+  Phone,
+  MapPin,
+  Facebook,
+  Instagram,
+  Youtube
+} from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductVariant {
@@ -41,46 +63,33 @@ interface Review {
   purchaseDate: string;
   images: string[];
   linkedProductId?: string;
+  timestamp?: number;
 }
 
-function EmployeeDashboard() {
+interface FooterInfo {
+  companyName: string;
+  description: string;
+  email: string;
+  phone: string;
+  address: string;
+  socialLinks: {
+    facebook: string;
+    instagram: string;
+    youtube: string;
+  };
+}
+
+const EmployeeDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('products');
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [banners, setBanners] = useState<Banner[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'banners' | 'reviews' | 'footer'>('products');
-  const [newProduct, setNewProduct] = useState<Partial<Product>>({
-    name: '',
-    description: '',
-    price: 0,
-    imageUrl: '',
-    quantity: '',
-    category: '',
-    variants: [],
-    additionalImages: ['', '', ''],
-    isExclusive: false
-  });
-  const [newVariant, setNewVariant] = useState<ProductVariant>({
-    color: '',
-    stock: 0,
-    imageUrl: ''
-  });
-  const [newBanner, setNewBanner] = useState<Partial<Banner>>({
-    title: '',
-    subtitle: '',
-    imageUrl: '',
-    linkUrl: '',
-    isActive: true
-  });
-  const [uploadingImages, setUploadingImages] = useState<{ [key: string]: boolean }>({});
-  const [footerData, setFooterData] = useState({
-    companyName: '',
-    description: '',
-    email: '',
-    phone: '',
-    address: '',
+  const [footerInfo, setFooterInfo] = useState<FooterInfo>({
+    companyName: 'Sentorial',
+    description: 'Your trusted partner for premium quality products',
+    email: 'sentorialbd@gmail.com',
+    phone: '+880 1234-567890',
+    address: '123 Business Street, Dhaka, Bangladesh',
     socialLinks: {
       facebook: '',
       instagram: '',
@@ -88,561 +97,304 @@ function EmployeeDashboard() {
     }
   });
 
-  // ImgBB API configuration
-  const IMGBB_API_KEY = '80e36fc64660321209fefca92146c6f0';
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [selectedProductForLinking, setSelectedProductForLinking] = useState<Product | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const [showProductDropdown, setShowProductDropdown] = useState(false);
 
-  const uploadImageToImgBB = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('key', IMGBB_API_KEY);
+  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
+    name: '',
+    description: '',
+    price: 0,
+    imageUrl: '',
+    quantity: '',
+    category: '',
+    variants: [],
+    additionalImages: [],
+    isExclusive: false
+  });
 
-    try {
-      const response = await fetch('https://api.imgbb.com/1/upload', {
-        method: 'POST',
-        body: formData
-      });
+  const [newReview, setNewReview] = useState<Omit<Review, 'id'>>({
+    buyerName: '',
+    productName: '',
+    reviewText: '',
+    purchaseDate: '',
+    images: [],
+    linkedProductId: '',
+    timestamp: Date.now()
+  });
 
-      const data = await response.json();
-      
-      if (data.success) {
-        return data.data.url;
-      } else {
-        throw new Error('Upload failed');
-      }
-    } catch (error) {
-      console.error('ImgBB upload error:', error);
-      throw error;
-    }
-  };
-
-  const handleImageUpload = async (file: File, fieldType: string, index?: number) => {
-    const uploadKey = `${fieldType}-${index || 0}`;
-    setUploadingImages(prev => ({ ...prev, [uploadKey]: true }));
-
-    try {
-      const imageUrl = await uploadImageToImgBB(file);
-      
-      if (fieldType === 'main') {
-        setNewProduct(prev => ({ ...prev, imageUrl }));
-      } else if (fieldType === 'additional' && typeof index === 'number') {
-        setNewProduct(prev => {
-          const newImages = [...(prev.additionalImages || [])];
-          newImages[index] = imageUrl;
-          return { ...prev, additionalImages: newImages };
-        });
-      } else if (fieldType === 'variant') {
-        setNewVariant(prev => ({ ...prev, imageUrl }));
-      } else if (fieldType === 'banner') {
-        setNewBanner(prev => ({ ...prev, imageUrl }));
-      }
-
-      Swal.fire({
-        title: 'Success!',
-        text: 'Image uploaded successfully',
-        icon: 'success',
-        timer: 1500
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Upload Failed',
-        text: 'Failed to upload image. Please try again.',
-        icon: 'error'
-      });
-    } finally {
-      setUploadingImages(prev => ({ ...prev, [uploadKey]: false }));
-    }
-  };
-
-  const ImageUploadField = ({ 
-    label, 
-    value, 
-    onChange, 
-    fieldType, 
-    index, 
-    placeholder 
-  }: {
-    label: string;
-    value: string;
-    onChange: (value: string) => void;
-    fieldType: string;
-    index?: number;
-    placeholder: string;
-  }) => {
-    const uploadKey = `${fieldType}-${index || 0}`;
-    const isUploading = uploadingImages[uploadKey];
-
-    return (
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          {label}
-        </label>
-        <div className="space-y-2">
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              placeholder={placeholder}
-              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-            />
-            <div className="flex space-x-1">
-              <label className={`px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer flex items-center space-x-1 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                {isUploading ? (
-                  <Loader className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Upload className="h-4 w-4" />
-                )}
-                <span className="text-sm">Upload</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file && !isUploading) {
-                      handleImageUpload(file, fieldType, index);
-                    }
-                  }}
-                  className="hidden"
-                  disabled={isUploading}
-                />
-              </label>
-            </div>
-          </div>
-          {value && (
-            <div className="mt-2">
-              <img 
-                src={value} 
-                alt="Preview" 
-                className="w-20 h-20 object-cover rounded-lg border border-gray-300"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
+  // Check authentication
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('employeeAuth') === 'true';
+    const isAuthenticated = localStorage.getItem('employeeAuth');
     if (!isAuthenticated) {
       navigate('/employee/login');
-      return;
     }
+  }, [navigate]);
 
-    // Fetch products
+  // Load data from Firebase
+  useEffect(() => {
+    // Load products
     const productsRef = ref(db, 'products');
     const unsubscribeProducts = onValue(productsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const productsList = Object.entries(data).map(([id, product]) => ({
+      if (snapshot.exists()) {
+        const productsData = snapshot.val();
+        const productsList = Object.entries(productsData).map(([id, product]) => ({
           id,
           ...(product as Omit<Product, 'id'>)
         }));
         setProducts(productsList);
+      } else {
+        setProducts([]);
       }
     });
 
-    // Fetch categories
-    const categoriesRef = ref(db, 'categories');
-    const unsubscribeCategories = onValue(categoriesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const categoriesList = Object.values(data).map((cat: any) => cat.name);
-        setCategories(categoriesList);
-      }
-    });
-
-    // Fetch banners
-    const bannersRef = ref(db, 'banners');
-    const unsubscribeBanners = onValue(bannersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const bannersList = Object.entries(data).map(([id, banner]) => ({
-          id,
-          ...(banner as Omit<Banner, 'id'>)
-        }));
-        setBanners(bannersList);
-      }
-    });
-
-    // Fetch reviews
+    // Load reviews
     const reviewsRef = ref(db, 'reviews');
     const unsubscribeReviews = onValue(reviewsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const reviewsList = Object.entries(data).map(([id, review]) => ({
+      if (snapshot.exists()) {
+        const reviewsData = snapshot.val();
+        const reviewsList = Object.entries(reviewsData).map(([id, review]) => ({
           id,
           ...(review as Omit<Review, 'id'>)
         }));
         setReviews(reviewsList);
+      } else {
+        setReviews([]);
       }
     });
 
-    // Load footer data
+    // Load footer info
     const footerRef = ref(db, 'footerData');
     const unsubscribeFooter = onValue(footerRef, (snapshot) => {
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        setFooterData(prev => ({ ...prev, ...data }));
+        const footerData = snapshot.val();
+        setFooterInfo(prev => ({ ...prev, ...footerData }));
       }
     });
 
     return () => {
       unsubscribeProducts();
-      unsubscribeCategories();
-      unsubscribeBanners();
       unsubscribeReviews();
       unsubscribeFooter();
     };
-  }, [navigate]);
+  }, []);
 
+  // Product management functions
   const handleAddProduct = async () => {
-    try {
-      // Filter out empty additional image URLs
-      const filteredAdditionalImages = newProduct.additionalImages?.filter(url => url.trim() !== '');
-      
-      const productData = {
-        ...newProduct,
-        additionalImages: filteredAdditionalImages,
-        variants: newProduct.variants?.filter(v => v.color && v.stock > 0),
-        isExclusive: newProduct.isExclusive || false
-      };
-
-      const productsRef = ref(db, 'products');
-      await push(productsRef, productData);
-      
-      setNewProduct({
-        name: '',
-        description: '',
-        price: 0,
-        imageUrl: '',
-        quantity: '',
-        category: '',
-        variants: [],
-        additionalImages: ['', '', ''],
-        isExclusive: false
-      });
-
-      Swal.fire({
-        title: 'Success',
-        text: `${newProduct.isExclusive ? 'Exclusive product' : 'Product'} added successfully`,
-        icon: 'success',
-        timer: 1500
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Failed to add product',
-        icon: 'error'
-      });
-    }
-  };
-
-  const handleAddBanner = async () => {
-    try {
-      if (!newBanner.imageUrl) {
+    if (newProduct.name && newProduct.price) {
+      try {
+        const productsRef = ref(db, 'products');
+        await push(productsRef, {
+          ...newProduct,
+          createdAt: Date.now()
+        });
+        
+        setNewProduct({
+          name: '',
+          description: '',
+          price: 0,
+          imageUrl: '',
+          quantity: '',
+          category: '',
+          variants: [],
+          additionalImages: [],
+          isExclusive: false
+        });
+        setShowProductForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Product added successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
         Swal.fire({
           title: 'Error',
-          text: 'Please provide an image URL',
+          text: 'Failed to add product',
           icon: 'error'
         });
-        return;
       }
-
-      // Allow banners with just images (no title/subtitle required)
-      const bannerData = {
-        title: newBanner.title || '',
-        subtitle: newBanner.subtitle || '',
-        imageUrl: newBanner.imageUrl,
-        linkUrl: newBanner.linkUrl || '',
-        isActive: newBanner.isActive
-      };
-
-      const bannersRef = ref(db, 'banners');
-      await push(bannersRef, bannerData);
-      
-      setNewBanner({
-        title: '',
-        subtitle: '',
-        imageUrl: '',
-        linkUrl: '',
-        isActive: true
-      });
-
-      Swal.fire({
-        title: 'Success',
-        text: 'Banner added successfully',
-        icon: 'success',
-        timer: 1500
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Failed to add banner',
-        icon: 'error'
-      });
     }
   };
 
-  const handleAddVariant = () => {
-    if (!newVariant.color || newVariant.stock <= 0) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please fill in all variant fields',
-        icon: 'error'
-      });
-      return;
-    }
-
-    setNewProduct(prev => ({
-      ...prev,
-      variants: [...(prev.variants || []), newVariant]
-    }));
-
-    setNewVariant({
-      color: '',
-      stock: 0,
-      imageUrl: ''
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setNewProduct({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      quantity: product.quantity,
+      category: product.category,
+      variants: product.variants || [],
+      additionalImages: product.additionalImages || [],
+      isExclusive: product.isExclusive || false
     });
+    setShowProductForm(true);
   };
 
   const handleUpdateProduct = async () => {
-    if (!editingProduct) return;
-
-    try {
-      const productRef = ref(db, `products/${editingProduct.id}`);
-      await update(productRef, editingProduct);
-      
-      setEditingProduct(null);
-
-      Swal.fire({
-        title: 'Success',
-        text: 'Product updated successfully',
-        icon: 'success',
-        timer: 1500
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Failed to update product',
-        icon: 'error'
-      });
+    if (editingProduct && newProduct.name && newProduct.price) {
+      try {
+        const productRef = ref(db, `products/${editingProduct.id}`);
+        await update(productRef, {
+          ...newProduct,
+          updatedAt: Date.now()
+        });
+        
+        setEditingProduct(null);
+        setNewProduct({
+          name: '',
+          description: '',
+          price: 0,
+          imageUrl: '',
+          quantity: '',
+          category: '',
+          variants: [],
+          additionalImages: [],
+          isExclusive: false
+        });
+        setShowProductForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Product updated successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to update product',
+          icon: 'error'
+        });
+      }
     }
   };
 
-  const toggleBannerStatus = async (bannerId: string, currentStatus: boolean) => {
-    try {
-      const bannerRef = ref(db, `banners/${bannerId}`);
-      await update(bannerRef, { isActive: !currentStatus });
-      
-      Swal.fire({
-        title: 'Success',
-        text: `Banner ${!currentStatus ? 'activated' : 'deactivated'} successfully`,
-        icon: 'success',
-        timer: 1500
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Failed to update banner status',
-        icon: 'error'
-      });
-    }
-  };
-
-  const deleteBanner = async (bannerId: string) => {
+  const handleDeleteProduct = async (id: string) => {
     const result = await Swal.fire({
-      title: 'Delete Banner',
-      text: 'Are you sure you want to delete this banner?',
+      title: 'Are you sure?',
+      text: 'This will permanently delete the product',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Yes, delete it',
+      confirmButtonText: 'Yes, delete it!',
       cancelButtonText: 'Cancel'
     });
 
     if (result.isConfirmed) {
       try {
-        const bannerRef = ref(db, `banners/${bannerId}`);
-        await set(bannerRef, null);
+        const productRef = ref(db, `products/${id}`);
+        await remove(productRef);
         
         Swal.fire({
           title: 'Deleted!',
-          text: 'Banner has been deleted',
+          text: 'Product has been deleted',
           icon: 'success',
           timer: 1500
         });
       } catch (error) {
         Swal.fire({
           title: 'Error',
-          text: 'Failed to delete banner',
+          text: 'Failed to delete product',
           icon: 'error'
         });
       }
     }
   };
 
-  const linkReviewToProduct = async (reviewId: string, productId: string) => {
-    try {
-      // First, get the current review data to preserve it
-      const reviewRef = ref(db, `reviews/${reviewId}`);
-      const reviewSnapshot = await get(reviewRef);
-      
-      if (reviewSnapshot.exists()) {
-        const currentReviewData = reviewSnapshot.val();
-        
-        // Update only the linkedProductId field while preserving all other data
-        const updatedReviewData = {
-          ...currentReviewData,
-          linkedProductId: productId
-        };
-        
-        // Use set to replace the entire review with updated data
-        await set(reviewRef, updatedReviewData);
-      } else {
-        throw new Error('Review not found');
-      }
-      
-      Swal.fire({
-        title: 'Success',
-        text: 'Review linked to product successfully',
-        icon: 'success',
-        timer: 1500
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Failed to link review to product',
-        icon: 'error'
-      });
-    }
-  };
-
-  const unlinkReviewFromProduct = async (reviewId: string) => {
-    try {
-      // First, get the current review data to preserve it
-      const reviewRef = ref(db, `reviews/${reviewId}`);
-      const reviewSnapshot = await get(reviewRef);
-      
-      if (reviewSnapshot.exists()) {
-        const currentReviewData = reviewSnapshot.val();
-        
-        // Remove the linkedProductId field while preserving all other data
-        const { linkedProductId, ...updatedReviewData } = currentReviewData;
-        
-        // Use set to replace the entire review with updated data (without linkedProductId)
-        await set(reviewRef, updatedReviewData);
-      } else {
-        throw new Error('Review not found');
-      }
-      
-      Swal.fire({
-        title: 'Success',
-        text: 'Review unlinked from product successfully',
-        icon: 'success',
-        timer: 1500
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Failed to unlink review from product',
-        icon: 'error'
-      });
-    }
-  };
-
-  const deleteReview = async (reviewId: string) => {
-    const result = await Swal.fire({
-      title: 'Delete Review',
-      text: 'Are you sure you want to delete this review? This action cannot be undone.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#ef4444'
-    });
-
-    if (result.isConfirmed) {
+  // Review management functions
+  const handleAddReview = async () => {
+    if (newReview.buyerName && newReview.reviewText) {
       try {
-        const reviewRef = ref(db, `reviews/${reviewId}`);
-        await set(reviewRef, null);
+        const reviewsRef = ref(db, 'reviews');
+        await push(reviewsRef, {
+          ...newReview,
+          linkedProductId: selectedProductId || null,
+          timestamp: Date.now()
+        });
+        
+        setNewReview({
+          buyerName: '',
+          productName: '',
+          reviewText: '',
+          purchaseDate: '',
+          images: [],
+          linkedProductId: '',
+          timestamp: Date.now()
+        });
+        setSelectedProductId('');
+        setSearchTerm('');
+        setShowReviewForm(false);
         
         Swal.fire({
-          title: 'Deleted!',
-          text: 'Review has been deleted successfully',
+          title: 'Success!',
+          text: 'Review added successfully',
           icon: 'success',
           timer: 1500
         });
       } catch (error) {
         Swal.fire({
           title: 'Error',
-          text: 'Failed to delete review',
+          text: 'Failed to add review',
           icon: 'error'
         });
       }
     }
   };
 
-  const editReview = async (review: Review) => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Edit Review',
-      html: `
-        <div class="space-y-4 text-left">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Buyer Name</label>
-            <input id="swal-buyer-name" class="swal2-input" placeholder="Buyer Name" value="${review.buyerName || ''}">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-            <input id="swal-product-name" class="swal2-input" placeholder="Product Name" value="${review.productName || ''}">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
-            <input id="swal-purchase-date" class="swal2-input" placeholder="Purchase Date" value="${review.purchaseDate || ''}">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Review Text</label>
-            <textarea id="swal-review-text" class="swal2-textarea" placeholder="Review Text" rows="4">${review.reviewText || ''}</textarea>
-          </div>
-        </div>
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Update Review',
-      cancelButtonText: 'Cancel',
-      width: '600px',
-      preConfirm: () => {
-        const buyerName = (document.getElementById('swal-buyer-name') as HTMLInputElement).value;
-        const productName = (document.getElementById('swal-product-name') as HTMLInputElement).value;
-        const purchaseDate = (document.getElementById('swal-purchase-date') as HTMLInputElement).value;
-        const reviewText = (document.getElementById('swal-review-text') as HTMLTextAreaElement).value;
-        
-        if (!buyerName || !productName || !purchaseDate || !reviewText) {
-          Swal.showValidationMessage('Please fill in all fields');
-          return false;
-        }
-        
-        return { buyerName, productName, purchaseDate, reviewText };
-      }
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+    setNewReview({
+      buyerName: review.buyerName,
+      productName: review.productName,
+      reviewText: review.reviewText,
+      purchaseDate: review.purchaseDate,
+      images: review.images || [],
+      linkedProductId: review.linkedProductId || '',
+      timestamp: review.timestamp || Date.now()
     });
+    setSelectedProductId(review.linkedProductId || '');
+    if (review.linkedProductId) {
+      const linkedProduct = products.find(p => p.id === review.linkedProductId);
+      setSearchTerm(linkedProduct?.name || '');
+    }
+    setShowReviewForm(true);
+  };
 
-    if (formValues) {
+  const handleUpdateReview = async () => {
+    if (editingReview && newReview.buyerName && newReview.reviewText) {
       try {
-        const reviewRef = ref(db, `reviews/${review.id}`);
-        const updatedReview = {
-          ...review,
-          buyerName: formValues.buyerName,
-          productName: formValues.productName,
-          purchaseDate: formValues.purchaseDate,
-          reviewText: formValues.reviewText,
-          timestamp: review.timestamp || Date.now() // Preserve existing timestamp or add new one
-        };
+        const reviewRef = ref(db, `reviews/${editingReview.id}`);
+        await update(reviewRef, {
+          ...newReview,
+          linkedProductId: selectedProductId || null,
+          updatedAt: Date.now()
+        });
         
-        await set(reviewRef, updatedReview);
+        setEditingReview(null);
+        setNewReview({
+          buyerName: '',
+          productName: '',
+          reviewText: '',
+          purchaseDate: '',
+          images: [],
+          linkedProductId: '',
+          timestamp: Date.now()
+        });
+        setSelectedProductId('');
+        setSearchTerm('');
+        setShowReviewForm(false);
         
         Swal.fire({
-          title: 'Success',
+          title: 'Success!',
           text: 'Review updated successfully',
           icon: 'success',
           timer: 1500
@@ -657,802 +409,834 @@ function EmployeeDashboard() {
     }
   };
 
-  const handleFooterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDeleteReview = async (id: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete the review',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const reviewRef = ref(db, `reviews/${id}`);
+        await remove(reviewRef);
+        
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Review has been deleted',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to delete review',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  // Quick link functionality
+  const handleQuickLink = (product: Product) => {
+    setSelectedProductForLinking(product);
+    setShowLinkModal(true);
+  };
+
+  const handleLinkReviewToProduct = async (reviewId: string) => {
+    if (selectedProductForLinking) {
+      try {
+        const reviewRef = ref(db, `reviews/${reviewId}`);
+        await update(reviewRef, {
+          linkedProductId: selectedProductForLinking.id,
+          updatedAt: Date.now()
+        });
+        
+        setShowLinkModal(false);
+        setSelectedProductForLinking(null);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Review linked to product successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to link review to product',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  // Save footer info to Firebase
+  const handleSaveFooterInfo = async () => {
     try {
-      await set(ref(db, 'footerData'), footerData);
+      const footerRef = ref(db, 'footerData');
+      await set(footerRef, footerInfo);
+      
       Swal.fire({
         title: 'Success!',
-        text: 'Footer information updated successfully',
+        text: 'Footer information saved successfully',
         icon: 'success',
         timer: 1500
       });
     } catch (error) {
       Swal.fire({
         title: 'Error',
-        text: 'Failed to update footer information',
+        text: 'Failed to save footer information',
         icon: 'error'
       });
     }
   };
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800 dark:text-white">Employee Dashboard</h1>
+  // Get linked product for a review
+  const getLinkedProduct = (linkedProductId?: string) => {
+    if (!linkedProductId) return null;
+    return products.find(p => p.id === linkedProductId) || null;
+  };
 
-      {/* Tab Navigation */}
-      <div className="flex space-x-4 mb-8">
+  // Filter products for search
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Get unlinked reviews for quick linking
+  const unlinkedReviews = reviews.filter(r => !r.linkedProductId);
+
+  const renderProductsTab = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Products Management</h2>
         <button
-          onClick={() => setActiveTab('products')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-            activeTab === 'products'
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
+          onClick={() => setShowProductForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
         >
-          <div className="flex items-center space-x-2">
-            <Plus className="h-5 w-5" />
-            <span>Products</span>
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab('banners')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-            activeTab === 'banners'
-              ? 'bg-purple-500 text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          <div className="flex items-center space-x-2">
-            <Megaphone className="h-5 w-5" />
-            <span>Banners</span>
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab('reviews')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-            activeTab === 'reviews'
-              ? 'bg-green-500 text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-          }`}
-        >
-          <div className="flex items-center space-x-2">
-            <MessageSquare className="h-5 w-5" />
-            <span>Reviews</span>
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab('footer')}
-          className={`px-4 py-2 rounded-lg ${activeTab === 'footer' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-        >
-          Footer
+          <Plus className="w-4 h-4" />
+          Add Product
         </button>
       </div>
 
-      {activeTab === 'products' && (
-        <>
-          {/* Add New Product Form */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">Add New Product</h2>
-            
-            <div className="space-y-6">
-              {/* Exclusive Product Toggle */}
-              <div className="flex items-center space-x-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                <input
-                  type="checkbox"
-                  id="isExclusive"
-                  checked={newProduct.isExclusive}
-                  onChange={(e) => setNewProduct({ ...newProduct, isExclusive: e.target.checked })}
-                  className="h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
-                />
-                <label htmlFor="isExclusive" className="flex items-center space-x-2 text-yellow-800 dark:text-yellow-200 font-medium">
-                  <Star className="h-5 w-5" />
-                  <span>Make this an Exclusive Product (appears first on homepage)</span>
-                </label>
+      {/* Quick Link Panel */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Quick Link Reviews</h3>
+        <div className="flex gap-4 overflow-x-auto pb-2">
+          {products.slice(0, 6).map(product => (
+            <div key={product.id} className="flex-shrink-0 w-48 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+              <img 
+                src={product.imageUrl} 
+                alt={product.name}
+                className="w-full h-24 object-cover rounded mb-2"
+              />
+              <h4 className="font-medium text-sm text-gray-800 dark:text-white truncate">{product.name}</h4>
+              <p className="text-blue-600 font-semibold text-sm">{product.price} TK</p>
+              <button
+                onClick={() => handleQuickLink(product)}
+                className="w-full mt-2 bg-blue-600 text-white text-xs py-1 rounded hover:bg-blue-700 flex items-center justify-center gap-1"
+              >
+                <Link className="w-3 h-3" />
+                Link Review
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Products Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Price</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Quantity</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {products.map(product => (
+                <tr key={product.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <img className="h-10 w-10 rounded-lg object-cover" src={product.imageUrl} alt={product.name} />
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{product.name}</div>
+                        {product.isExclusive && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            Exclusive
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{product.price} TK</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{product.quantity}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{product.category}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => handleEditProduct(product)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteProduct(product.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderReviewsTab = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Reviews Management</h2>
+        <button
+          onClick={() => setShowReviewForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Add Review
+        </button>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Buyer</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Review</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Linked Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {reviews.map(review => {
+                const linkedProduct = getLinkedProduct(review.linkedProductId);
+                return (
+                  <tr key={review.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{review.buyerName}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{review.purchaseDate}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 dark:text-white max-w-xs truncate">{review.reviewText}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {linkedProduct ? (
+                        <div className="flex items-center">
+                          <img className="h-8 w-8 rounded object-cover mr-2" src={linkedProduct.imageUrl} alt={linkedProduct.name} />
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-24">{linkedProduct.name}</div>
+                            <div className="text-sm text-blue-600">{linkedProduct.price} TK</div>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          Not Linked
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        onClick={() => handleEditReview(review)}
+                        className="text-blue-600 hover:text-blue-900 mr-3"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteReview(review.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFooterTab = () => (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Footer Management</h2>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Company Information */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <Building className="w-5 h-5" />
+            Company Information
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Name</label>
+              <input
+                type="text"
+                value={footerInfo.companyName}
+                onChange={(e) => setFooterInfo({...footerInfo, companyName: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Enter company name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Description</label>
+              <textarea
+                value={footerInfo.description}
+                onChange={(e) => setFooterInfo({...footerInfo, description: e.target.value})}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="Enter company description"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Information */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <Mail className="w-5 h-5" />
+            Contact Information
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+              <input
+                type="email"
+                value={footerInfo.email}
+                onChange={(e) => setFooterInfo({...footerInfo, email: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="contact@company.com"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+              <input
+                type="tel"
+                value={footerInfo.phone}
+                onChange={(e) => setFooterInfo({...footerInfo, phone: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="+880 1234-567890"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
+              <textarea
+                value={footerInfo.address}
+                onChange={(e) => setFooterInfo({...footerInfo, address: e.target.value})}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="123 Business Street, City, Country"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Social Media Links */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm lg:col-span-2">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <ExternalLink className="w-5 h-5" />
+            Social Media Links
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                <Facebook className="w-4 h-4 text-blue-600" />
+                Facebook URL
+              </label>
+              <input
+                type="url"
+                value={footerInfo.socialLinks.facebook}
+                onChange={(e) => setFooterInfo({...footerInfo, socialLinks: {...footerInfo.socialLinks, facebook: e.target.value}})}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="https://facebook.com/yourpage"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                <Instagram className="w-4 h-4 text-pink-600" />
+                Instagram URL
+              </label>
+              <input
+                type="url"
+                value={footerInfo.socialLinks.instagram}
+                onChange={(e) => setFooterInfo({...footerInfo, socialLinks: {...footerInfo.socialLinks, instagram: e.target.value}})}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="https://instagram.com/yourpage"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-2">
+                <Youtube className="w-4 h-4 text-red-600" />
+                YouTube URL
+              </label>
+              <input
+                type="url"
+                value={footerInfo.socialLinks.youtube}
+                onChange={(e) => setFooterInfo({...footerInfo, socialLinks: {...footerInfo.socialLinks, youtube: e.target.value}})}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                placeholder="https://youtube.com/yourchannel"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          onClick={handleSaveFooterInfo}
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Save className="w-4 h-4" />
+          Save Footer Information
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Employee Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage products, reviews, and site content</p>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
+          <nav className="-mb-px flex space-x-8">
+            {[
+              { id: 'products', name: 'Products', icon: Package },
+              { id: 'reviews', name: 'Reviews', icon: MessageSquare },
+              { id: 'footer', name: 'Footer', icon: Building }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.name}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'products' && renderProductsTab()}
+        {activeTab === 'reviews' && renderReviewsTab()}
+        {activeTab === 'footer' && renderFooterTab()}
+
+        {/* Product Form Modal */}
+        {showProductForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {editingProduct ? 'Edit Product' : 'Add New Product'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowProductForm(false);
+                    setEditingProduct(null);
+                    setNewProduct({
+                      name: '',
+                      description: '',
+                      price: 0,
+                      imageUrl: '',
+                      quantity: '',
+                      category: '',
+                      variants: [],
+                      additionalImages: [],
+                      isExclusive: false
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Product Name
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Product Name</label>
                   <input
                     type="text"
                     value={newProduct.name}
-                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter product name"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Price
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price (TK)</label>
                   <input
                     type="number"
                     value={newProduct.price}
-                    onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    onChange={(e) => setNewProduct({...newProduct, price: parseFloat(e.target.value) || 0})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="0"
                   />
                 </div>
 
                 <div>
-                  <ImageUploadField
-                    label="Main Product Image"
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image URL</label>
+                  <input
+                    type="url"
                     value={newProduct.imageUrl}
-                    onChange={(value) => setNewProduct({ ...newProduct, imageUrl: value })}
-                    fieldType="main"
-                    placeholder="Enter image URL or upload image"
+                    onChange={(e) => setNewProduct({...newProduct, imageUrl: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="https://example.com/image.jpg"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Category
-                  </label>
-                  <select
-                    value={newProduct.category}
-                    onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map((category, index) => (
-                      <option key={index} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Quantity Status
-                  </label>
-                  <select
-                    value={newProduct.quantity}
-                    onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select quantity status</option>
-                    <option value="In Stock">In Stock</option>
-                    <option value="Pre-order">Pre-order</option>
-                    <option value="Out of Stock">Out of Stock</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Description
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                   <textarea
                     value={newProduct.description}
-                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                    rows={4}
+                    onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter product description"
                   />
                 </div>
-              </div>
 
-              {/* Additional Images */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Additional Images (Optional)
-                </label>
-                <div className="space-y-3">
-                  {newProduct.additionalImages?.map((url, index) => (
-                    <div key={index}>
-                      <ImageUploadField
-                        label={`Additional Image ${index + 1}`}
-                        value={url}
-                        onChange={(value) => {
-                          const newImages = [...(newProduct.additionalImages || [])];
-                          newImages[index] = value;
-                          setNewProduct({ ...newProduct, additionalImages: newImages });
-                        }}
-                        fieldType="additional"
-                        index={index}
-                        placeholder={`Enter image URL or upload image`}
-                      />
-                    </div>
-                  ))}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
+                  <input
+                    type="text"
+                    value={newProduct.quantity}
+                    onChange={(e) => setNewProduct({...newProduct, quantity: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="e.g., 10, Pre-order, Out of Stock"
+                  />
                 </div>
-              </div>
 
-              {/* Product Variants */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Product Variants
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                   <input
                     type="text"
-                    value={newVariant.color}
-                    onChange={(e) => setNewVariant({ ...newVariant, color: e.target.value })}
-                    placeholder="Color"
-                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    value={newProduct.category}
+                    onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter product category"
                   />
+                </div>
+
+                <div className="flex items-center">
                   <input
-                    type="number"
-                    value={newVariant.stock}
-                    onChange={(e) => setNewVariant({ ...newVariant, stock: parseInt(e.target.value) })}
-                    placeholder="Stock"
-                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                    type="checkbox"
+                    id="exclusive"
+                    checked={newProduct.isExclusive}
+                    onChange={(e) => setNewProduct({...newProduct, isExclusive: e.target.checked})}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <input
-                    type="text"
-                    value={newVariant.imageUrl}
-                    onChange={(e) => setNewVariant({ ...newVariant, imageUrl: e.target.value })}
-                    placeholder="Enter image URL"
-                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  />
-                  <label className={`px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer flex items-center space-x-1 ${uploadingImages['variant-0'] ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    {uploadingImages['variant-0'] ? (
-                      <Loader className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Upload className="h-4 w-4" />
-                    )}
-                    <span className="text-sm">Upload</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file && !uploadingImages['variant-0']) {
-                          handleImageUpload(file, 'variant');
-                        }
-                      }}
-                      className="hidden"
-                      disabled={uploadingImages['variant-0']}
-                    />
+                  <label htmlFor="exclusive" className="ml-2 block text-sm text-gray-900 dark:text-white">
+                    Exclusive Product
                   </label>
                 </div>
-                {newVariant.imageUrl && (
-                  <div className="mt-2">
-                    <img 
-                      src={newVariant.imageUrl} 
-                      alt="Variant Preview" 
-                      className="w-16 h-16 object-cover rounded-lg border border-gray-300"
-                    />
-                  </div>
-                )}
-                <button
-                  onClick={handleAddVariant}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                >
-                  Add Variant
-                </button>
-
-                {/* Display added variants */}
-                {newProduct.variants && newProduct.variants.length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    <h4 className="font-medium text-gray-700 dark:text-gray-300">Added Variants:</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {newProduct.variants.map((variant, index) => (
-                        <div key={index} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                          <p className="text-sm text-gray-600 dark:text-gray-300">
-                            Color: {variant.color}
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-300">
-                            Stock: {variant.stock}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
-              <button
-                onClick={handleAddProduct}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-              >
-                <Plus className="h-5 w-5" />
-                <span>Add Product</span>
-              </button>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={editingProduct ? handleUpdateProduct : handleAddProduct}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {editingProduct ? 'Update Product' : 'Add Product'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowProductForm(false);
+                    setEditingProduct(null);
+                    setNewProduct({
+                      name: '',
+                      description: '',
+                      price: 0,
+                      imageUrl: '',
+                      quantity: '',
+                      category: '',
+                      variants: [],
+                      additionalImages: [],
+                      isExclusive: false
+                    });
+                  }}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
+        )}
 
-          {/* Products List */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">Manage Products</h2>
-            <div className="space-y-6">
-              {products.map((product) => (
-                <div key={product.id} className="border dark:border-gray-700 rounded-lg p-6">
-                  {editingProduct?.id === product.id ? (
-                    <div className="space-y-6">
-                      <div className="flex items-center space-x-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                        <input
-                          type="checkbox"
-                          checked={editingProduct.isExclusive}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, isExclusive: e.target.checked })}
-                          className="h-5 w-5 text-yellow-500 rounded border-gray-300 focus:ring-yellow-500"
-                        />
-                        <label className="flex items-center space-x-2 text-yellow-800 dark:text-yellow-200 font-medium">
-                          <Star className="h-5 w-5" />
-                          <span>Exclusive Product</span>
-                        </label>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <input
-                          type="text"
-                          value={editingProduct.name}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        />
-                        <input
-                          type="number"
-                          value={editingProduct.price}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) })}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        />
-                        <select
-                          value={editingProduct.quantity}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, quantity: e.target.value })}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="In Stock">In Stock</option>
-                          <option value="Pre-order">Pre-order</option>
-                          <option value="Out of Stock">Out of Stock</option>
-                        </select>
-                        <select
-                          value={editingProduct.category}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
-                          className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        >
-                          {categories.map((category, index) => (
-                            <option key={index} value={category}>
-                              {category}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <textarea
-                        value={editingProduct.description}
-                        onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        rows={4}
-                      />
-                      <div className="flex space-x-4">
+        {/* Review Form Modal */}
+        {showReviewForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {editingReview ? 'Edit Review' : 'Add New Review'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowReviewForm(false);
+                    setEditingReview(null);
+                    setNewReview({
+                      buyerName: '',
+                      productName: '',
+                      reviewText: '',
+                      purchaseDate: '',
+                      images: [],
+                      linkedProductId: '',
+                      timestamp: Date.now()
+                    });
+                    setSelectedProductId('');
+                    setSearchTerm('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Buyer Name</label>
+                  <input
+                    type="text"
+                    value={newReview.buyerName}
+                    onChange={(e) => setNewReview({...newReview, buyerName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter buyer name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Product Name</label>
+                  <input
+                    type="text"
+                    value={newReview.productName}
+                    onChange={(e) => setNewReview({...newReview, productName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter product name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Review Text</label>
+                  <textarea
+                    value={newReview.reviewText}
+                    onChange={(e) => setNewReview({...newReview, reviewText: e.target.value})}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter review text"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purchase Date</label>
+                  <input
+                    type="date"
+                    value={newReview.purchaseDate}
+                    onChange={(e) => setNewReview({...newReview, purchaseDate: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+
+                {/* Product Search and Link */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Link to Product (Optional)</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setShowProductDropdown(true);
+                      }}
+                      onFocus={() => setShowProductDropdown(true)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white pr-10"
+                      placeholder="Search products to link..."
+                    />
+                    <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+                  </div>
+
+                  {/* Product Dropdown */}
+                  {showProductDropdown && filteredProducts.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                      {filteredProducts.slice(0, 5).map(product => (
                         <button
-                          onClick={handleUpdateProduct}
-                          className="flex items-center space-x-2 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                          key={product.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedProductId(product.id);
+                            setSearchTerm(product.name);
+                            setShowProductDropdown(false);
+                          }}
+                          className={`w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-3 ${
+                            selectedProductId === product.id ? 'bg-blue-50 dark:bg-blue-900' : ''
+                          }`}
                         >
-                          <Save className="h-5 w-5" />
-                          <span>Save</span>
-                        </button>
-                        <button
-                          onClick={() => setEditingProduct(null)}
-                          className="flex items-center space-x-2 px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                        >
-                          <X className="h-5 w-5" />
-                          <span>Cancel</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex justify-between items-start">
-                      <div className="flex space-x-4">
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-24 h-24 object-cover rounded-lg"
-                        />
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                              {product.name}
-                            </h3>
-                            {product.isExclusive && (
-                              <div className="flex items-center space-x-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">
-                                <Star className="h-3 w-3" />
-                                <span>Exclusive</span>
-                              </div>
-                            )}
+                          <img src={product.imageUrl} alt={product.name} className="w-8 h-8 rounded object-cover" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.name}</div>
+                            <div className="text-sm text-blue-600">{product.price} TK</div>
                           </div>
-                          <p className="text-gray-600 dark:text-gray-300">{product.price} TK</p>
-                          <p className="text-gray-600 dark:text-gray-300">
-                            Category: {product.category}
-                          </p>
-                          <p className="text-gray-600 dark:text-gray-300">
-                            Status: {product.quantity}
-                          </p>
-                        </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Selected Product Display */}
+                  {selectedProductId && (
+                    <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900 rounded-md flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span className="text-sm text-blue-700 dark:text-blue-300">
+                          Linked to: {products.find(p => p.id === selectedProductId)?.name}
+                        </span>
                       </div>
                       <button
-                        onClick={() => setEditingProduct(product)}
-                        className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                        type="button"
+                        onClick={() => {
+                          setSelectedProductId('');
+                          setSearchTerm('');
+                        }}
+                        className="text-blue-600 hover:text-blue-800"
                       >
-                        <Edit2 className="h-5 w-5" />
-                        <span>Edit</span>
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {activeTab === 'banners' && (
-        <>
-          {/* Add New Banner Form */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">Add New Banner</h2>
-            
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Banner Title (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={newBanner.title}
-                    onChange={(e) => setNewBanner({ ...newBanner, title: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter banner title"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Banner Subtitle (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={newBanner.subtitle}
-                    onChange={(e) => setNewBanner({ ...newBanner, subtitle: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter banner subtitle"
-                  />
-                </div>
-
-                <div>
-                  <ImageUploadField
-                    label="Banner Image *"
-                    value={newBanner.imageUrl}
-                    onChange={(value) => setNewBanner({ ...newBanner, imageUrl: value })}
-                    fieldType="banner"
-                    placeholder="Enter image URL or upload image"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Link URL (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={newBanner.linkUrl}
-                    onChange={(e) => setNewBanner({ ...newBanner, linkUrl: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter link URL"
-                  />
-                </div>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  id="bannerActive"
-                  checked={newBanner.isActive}
-                  onChange={(e) => setNewBanner({ ...newBanner, isActive: e.target.checked })}
-                  className="h-5 w-5 text-purple-500 rounded border-gray-300 focus:ring-purple-500"
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={editingReview ? handleUpdateReview : handleAddReview}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {editingReview ? 'Update Review' : 'Add Review'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowReviewForm(false);
+                    setEditingReview(null);
+                    setNewReview({
+                      buyerName: '',
+                      productName: '',
+                      reviewText: '',
+                      purchaseDate: '',
+                      images: [],
+                      linkedProductId: '',
+                      timestamp: Date.now()
+                    });
+                    setSelectedProductId('');
+                    setSearchTerm('');
+                  }}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Link Modal */}
+        {showLinkModal && selectedProductForLinking && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Link Review to {selectedProductForLinking.name}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowLinkModal(false);
+                    setSelectedProductForLinking(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <img 
+                  src={selectedProductForLinking.imageUrl} 
+                  alt={selectedProductForLinking.name}
+                  className="w-full h-32 object-cover rounded-lg mb-2"
                 />
-                <label htmlFor="bannerActive" className="text-gray-700 dark:text-gray-300 font-medium">
-                  Make banner active immediately
-                </label>
-              </div>
-
-              <button
-                onClick={handleAddBanner}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
-              >
-                <Plus className="h-5 w-5" />
-                <span>Add Banner</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Banners List */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">Manage Banners</h2>
-            <div className="space-y-6">
-              {banners.map((banner) => (
-                <div key={banner.id} className="border dark:border-gray-700 rounded-lg p-6">
-                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
-                    <div className="flex space-x-4 flex-1">
-                      <img
-                        src={banner.imageUrl}
-                        alt={banner.title || 'Banner'}
-                        className="w-32 h-20 object-cover rounded-lg"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                            {banner.title || 'Image Banner'}
-                          </h3>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            banner.isActive 
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          }`}>
-                            {banner.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </div>
-                        {banner.subtitle && (
-                          <p className="text-gray-600 dark:text-gray-300 mb-2">{banner.subtitle}</p>
-                        )}
-                        {banner.linkUrl && (
-                          <p className="text-blue-500 dark:text-blue-400 text-sm">
-                            Link: {banner.linkUrl}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => toggleBannerStatus(banner.id, banner.isActive)}
-                        className={`px-4 py-2 rounded-lg text-white font-medium ${
-                          banner.isActive 
-                            ? 'bg-red-500 hover:bg-red-600' 
-                            : 'bg-green-500 hover:bg-green-600'
-                        }`}
-                      >
-                        {banner.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button
-                        onClick={() => deleteBanner(banner.id)}
-                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {banners.length === 0 && (
-                <p className="text-center text-gray-500 dark:text-gray-400">
-                  No banners created yet
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Select a review to link to this product:
                 </p>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+              </div>
 
-      {activeTab === 'footer' && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Manage Footer</h2>
-          
-          <form onSubmit={handleFooterSubmit} className="space-y-6">
-            {/* Company Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Company Information</h3>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-                <input
-                  type="text"
-                  value={footerData.companyName}
-                  onChange={(e) => setFooterData({ ...footerData, companyName: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  placeholder="Enter company name"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  value={footerData.description}
-                  onChange={(e) => setFooterData({ ...footerData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  rows={3}
-                  placeholder="Brief description about your company"
-                />
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Contact Information</h3>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={footerData.email}
-                  onChange={(e) => setFooterData({ ...footerData, email: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  placeholder="contact@company.com"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  value={footerData.phone}
-                  onChange={(e) => setFooterData({ ...footerData, phone: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  placeholder="+8801XXXXXXXXX"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <textarea
-                  value={footerData.address}
-                  onChange={(e) => setFooterData({ ...footerData, address: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  rows={2}
-                  placeholder="Your business address"
-                />
-              </div>
-            </div>
-
-            {/* Social Media Links */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-800 border-b pb-2">Social Media Links</h3>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Facebook URL</label>
-                <input
-                  type="url"
-                  value={footerData.socialLinks.facebook}
-                  onChange={(e) => setFooterData({ 
-                    ...footerData, 
-                    socialLinks: { ...footerData.socialLinks, facebook: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  placeholder="https://facebook.com/yourpage"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Instagram URL</label>
-                <input
-                  type="url"
-                  value={footerData.socialLinks.instagram}
-                  onChange={(e) => setFooterData({ 
-                    ...footerData, 
-                    socialLinks: { ...footerData.socialLinks, instagram: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  placeholder="https://instagram.com/yourpage"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">YouTube URL</label>
-                <input
-                  type="url"
-                  value={footerData.socialLinks.youtube}
-                  onChange={(e) => setFooterData({ 
-                    ...footerData, 
-                    socialLinks: { ...footerData.socialLinks, youtube: e.target.value }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  placeholder="https://youtube.com/yourchannel"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              Update Footer Information
-            </button>
-          </form>
-        </div>
-      )}
-
-      {activeTab === 'reviews' && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">Manage Reviews</h2>
-          <div className="space-y-6">
-            {reviews.map((review) => (
-              <div key={review.id} className="border dark:border-gray-700 rounded-lg p-6">
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                        {review.buyerName}
-                      </h3>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        ({review.purchaseDate})
-                      </span>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300 mb-2">
-                      <strong>Product:</strong> {review.productName}
-                    </p>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">
-                      <strong>Review:</strong> {review.reviewText}
-                    </p>
-                    
-                    {/* Show linked product */}
-                    {review.linkedProductId && (
-                      <div className="mb-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                          ✓ Linked to: {products.find(p => p.id === review.linkedProductId)?.name || 'Unknown Product'}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {/* Review images */}
-                    {review.images && review.images.length > 0 && (
-                      <div className="grid grid-cols-4 gap-2 mb-4">
-                        {review.images.map((image, index) => (
-                          <img
-                            key={index}
-                            src={image}
-                            alt={`Review image ${index + 1}`}
-                            className="w-16 h-16 object-cover rounded-lg"
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex flex-col space-y-2">
-                    {/* Edit and Delete buttons */}
-                    <div className="flex space-x-2 mb-2">
-                      <button
-                        onClick={() => editReview(review)}
-                        className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm flex items-center space-x-1"
-                      >
-                        <Edit2 className="h-3 w-3" />
-                        <span>Edit</span>
-                      </button>
-                      <button
-                        onClick={() => deleteReview(review.id)}
-                        className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm flex items-center space-x-1"
-                      >
-                        <X className="h-3 w-3" />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                    
-                    {/* Link to product dropdown */}
-                    <select
-                      value={review.linkedProductId || ''}
-                      onChange={(e) => {
-                        const productId = e.target.value;
-                        if (productId) {
-                          linkReviewToProduct(review.id, productId);
-                        } else {
-                          if (review.linkedProductId) {
-                            unlinkReviewFromProduct(review.id);
-                          }
-                        }
-                      }}
-                      className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {unlinkedReviews.length > 0 ? (
+                  unlinkedReviews.map(review => (
+                    <button
+                      key={review.id}
+                      onClick={() => handleLinkReviewToProduct(review.id)}
+                      className="w-full p-3 text-left border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
-                      <option value="">
-                        {review.linkedProductId ? '🔗 Linked - Click to Unlink' : '📎 Select Product to Link'}
-                      </option>
-                      {products.map((product) => (
-                        <option key={product.id} value={product.id}>
-                          {product.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                      <div className="font-medium text-gray-900 dark:text-white">{review.buyerName}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 truncate">{review.reviewText}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{review.purchaseDate}</div>
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 dark:text-gray-400 py-4">
+                    No unlinked reviews available
+                  </p>
+                )}
               </div>
-            ))}
-            {reviews.length === 0 && (
-              <p className="text-center text-gray-500 dark:text-gray-400">
-                No reviews available yet
-              </p>
-            )}
+
+              <div className="mt-4">
+                <button
+                  onClick={() => {
+                    setShowLinkModal(false);
+                    setSelectedProductForLinking(null);
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
-}
+};
 
 export default EmployeeDashboard;
