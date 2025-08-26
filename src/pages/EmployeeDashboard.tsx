@@ -23,7 +23,13 @@ import {
   MapPin,
   Facebook,
   Instagram,
-  Youtube
+  Youtube,
+  Image as ImageIcon,
+  Tag,
+  Gift,
+  Monitor,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import Swal from 'sweetalert2';
 
@@ -44,6 +50,7 @@ interface Product {
   variants?: ProductVariant[];
   additionalImages?: string[];
   isExclusive?: boolean;
+  createdAt?: number;
 }
 
 interface Banner {
@@ -66,6 +73,25 @@ interface Review {
   timestamp?: number;
 }
 
+interface Coupon {
+  id: string;
+  code: string;
+  discount: number;
+  isActive: boolean;
+}
+
+interface CartAd {
+  id: string;
+  imageUrl: string;
+  linkUrl: string;
+  isActive: boolean;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
 interface FooterInfo {
   companyName: string;
   description: string;
@@ -84,8 +110,12 @@ const EmployeeDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('products');
   const [products, setProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [cartAds, setCartAds] = useState<CartAd[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [footerInfo, setFooterInfo] = useState<FooterInfo>({
-    companyName: 'Sentorial',
+    companyName: 'SenTorial',
     description: 'Your trusted partner for premium quality products',
     email: 'sentorialbd@gmail.com',
     phone: '+880 1234-567890',
@@ -99,13 +129,25 @@ const EmployeeDashboard: React.FC = () => {
 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+  const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
+  const [editingCartAd, setEditingCartAd] = useState<CartAd | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
   const [showProductForm, setShowProductForm] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showBannerForm, setShowBannerForm] = useState(false);
+  const [showCouponForm, setShowCouponForm] = useState(false);
+  const [showCartAdForm, setShowCartAdForm] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
+
   const [selectedProductForLinking, setSelectedProductForLinking] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProductId, setSelectedProductId] = useState('');
   const [showProductDropdown, setShowProductDropdown] = useState(false);
+
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
     name: '',
@@ -127,6 +169,30 @@ const EmployeeDashboard: React.FC = () => {
     images: [],
     linkedProductId: '',
     timestamp: Date.now()
+  });
+
+  const [newBanner, setNewBanner] = useState<Omit<Banner, 'id'>>({
+    title: '',
+    subtitle: '',
+    imageUrl: '',
+    linkUrl: '',
+    isActive: true
+  });
+
+  const [newCoupon, setNewCoupon] = useState<Omit<Coupon, 'id'>>({
+    code: '',
+    discount: 0,
+    isActive: true
+  });
+
+  const [newCartAd, setNewCartAd] = useState<Omit<CartAd, 'id'>>({
+    imageUrl: '',
+    linkUrl: '',
+    isActive: true
+  });
+
+  const [newCategory, setNewCategory] = useState<Omit<Category, 'id'>>({
+    name: ''
   });
 
   // Check authentication
@@ -169,6 +235,66 @@ const EmployeeDashboard: React.FC = () => {
       }
     });
 
+    // Load banners
+    const bannersRef = ref(db, 'banners');
+    const unsubscribeBanners = onValue(bannersRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const bannersData = snapshot.val();
+        const bannersList = Object.entries(bannersData).map(([id, banner]) => ({
+          id,
+          ...(banner as Omit<Banner, 'id'>)
+        }));
+        setBanners(bannersList);
+      } else {
+        setBanners([]);
+      }
+    });
+
+    // Load coupons
+    const couponsRef = ref(db, 'coupons');
+    const unsubscribeCoupons = onValue(couponsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const couponsData = snapshot.val();
+        const couponsList = Object.entries(couponsData).map(([id, coupon]) => ({
+          id,
+          ...(coupon as Omit<Coupon, 'id'>)
+        }));
+        setCoupons(couponsList);
+      } else {
+        setCoupons([]);
+      }
+    });
+
+    // Load cart ads
+    const cartAdsRef = ref(db, 'cartAds');
+    const unsubscribeCartAds = onValue(cartAdsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const cartAdsData = snapshot.val();
+        const cartAdsList = Object.entries(cartAdsData).map(([id, cartAd]) => ({
+          id,
+          ...(cartAd as Omit<CartAd, 'id'>)
+        }));
+        setCartAds(cartAdsList);
+      } else {
+        setCartAds([]);
+      }
+    });
+
+    // Load categories
+    const categoriesRef = ref(db, 'categories');
+    const unsubscribeCategories = onValue(categoriesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const categoriesData = snapshot.val();
+        const categoriesList = Object.entries(categoriesData).map(([id, category]) => ({
+          id,
+          ...(category as Omit<Category, 'id'>)
+        }));
+        setCategories(categoriesList);
+      } else {
+        setCategories([]);
+      }
+    });
+
     // Load footer info
     const footerRef = ref(db, 'footerData');
     const unsubscribeFooter = onValue(footerRef, (snapshot) => {
@@ -181,9 +307,58 @@ const EmployeeDashboard: React.FC = () => {
     return () => {
       unsubscribeProducts();
       unsubscribeReviews();
+      unsubscribeBanners();
+      unsubscribeCoupons();
+      unsubscribeCartAds();
+      unsubscribeCategories();
       unsubscribeFooter();
     };
   }, []);
+
+  // Image upload function
+  const uploadImageToImgBB = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('key', '46c28b1b4faf5b8c3c6b6e8b7e4c7f8a'); // ImgBB API key
+
+    try {
+      const response = await fetch('https://api.imgbb.com/1/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        return data.data.url;
+      } else {
+        throw new Error('Failed to upload image');
+      }
+    } catch (error) {
+      throw new Error('Failed to upload image to ImgBB');
+    }
+  };
+
+  const handleImageUpload = async (file: File, callback: (url: string) => void) => {
+    setUploadingImage(true);
+    try {
+      const imageUrl = await uploadImageToImgBB(file);
+      callback(imageUrl);
+      Swal.fire({
+        title: 'Success!',
+        text: 'Image uploaded successfully',
+        icon: 'success',
+        timer: 1500
+      });
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to upload image',
+        icon: 'error'
+      });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   // Product management functions
   const handleAddProduct = async () => {
@@ -440,6 +615,436 @@ const EmployeeDashboard: React.FC = () => {
     }
   };
 
+  // Banner management functions
+  const handleAddBanner = async () => {
+    if (newBanner.imageUrl) {
+      try {
+        const bannersRef = ref(db, 'banners');
+        await push(bannersRef, {
+          ...newBanner,
+          createdAt: Date.now()
+        });
+        
+        setNewBanner({
+          title: '',
+          subtitle: '',
+          imageUrl: '',
+          linkUrl: '',
+          isActive: true
+        });
+        setShowBannerForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Banner added successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to add banner',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const handleEditBanner = (banner: Banner) => {
+    setEditingBanner(banner);
+    setNewBanner({
+      title: banner.title || '',
+      subtitle: banner.subtitle || '',
+      imageUrl: banner.imageUrl,
+      linkUrl: banner.linkUrl || '',
+      isActive: banner.isActive
+    });
+    setShowBannerForm(true);
+  };
+
+  const handleUpdateBanner = async () => {
+    if (editingBanner && newBanner.imageUrl) {
+      try {
+        const bannerRef = ref(db, `banners/${editingBanner.id}`);
+        await update(bannerRef, {
+          ...newBanner,
+          updatedAt: Date.now()
+        });
+        
+        setEditingBanner(null);
+        setNewBanner({
+          title: '',
+          subtitle: '',
+          imageUrl: '',
+          linkUrl: '',
+          isActive: true
+        });
+        setShowBannerForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Banner updated successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to update banner',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const handleDeleteBanner = async (id: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete the banner',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const bannerRef = ref(db, `banners/${id}`);
+        await remove(bannerRef);
+        
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Banner has been deleted',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to delete banner',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  // Coupon management functions
+  const handleAddCoupon = async () => {
+    if (newCoupon.code && newCoupon.discount) {
+      try {
+        const couponsRef = ref(db, 'coupons');
+        await push(couponsRef, {
+          ...newCoupon,
+          code: newCoupon.code.toUpperCase(),
+          createdAt: Date.now()
+        });
+        
+        setNewCoupon({
+          code: '',
+          discount: 0,
+          isActive: true
+        });
+        setShowCouponForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Coupon added successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to add coupon',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const handleEditCoupon = (coupon: Coupon) => {
+    setEditingCoupon(coupon);
+    setNewCoupon({
+      code: coupon.code,
+      discount: coupon.discount,
+      isActive: coupon.isActive
+    });
+    setShowCouponForm(true);
+  };
+
+  const handleUpdateCoupon = async () => {
+    if (editingCoupon && newCoupon.code && newCoupon.discount) {
+      try {
+        const couponRef = ref(db, `coupons/${editingCoupon.id}`);
+        await update(couponRef, {
+          ...newCoupon,
+          code: newCoupon.code.toUpperCase(),
+          updatedAt: Date.now()
+        });
+        
+        setEditingCoupon(null);
+        setNewCoupon({
+          code: '',
+          discount: 0,
+          isActive: true
+        });
+        setShowCouponForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Coupon updated successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to update coupon',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const handleDeleteCoupon = async (id: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete the coupon',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const couponRef = ref(db, `coupons/${id}`);
+        await remove(couponRef);
+        
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Coupon has been deleted',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to delete coupon',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  // Cart Ad management functions
+  const handleAddCartAd = async () => {
+    if (newCartAd.imageUrl) {
+      try {
+        const cartAdsRef = ref(db, 'cartAds');
+        await push(cartAdsRef, {
+          ...newCartAd,
+          createdAt: Date.now()
+        });
+        
+        setNewCartAd({
+          imageUrl: '',
+          linkUrl: '',
+          isActive: true
+        });
+        setShowCartAdForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Cart ad added successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to add cart ad',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const handleEditCartAd = (cartAd: CartAd) => {
+    setEditingCartAd(cartAd);
+    setNewCartAd({
+      imageUrl: cartAd.imageUrl,
+      linkUrl: cartAd.linkUrl,
+      isActive: cartAd.isActive
+    });
+    setShowCartAdForm(true);
+  };
+
+  const handleUpdateCartAd = async () => {
+    if (editingCartAd && newCartAd.imageUrl) {
+      try {
+        const cartAdRef = ref(db, `cartAds/${editingCartAd.id}`);
+        await update(cartAdRef, {
+          ...newCartAd,
+          updatedAt: Date.now()
+        });
+        
+        setEditingCartAd(null);
+        setNewCartAd({
+          imageUrl: '',
+          linkUrl: '',
+          isActive: true
+        });
+        setShowCartAdForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Cart ad updated successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to update cart ad',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const handleDeleteCartAd = async (id: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete the cart ad',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const cartAdRef = ref(db, `cartAds/${id}`);
+        await remove(cartAdRef);
+        
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Cart ad has been deleted',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to delete cart ad',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  // Category management functions
+  const handleAddCategory = async () => {
+    if (newCategory.name) {
+      try {
+        const categoriesRef = ref(db, 'categories');
+        await push(categoriesRef, {
+          ...newCategory,
+          createdAt: Date.now()
+        });
+        
+        setNewCategory({
+          name: ''
+        });
+        setShowCategoryForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Category added successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to add category',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const handleEditCategory = (category: Category) => {
+    setEditingCategory(category);
+    setNewCategory({
+      name: category.name
+    });
+    setShowCategoryForm(true);
+  };
+
+  const handleUpdateCategory = async () => {
+    if (editingCategory && newCategory.name) {
+      try {
+        const categoryRef = ref(db, `categories/${editingCategory.id}`);
+        await update(categoryRef, {
+          ...newCategory,
+          updatedAt: Date.now()
+        });
+        
+        setEditingCategory(null);
+        setNewCategory({
+          name: ''
+        });
+        setShowCategoryForm(false);
+        
+        Swal.fire({
+          title: 'Success!',
+          text: 'Category updated successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to update category',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete the category',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const categoryRef = ref(db, `categories/${id}`);
+        await remove(categoryRef);
+        
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Category has been deleted',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to delete category',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
   // Quick link functionality
   const handleQuickLink = (product: Product) => {
     setSelectedProductForLinking(product);
@@ -622,7 +1227,7 @@ const EmployeeDashboard: React.FC = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Buyer</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Review</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Linked Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Link Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -640,13 +1245,9 @@ const EmployeeDashboard: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {linkedProduct ? (
-                        <div className="flex items-center">
-                          <img className="h-8 w-8 rounded object-cover mr-2" src={linkedProduct.imageUrl} alt={linkedProduct.name} />
-                          <div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-24">{linkedProduct.name}</div>
-                            <div className="text-sm text-blue-600">{linkedProduct.price} TK</div>
-                          </div>
-                        </div>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Linked to Product
+                        </span>
                       ) : (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           Not Linked
@@ -662,6 +1263,244 @@ const EmployeeDashboard: React.FC = () => {
                       </button>
                       <button
                         onClick={() => handleDeleteReview(review.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderBannersTab = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Banners Management</h2>
+        <button
+          onClick={() => setShowBannerForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Add Banner
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {banners.map(banner => (
+          <div key={banner.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+            <img 
+              src={banner.imageUrl} 
+              alt={banner.title}
+              className="w-full h-48 object-cover"
+            />
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{banner.title || 'Untitled'}</h3>
+                <div className="flex items-center gap-1">
+                  {banner.isActive ? (
+                    <Eye className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <EyeOff className="w-4 h-4 text-gray-400" />
+                  )}
+                </div>
+              </div>
+              {banner.subtitle && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{banner.subtitle}</p>
+              )}
+              {banner.linkUrl && (
+                <p className="text-xs text-blue-600 dark:text-blue-400 mb-3 truncate">
+                  Link: {banner.linkUrl}
+                </p>
+              )}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEditBanner(banner)}
+                  className="flex-1 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteBanner(banner.id)}
+                  className="flex-1 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderCouponsTab = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Coupons Management</h2>
+        <button
+          onClick={() => setShowCouponForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Add Coupon
+        </button>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Code</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Discount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {coupons.map(coupon => (
+                <tr key={coupon.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">{coupon.code}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{coupon.discount} TK</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      coupon.isActive 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {coupon.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => handleEditCoupon(coupon)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCoupon(coupon.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCartAdsTab = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Cart Ads Management</h2>
+        <button
+          onClick={() => setShowCartAdForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Add Cart Ad
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cartAds.map(cartAd => (
+          <div key={cartAd.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+            <img 
+              src={cartAd.imageUrl} 
+              alt="Cart Ad"
+              className="w-full h-48 object-cover"
+            />
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Cart Advertisement</h3>
+                <div className="flex items-center gap-1">
+                  {cartAd.isActive ? (
+                    <Eye className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <EyeOff className="w-4 h-4 text-gray-400" />
+                  )}
+                </div>
+              </div>
+              {cartAd.linkUrl && (
+                <p className="text-xs text-blue-600 dark:text-blue-400 mb-3 truncate">
+                  Link: {cartAd.linkUrl}
+                </p>
+              )}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEditCartAd(cartAd)}
+                  className="flex-1 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteCartAd(cartAd.id)}
+                  className="flex-1 bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderCategoriesTab = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Categories Management</h2>
+        <button
+          onClick={() => setShowCategoryForm(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Add Category
+        </button>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Category Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Products Count</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              {categories.map(category => {
+                const productCount = products.filter(p => p.category === category.name).length;
+                return (
+                  <tr key={category.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{category.name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{productCount} products</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        onClick={() => handleEditCategory(category)}
+                        className="text-blue-600 hover:text-blue-900 mr-3"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCategory(category.id)}
                         className="text-red-600 hover:text-red-900"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -824,16 +1663,20 @@ const EmployeeDashboard: React.FC = () => {
 
         {/* Tab Navigation */}
         <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
-          <nav className="-mb-px flex space-x-8">
+          <nav className="-mb-px flex space-x-8 overflow-x-auto">
             {[
               { id: 'products', name: 'Products', icon: Package },
               { id: 'reviews', name: 'Reviews', icon: MessageSquare },
+              { id: 'banners', name: 'Banners', icon: Monitor },
+              { id: 'coupons', name: 'Coupons', icon: Tag },
+              { id: 'cartads', name: 'Cart Ads', icon: Gift },
+              { id: 'categories', name: 'Categories', icon: BarChart3 },
               { id: 'footer', name: 'Footer', icon: Building }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`flex items-center gap-2 py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
@@ -849,6 +1692,10 @@ const EmployeeDashboard: React.FC = () => {
         {/* Tab Content */}
         {activeTab === 'products' && renderProductsTab()}
         {activeTab === 'reviews' && renderReviewsTab()}
+        {activeTab === 'banners' && renderBannersTab()}
+        {activeTab === 'coupons' && renderCouponsTab()}
+        {activeTab === 'cartads' && renderCartAdsTab()}
+        {activeTab === 'categories' && renderCategoriesTab()}
         {activeTab === 'footer' && renderFooterTab()}
 
         {/* Product Form Modal */}
@@ -905,14 +1752,34 @@ const EmployeeDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image URL</label>
-                  <input
-                    type="url"
-                    value={newProduct.imageUrl}
-                    onChange={(e) => setNewProduct({...newProduct, imageUrl: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Main Image</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={newProduct.imageUrl}
+                      onChange={(e) => setNewProduct({...newProduct, imageUrl: e.target.value})}
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <label className="bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 cursor-pointer flex items-center gap-1">
+                      <Upload className="w-4 h-4" />
+                      {uploadingImage ? 'Uploading...' : 'Upload'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={uploadingImage}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleImageUpload(file, (url) => {
+                              setNewProduct({...newProduct, imageUrl: url});
+                            });
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
                 </div>
 
                 <div>
@@ -939,13 +1806,16 @@ const EmployeeDashboard: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                  <input
-                    type="text"
+                  <select
                     value={newProduct.category}
                     onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                    placeholder="Enter product category"
-                  />
+                  >
+                    <option value="">Select category</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.name}>{category.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="flex items-center">
@@ -965,7 +1835,8 @@ const EmployeeDashboard: React.FC = () => {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={editingProduct ? handleUpdateProduct : handleAddProduct}
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+                  disabled={uploadingImage}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   {editingProduct ? 'Update Product' : 'Add Product'}
@@ -1135,12 +2006,72 @@ const EmployeeDashboard: React.FC = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Review Images */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Review Images</label>
+                  <div className="space-y-2">
+                    {newReview.images.map((image, index) => (
+                      <div key={index} className="flex gap-2">
+                        <input
+                          type="url"
+                          value={image}
+                          onChange={(e) => {
+                            const newImages = [...newReview.images];
+                            newImages[index] = e.target.value;
+                            setNewReview({...newReview, images: newImages});
+                          }}
+                          className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                          placeholder="https://example.com/image.jpg"
+                        />
+                        <label className="bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 cursor-pointer flex items-center gap-1">
+                          <Upload className="w-4 h-4" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploadingImage}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleImageUpload(file, (url) => {
+                                  const newImages = [...newReview.images];
+                                  newImages[index] = url;
+                                  setNewReview({...newReview, images: newImages});
+                                });
+                              }
+                            }}
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newImages = newReview.images.filter((_, i) => i !== index);
+                            setNewReview({...newReview, images: newImages});
+                          }}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setNewReview({...newReview, images: [...newReview.images, '']})}
+                      className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Add Image
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={editingReview ? handleUpdateReview : handleAddReview}
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+                  disabled={uploadingImage}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   {editingReview ? 'Update Review' : 'Add Review'}
@@ -1160,6 +2091,398 @@ const EmployeeDashboard: React.FC = () => {
                     });
                     setSelectedProductId('');
                     setSearchTerm('');
+                  }}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Banner Form Modal */}
+        {showBannerForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {editingBanner ? 'Edit Banner' : 'Add New Banner'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowBannerForm(false);
+                    setEditingBanner(null);
+                    setNewBanner({
+                      title: '',
+                      subtitle: '',
+                      imageUrl: '',
+                      linkUrl: '',
+                      isActive: true
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={newBanner.title}
+                    onChange={(e) => setNewBanner({...newBanner, title: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter banner title"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subtitle</label>
+                  <input
+                    type="text"
+                    value={newBanner.subtitle}
+                    onChange={(e) => setNewBanner({...newBanner, subtitle: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter banner subtitle"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banner Image</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={newBanner.imageUrl}
+                      onChange={(e) => setNewBanner({...newBanner, imageUrl: e.target.value})}
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="https://example.com/banner.jpg"
+                    />
+                    <label className="bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 cursor-pointer flex items-center gap-1">
+                      <Upload className="w-4 h-4" />
+                      {uploadingImage ? 'Uploading...' : 'Upload'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={uploadingImage}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleImageUpload(file, (url) => {
+                              setNewBanner({...newBanner, imageUrl: url});
+                            });
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Link URL (Optional)</label>
+                  <input
+                    type="url"
+                    value={newBanner.linkUrl}
+                    onChange={(e) => setNewBanner({...newBanner, linkUrl: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="https://example.com"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="bannerActive"
+                    checked={newBanner.isActive}
+                    onChange={(e) => setNewBanner({...newBanner, isActive: e.target.checked})}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="bannerActive" className="ml-2 block text-sm text-gray-900 dark:text-white">
+                    Active Banner
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={editingBanner ? handleUpdateBanner : handleAddBanner}
+                  disabled={uploadingImage}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {editingBanner ? 'Update Banner' : 'Add Banner'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowBannerForm(false);
+                    setEditingBanner(null);
+                    setNewBanner({
+                      title: '',
+                      subtitle: '',
+                      imageUrl: '',
+                      linkUrl: '',
+                      isActive: true
+                    });
+                  }}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Coupon Form Modal */}
+        {showCouponForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {editingCoupon ? 'Edit Coupon' : 'Add New Coupon'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCouponForm(false);
+                    setEditingCoupon(null);
+                    setNewCoupon({
+                      code: '',
+                      discount: 0,
+                      isActive: true
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Coupon Code</label>
+                  <input
+                    type="text"
+                    value={newCoupon.code}
+                    onChange={(e) => setNewCoupon({...newCoupon, code: e.target.value.toUpperCase()})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="SAVE20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Discount Amount (TK)</label>
+                  <input
+                    type="number"
+                    value={newCoupon.discount}
+                    onChange={(e) => setNewCoupon({...newCoupon, discount: parseFloat(e.target.value) || 0})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="100"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="couponActive"
+                    checked={newCoupon.isActive}
+                    onChange={(e) => setNewCoupon({...newCoupon, isActive: e.target.checked})}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="couponActive" className="ml-2 block text-sm text-gray-900 dark:text-white">
+                    Active Coupon
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={editingCoupon ? handleUpdateCoupon : handleAddCoupon}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {editingCoupon ? 'Update Coupon' : 'Add Coupon'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCouponForm(false);
+                    setEditingCoupon(null);
+                    setNewCoupon({
+                      code: '',
+                      discount: 0,
+                      isActive: true
+                    });
+                  }}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Cart Ad Form Modal */}
+        {showCartAdForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {editingCartAd ? 'Edit Cart Ad' : 'Add New Cart Ad'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCartAdForm(false);
+                    setEditingCartAd(null);
+                    setNewCartAd({
+                      imageUrl: '',
+                      linkUrl: '',
+                      isActive: true
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ad Image</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={newCartAd.imageUrl}
+                      onChange={(e) => setNewCartAd({...newCartAd, imageUrl: e.target.value})}
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="https://example.com/ad.jpg"
+                    />
+                    <label className="bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 cursor-pointer flex items-center gap-1">
+                      <Upload className="w-4 h-4" />
+                      {uploadingImage ? 'Uploading...' : 'Upload'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={uploadingImage}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleImageUpload(file, (url) => {
+                              setNewCartAd({...newCartAd, imageUrl: url});
+                            });
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Link URL</label>
+                  <input
+                    type="url"
+                    value={newCartAd.linkUrl}
+                    onChange={(e) => setNewCartAd({...newCartAd, linkUrl: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="https://example.com"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="cartAdActive"
+                    checked={newCartAd.isActive}
+                    onChange={(e) => setNewCartAd({...newCartAd, isActive: e.target.checked})}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="cartAdActive" className="ml-2 block text-sm text-gray-900 dark:text-white">
+                    Active Cart Ad
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={editingCartAd ? handleUpdateCartAd : handleAddCartAd}
+                  disabled={uploadingImage}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {editingCartAd ? 'Update Cart Ad' : 'Add Cart Ad'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCartAdForm(false);
+                    setEditingCartAd(null);
+                    setNewCartAd({
+                      imageUrl: '',
+                      linkUrl: '',
+                      isActive: true
+                    });
+                  }}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Category Form Modal */}
+        {showCategoryForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {editingCategory ? 'Edit Category' : 'Add New Category'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCategoryForm(false);
+                    setEditingCategory(null);
+                    setNewCategory({
+                      name: ''
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category Name</label>
+                  <input
+                    type="text"
+                    value={newCategory.name}
+                    onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter category name"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={editingCategory ? handleUpdateCategory : handleAddCategory}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {editingCategory ? 'Update Category' : 'Add Category'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCategoryForm(false);
+                    setEditingCategory(null);
+                    setNewCategory({
+                      name: ''
+                    });
                   }}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
