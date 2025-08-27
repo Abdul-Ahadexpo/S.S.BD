@@ -319,7 +319,7 @@ const EmployeeDashboard: React.FC = () => {
   const uploadImageToImgBB = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('image', file);
-    formData.append('key', '46c28b1b4faf5b8c3c6b6e8b7e4c7f8a'); // ImgBB API key
+    formData.append('key', '2a78816b4b5cc1c4c3b18f8f258eda60'); // ImgBB API key
 
     try {
       const response = await fetch('https://api.imgbb.com/1/upload', {
@@ -2150,6 +2150,16 @@ const EmployeeDashboard: React.FC = () => {
                   />
                 </div>
 
+
+
+
+
+
+
+
+                
+
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banner Image</label>
                   <div className="flex gap-2">
@@ -2180,6 +2190,15 @@ const EmployeeDashboard: React.FC = () => {
                     </label>
                   </div>
                 </div>
+
+
+
+
+
+                
+
+
+                
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Link URL (Optional)</label>
