@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ref, get, update } from 'firebase/database';
 import { db } from '../firebase';
-import { ShoppingCart, ArrowLeft, Clock, Shield, Truck, HeadphonesIcon, Share2, Star, User, Calendar } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Clock, Shield, Truck, HeadphonesIcon, Share2, Star, User, Calendar, Heart, Eye, TrendingUp, Package, MapPin, Bell, Gift, Zap, Users, MessageCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
 
 interface ProductVariant {
@@ -21,6 +21,8 @@ interface Product {
   quantity: string | number;
   category: string;
   variants?: ProductVariant[];
+  views?: number;
+  wishlistCount?: number;
 }
 
 interface Review {
@@ -41,8 +43,35 @@ function ProductDetails() {
   const [productReviews, setProductReviews] = useState<Review[]>([]);
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
+  const [isInWishlist, setIsInWishlist] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [priceHistory, setPriceHistory] = useState<{date: string, price: number}[]>([]);
+  const [deliveryDate, setDeliveryDate] = useState<{min: string, max: string}>({min: '', max: ''});
+  const [isNotifyEnabled, setIsNotifyEnabled] = useState(false);
+  const [recentViewers, setRecentViewers] = useState(0);
 
   useEffect(() => {
+    // Track product view
+    const trackView = async () => {
+      if (id) {
+        const productRef = ref(db, `products/${id}`);
+        const snapshot = await get(productRef);
+        if (snapshot.exists()) {
+          const currentViews = snapshot.val().views || 0;
+          await update(productRef, { views: currentViews + 1 });
+        }
+      }
+    };
+    
+    trackView();
+    
+    // Check if product is in wishlist
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    setIsInWishlist(wishlist.includes(id));
+    
+    // Generate random recent viewers (simulated)
+    setRecentViewers(Math.floor(Math.random() * 15) + 3);
+    
     const fetchProduct = async () => {
       const productRef = ref(db, `products/${id}`);
       const snapshot = await get(productRef);
@@ -55,6 +84,36 @@ function ProductDetails() {
         setProduct(productData);
         setSelectedImage(productData.imageUrl);
         setQuantity(1); // Reset quantity when product changes
+        
+        // Calculate delivery dates
+        const today = new Date();
+        let minDays, maxDays;
+        
+        if (productData.quantity === 'Pre-order') {
+          minDays = 25;
+          maxDays = 35;
+        } else {
+          minDays = 2;
+          maxDays = 3;
+        }
+        
+        const minDate = new Date(today);
+        minDate.setDate(today.getDate() + minDays);
+        const maxDate = new Date(today);
+        maxDate.setDate(today.getDate() + maxDays);
+        
+        setDeliveryDate({
+          min: minDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          max: maxDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        });
+        
+        // Simulate price history (in real app, this would come from database)
+        const mockPriceHistory = [
+          { date: '30 days ago', price: productData.price + 200 },
+          { date: '15 days ago', price: productData.price + 100 },
+          { date: 'Today', price: productData.price }
+        ];
+        setPriceHistory(mockPriceHistory);
         
         // Fetch recommendations
         const productsRef = ref(db, 'products');
@@ -118,6 +177,144 @@ function ProductDetails() {
     });
   };
 
+  const toggleWishlist = () => {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    let newWishlist;
+    
+    if (isInWishlist) {
+      newWishlist = wishlist.filter((item: string) => item !== id);
+      Swal.fire({
+        title: 'Removed from Wishlist',
+        text: 'Product removed from your wishlist',
+        icon: 'info',
+        timer: 1500
+      });
+    } else {
+      newWishlist = [...wishlist, id];
+      Swal.fire({
+        title: 'Added to Wishlist',
+        text: 'Product added to your wishlist',
+        icon: 'success',
+        timer: 1500
+      });
+    }
+    
+    localStorage.setItem('wishlist', JSON.stringify(newWishlist));
+    setIsInWishlist(!isInWishlist);
+  };
+
+  const toggleNotification = () => {
+    const notifications = JSON.parse(localStorage.getItem('stockNotifications') || '[]');
+    let newNotifications;
+    
+    if (isNotifyEnabled) {
+      newNotifications = notifications.filter((item: string) => item !== id);
+      setIsNotifyEnabled(false);
+      Swal.fire({
+        title: 'Notifications Disabled',
+        text: 'You will no longer receive stock notifications for this product',
+        icon: 'info',
+        timer: 2000
+      });
+    } else {
+      newNotifications = [...notifications, id];
+      setIsNotifyEnabled(true);
+      Swal.fire({
+        title: 'Notifications Enabled',
+        text: 'We will notify you when this product is back in stock',
+        icon: 'success',
+        timer: 2000
+      });
+    }
+    
+    localStorage.setItem('stockNotifications', JSON.stringify(newNotifications));
+  };
+
+  const showPriceHistory = () => {
+    const historyHtml = priceHistory.map(item => 
+      `<div class="flex justify-between py-2 border-b">
+        <span>${item.date}</span>
+        <span class="font-bold">${item.price} TK</span>
+      </div>`
+    ).join('');
+    
+    Swal.fire({
+      title: 'Price History',
+      html: `<div class="text-left">${historyHtml}</div>`,
+      confirmButtonText: 'Close',
+      width: 400
+    });
+  };
+
+  const showSizeGuideModal = () => {
+    Swal.fire({
+      title: 'Size Guide',
+      html: `
+        <div class="text-left space-y-4">
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h3 class="font-bold mb-2">Measurement Guide</h3>
+            <ul class="space-y-1 text-sm">
+              <li>• Measure yourself wearing light clothing</li>
+              <li>• Use a soft measuring tape</li>
+              <li>• Keep the tape snug but not tight</li>
+            </ul>
+          </div>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="p-2">Size</th>
+                <th class="p-2">Chest (inches)</th>
+                <th class="p-2">Length (inches)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="p-2">S</td><td class="p-2">36-38</td><td class="p-2">26-27</td></tr>
+              <tr><td class="p-2">M</td><td class="p-2">38-40</td><td class="p-2">27-28</td></tr>
+              <tr><td class="p-2">L</td><td class="p-2">40-42</td><td class="p-2">28-29</td></tr>
+              <tr><td class="p-2">XL</td><td class="p-2">42-44</td><td class="p-2">29-30</td></tr>
+            </tbody>
+          </table>
+        </div>
+      `,
+      confirmButtonText: 'Got it!',
+      width: 500
+    });
+  };
+
+  const requestCustomization = () => {
+    Swal.fire({
+      title: 'Request Customization',
+      html: `
+        <div class="text-left space-y-4">
+          <textarea id="customization-request" class="w-full p-3 border rounded-lg" rows="4" placeholder="Describe your customization requirements..."></textarea>
+          <input id="contact-info" class="w-full p-3 border rounded-lg" placeholder="Your contact information (phone/email)">
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Send Request',
+      cancelButtonText: 'Cancel',
+      preConfirm: () => {
+        const request = (document.getElementById('customization-request') as HTMLTextAreaElement).value;
+        const contact = (document.getElementById('contact-info') as HTMLInputElement).value;
+        
+        if (!request || !contact) {
+          Swal.showValidationMessage('Please fill in all fields');
+          return false;
+        }
+        
+        return { request, contact };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Request Sent!',
+          text: 'We will contact you within 24 hours regarding your customization request',
+          icon: 'success',
+          timer: 3000
+        });
+      }
+    });
+  };
   const getMaxQuantity = () => {
     if (!product) return 0;
     
@@ -441,8 +638,37 @@ function ProductDetails() {
               </select>
             </div>
           )}
+          {/* Additional Features */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={showSizeGuideModal}
+              className="flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Package className="h-4 w-4 text-white" />
+              
+          <span className="text-sm font-bold text-white">Size Guide</span>
+
+            </button>
+            <button
+              onClick={requestCustomization}
+              className="flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Zap className="h-4 w-4 text-white" />
+              <span className="text-sm font-bold text-white">Customize</span>
+            </button>
+          </div>
 
           <div className="flex space-x-4">
+            <button
+              onClick={toggleWishlist}
+              className={`p-3 rounded-lg border transition-colors ${
+                isInWishlist 
+                  ? 'bg-red-50 border-red-200 text-red-600 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
+                  : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+            >
+              <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
+            </button>
             <button
               onClick={addToCart}
               disabled={isOutOfStock}
@@ -460,6 +686,26 @@ function ProductDetails() {
             </button>
           </div>
 
+          {/* Quick Actions */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={shareProduct}
+              className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            >
+              <Share2 className="h-4 w-4" />
+              <span className="text-sm">Share Product</span>
+            </button>
+            <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center space-x-1">
+                <MessageCircle className="h-4 w-4" />
+                <span>Ask Question</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Gift className="h-4 w-4" />
+                <span>Gift Wrap Available</span>
+              </div>
+            </div>
+          </div>
           {/* Trust Badges */}
           <div className="grid grid-cols-3 gap-4 pt-6 border-t">
             <div className="flex flex-col items-center text-center">
