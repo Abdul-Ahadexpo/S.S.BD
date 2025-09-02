@@ -154,10 +154,10 @@ const EmployeeDashboard: React.FC = () => {
     description: '',
     price: 0,
     imageUrl: '',
-    additionalImages: [] as string[],
     quantity: '',
     category: '',
-    variants: [] as { color: string; stock: number; imageUrl?: string }[],
+    variants: [],
+    additionalImages: [],
     isExclusive: false
   });
 
@@ -2150,6 +2150,16 @@ const EmployeeDashboard: React.FC = () => {
                   />
                 </div>
 
+
+
+
+
+
+
+
+                
+
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Banner Image</label>
                   <div className="flex gap-2">
@@ -2180,6 +2190,15 @@ const EmployeeDashboard: React.FC = () => {
                     </label>
                   </div>
                 </div>
+
+
+
+
+
+                
+
+
+                
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Link URL (Optional)</label>

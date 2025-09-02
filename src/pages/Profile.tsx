@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Upload, Clock, FileText, Copy, Trash2, Edit2, X, Phone, MapPin, Ban } from 'lucide-react';
+import { Download, Upload, Clock, FileText, Copy, Trash2, Edit2, X, Phone, MapPin, Ban, Heart, Star, Package, ShoppingCart } from 'lucide-react';
+import { ref, get } from 'firebase/database';
+import { db } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 interface OrderHistory {
@@ -21,9 +24,20 @@ interface ProfileData {
   phone: string;
   address: string;
   orderHistory: OrderHistory[];
+  wishlist: string[];
+}
+
+interface WishlistProduct {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  quantity: string | number;
+  category: string;
 }
 
 function Profile() {
+  const navigate = useNavigate();
   const [profileData, setProfileData] = useState<ProfileData>(() => {
     const savedData = localStorage.getItem('profileData');
     return savedData ? JSON.parse(savedData) : {
@@ -31,9 +45,11 @@ function Profile() {
       email: '',
       phone: '',
       address: '',
-      orderHistory: []
+      orderHistory: [],
+      wishlist: []
     };
   });
+  const [wishlistProducts, setWishlistProducts] = useState<WishlistProduct[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
@@ -43,6 +59,40 @@ function Profile() {
   });
 
   useEffect(() => {
+    // Load wishlist from localStorage and fetch product details
+    const loadWishlist = async () => {
+      const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      
+      if (wishlist.length > 0) {
+        try {
+          const productsRef = ref(db, 'products');
+          const snapshot = await get(productsRef);
+          
+          if (snapshot.exists()) {
+            const allProducts = snapshot.val();
+            const wishlistProductsData = wishlist
+              .map((productId: string) => {
+                const product = allProducts[productId];
+                return product ? { id: productId, ...product } : null;
+              })
+              .filter(Boolean);
+            
+            setWishlistProducts(wishlistProductsData);
+            
+            // Update profile data with current wishlist
+            setProfileData(prev => ({
+              ...prev,
+              wishlist: wishlist
+            }));
+          }
+        } catch (error) {
+          console.error('Error loading wishlist products:', error);
+        }
+      }
+    };
+
+    loadWishlist();
+
     const checkoutInfo = localStorage.getItem('userCheckoutInfo');
     if (checkoutInfo) {
       const parsedInfo = JSON.parse(checkoutInfo);
@@ -310,13 +360,63 @@ For any queries, contact us at: spinstrikebd@gmail.com
     });
   };
 
+  const addWishlistToCart = (product: WishlistProduct) => {
+    const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cartItem = {
+      ...product,
+      quantity: 1,
+      selected: true
+    };
+
+    const isProductInCart = existingCart.some((item: any) => item.id === product.id);
+
+    if (isProductInCart) {
+      Swal.fire({
+        title: 'Already in Cart',
+        text: 'This item is already in your cart',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
+    const newCart = [...existingCart, cartItem];
+    localStorage.setItem('cart', JSON.stringify(newCart));
+    
+    Swal.fire({
+      title: 'Success!',
+      text: 'Product added to cart from wishlist',
+      icon: 'success',
+      timer: 1500
+    });
+  };
+
+  const removeFromWishlist = (productId: string) => {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    const newWishlist = wishlist.filter((id: string) => id !== productId);
+    localStorage.setItem('wishlist', JSON.stringify(newWishlist));
+    
+    // Update local state
+    setWishlistProducts(prev => prev.filter(product => product.id !== productId));
+    setProfileData(prev => ({
+      ...prev,
+      wishlist: newWishlist
+    }));
+    
+    Swal.fire({
+      title: 'Removed!',
+      text: 'Product removed from wishlist',
+      icon: 'success',
+      timer: 1500
+    });
+  };
+
   const exportProfile = () => {
     const dataStr = JSON.stringify(profileData);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'spin-strike-profile.json';
     link.download = 'sentorial-profile.json';
     document.body.appendChild(link);
     link.click();
@@ -499,6 +599,105 @@ For any queries, contact us at: spinstrikebd@gmail.com
               </motion.div>
             )}
           </AnimatePresence>
+        </div>
+
+        {/* Wishlist Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
+              <Heart className="h-6 w-6 mr-2 text-red-500" />
+              My Wishlist ({wishlistProducts.length})
+            </h2>
+          </div>
+          
+          {wishlistProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <AnimatePresence>
+                {wishlistProducts.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+                  >
+                    <div 
+                      className="aspect-square cursor-pointer"
+                      onClick={() => navigate(`/product/${product.id}`)}
+                    >
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 
+                        className="font-semibold text-gray-800 dark:text-white mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        onClick={() => navigate(`/product/${product.id}`)}
+                      >
+                        {product.name}
+                      </h3>
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          {product.price} TK
+                        </span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {product.category}
+                        </span>
+                      </div>
+                      <div className={`mb-3 px-2 py-1 rounded-full text-xs font-medium inline-block ${
+                        product.quantity === 'Out of Stock'
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          : product.quantity === 'Pre-order'
+                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      }`}>
+                        {product.quantity === 'Out of Stock' ? 'Out of Stock' :
+                         product.quantity === 'Pre-order' ? 'Pre-order' :
+                         'In Stock'}
+                      </div>
+                      <div className="flex space-x-2">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => addWishlistToCart(product)}
+                          disabled={product.quantity === 'Out of Stock'}
+                          className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 text-sm flex items-center justify-center space-x-1"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          <span>Add to Cart</span>
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => removeFromWishlist(product.id)}
+                          className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                        >
+                          <X className="h-4 w-4" />
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Heart className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
+                Your wishlist is empty
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/')}
+                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Browse Products
+              </motion.button>
+            </div>
+          )}
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">

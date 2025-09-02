@@ -541,6 +541,33 @@ function ProductDetails() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{product.name}</h1>
           <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{product.price} TK</p>
           
+          {/* Delivery Estimation */}
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <h3 className="font-semibold text-green-800 dark:text-green-200 mb-2 flex items-center">
+              <Truck className="h-5 w-5 mr-2" />
+              Estimated Delivery
+            </h3>
+            <div className="space-y-1 text-sm text-green-700 dark:text-green-300">
+              {product.quantity === 'Pre-order' ? (
+                <>
+                  <p className="font-medium">25-35 working days</p>
+                  <p>Expected delivery: {deliveryDate.min} - {deliveryDate.max}</p>
+                  <p className="text-xs text-green-600 dark:text-green-400">
+                    ⏰ Pre-order items require longer processing time
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium">2-3 working days</p>
+                  <p>Expected delivery: {deliveryDate.min} - {deliveryDate.max}</p>
+                  <p className="text-xs text-green-600 dark:text-green-400">
+                    🚀 Fast delivery for in-stock items
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* Stock Status */}
           <div className="flex items-center space-x-2">
             <div className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -659,16 +686,6 @@ function ProductDetails() {
           </div>
 
           <div className="flex space-x-4">
-            <button
-              onClick={toggleWishlist}
-              className={`p-3 rounded-lg border transition-colors ${
-                isInWishlist 
-                  ? 'bg-red-50 border-red-200 text-red-600 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
-                  : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
-            </button>
             <button
               onClick={addToCart}
               disabled={isOutOfStock}
