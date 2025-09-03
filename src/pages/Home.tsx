@@ -5,6 +5,7 @@ import { ShoppingCart, Search, ChevronDown, Filter, Share2, X, ExternalLink, Che
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import ChatWidget from '../components/ChatWidget';
 
 interface ProductVariant {
   color: string;
@@ -633,6 +634,9 @@ function Home() {
           </p>
         </div>
       )}
+      
+      {/* Chat Widget */}
+      <ChatWidget />
     </div>
   );
 }

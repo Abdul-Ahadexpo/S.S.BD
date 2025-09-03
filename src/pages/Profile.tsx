@@ -700,6 +700,105 @@ For any queries, contact us at: spinstrikebd@gmail.com
           )}
         </div>
 
+        {/* Wishlist Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
+              <Heart className="h-6 w-6 mr-2 text-red-500" />
+              My Wishlist ({wishlistProducts.length})
+            </h2>
+          </div>
+          
+          {wishlistProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <AnimatePresence>
+                {wishlistProducts.map((product) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    className="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+                  >
+                    <div 
+                      className="aspect-square cursor-pointer"
+                      onClick={() => navigate(`/product/${product.id}`)}
+                    >
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 
+                        className="font-semibold text-gray-800 dark:text-white mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        onClick={() => navigate(`/product/${product.id}`)}
+                      >
+                        {product.name}
+                      </h3>
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          {product.price} TK
+                        </span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {product.category}
+                        </span>
+                      </div>
+                      <div className={`mb-3 px-2 py-1 rounded-full text-xs font-medium inline-block ${
+                        product.quantity === 'Out of Stock'
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          : product.quantity === 'Pre-order'
+                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      }`}>
+                        {product.quantity === 'Out of Stock' ? 'Out of Stock' :
+                         product.quantity === 'Pre-order' ? 'Pre-order' :
+                         'In Stock'}
+                      </div>
+                      <div className="flex space-x-2">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => addWishlistToCart(product)}
+                          disabled={product.quantity === 'Out of Stock'}
+                          className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 text-sm flex items-center justify-center space-x-1"
+                        >
+                          <ShoppingCart className="h-4 w-4" />
+                          <span>Add to Cart</span>
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => removeFromWishlist(product.id)}
+                          className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+                        >
+                          <X className="h-4 w-4" />
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Heart className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
+                Your wishlist is empty
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/')}
+                className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Browse Products
+              </motion.button>
+            </div>
+          )}
+        </div>
+
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Order History</h2>

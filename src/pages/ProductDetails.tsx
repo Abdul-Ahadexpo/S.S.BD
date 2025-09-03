@@ -491,7 +491,17 @@ function ProductDetails() {
         Back to Products
       </button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+
+
+
+
+
+
+
+
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
           <div className="aspect-square rounded-lg overflow-hidden bg-white relative">
             <img
@@ -505,7 +515,26 @@ function ProductDetails() {
             >
               <Share2 className="h-5 w-5 text-gray-600 dark:text-gray-300" />
             </button>
-          </div>
+            <button
+              onClick={toggleWishlist}
+              className="absolute top-14 right-2 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full shadow-md hover:bg-white/100 dark:hover:bg-gray-700/100 transition-all"
+            >
+              <Heart 
+                className={`h-5 w-5 transition-colors ${
+                  isInWishlist 
+                    ? 'text-red-500 fill-red-500' 
+                    : 'text-gray-600 dark:text-gray-300'
+                }`} 
+              />
+            </button>
+  </div>
+
+
+
+      
+
+
+          
           <div className="grid grid-cols-4 gap-2">
             <button
               onClick={() => setSelectedImage(product.imageUrl)}
