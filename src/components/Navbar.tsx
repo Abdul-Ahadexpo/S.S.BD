@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Home, Settings, Sun, Moon, Star, User, Menu, X } from 'lucide-react';
+import { ShoppingCart, Home, Settings, Sun, Moon, Star, User, Menu, X, Package } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -46,6 +46,7 @@ function Navbar() {
 
   const menuItems = [
     { to: '/', icon: Home, label: 'Home' },
+    { to: '/custom-preorder', icon: Package, label: 'Custom Orders' },
     { to: '/reviews', icon: Star, label: 'Reviews' },
     { to: '/profile', icon: User, label: 'Profile' },
     { to: '/admin-ep', icon: Settings, label: 'Admin/Ep' },
@@ -65,6 +66,13 @@ function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-4">
+            <Link 
+              to="/custom-preorder" 
+              className="flex items-center space-x-1 text-gray-800 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
+              <Package className="h-6 w-6" />
+              <span>Custom Orders</span>
+            </Link>
             <Link 
               to="/reviews" 
               className="flex items-center space-x-1 text-gray-800 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"

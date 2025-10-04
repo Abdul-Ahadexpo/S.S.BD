@@ -14,6 +14,7 @@ import Checkout from './pages/Checkout';
 import Reviews from './pages/Reviews';
 import ProductDetails from './pages/ProductDetails';
 import Profile from './pages/Profile';
+import CustomPreOrder from './pages/CustomPreOrder';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/custom-preorder" element={<CustomPreOrder />} />
             </Routes>
           </div>
           <Footer />
