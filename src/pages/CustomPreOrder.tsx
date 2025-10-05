@@ -353,8 +353,8 @@ Time: ${new Date().toLocaleString()}
         <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
           Custom Pre-Orders
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300">
-          Can't find what you're looking for? Request a custom product!
+        <p className="text-lg text-gray-600 font-bold dark:text-gray-300">
+          Can't find what you're looking for? Request a custom product by using the blue + button!
         </p>
         
         {/* Admin Button */}
