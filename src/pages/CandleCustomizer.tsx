@@ -291,7 +291,7 @@ For any queries, contact us at: spinstrike@gmail.com
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4 flex items-center justify-center">
           <Flame className="mr-3 text-orange-500" size={40} />
-          <i>Candarial~</i> Candle Designer
+         <span className="text-[#fa8a3b]"><i className="text-white">Candarial</i>~</span> Candle Designer
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-300">
           Create your perfect custom candle with our premium materials
@@ -428,7 +428,7 @@ For any queries, contact us at: spinstrike@gmail.com
 
           {/* Custom Description */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Custom Description (scents are free)</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Custom Description</h2>
             <textarea
               value={candleOrder.customDescription}
               onChange={(e) => setCandleOrder(prev => ({ ...prev, customDescription: e.target.value }))}
