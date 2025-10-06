@@ -428,7 +428,7 @@ For any queries, contact us at: spinstrike@gmail.com
 
           {/* Custom Description */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Custom Description</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Custom Description (scents are free)</h2>
             <textarea
               value={candleOrder.customDescription}
               onChange={(e) => setCandleOrder(prev => ({ ...prev, customDescription: e.target.value }))}
