@@ -291,7 +291,7 @@ For any queries, contact us at: spinstrike@gmail.com
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4 flex items-center justify-center">
           <Flame className="mr-3 text-orange-500" size={40} />
-          <i>Candarial</i> Candle Designer
+          <i>Candarial </i> Candle Designer
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-300">
           Create your perfect custom candle with our premium materials
