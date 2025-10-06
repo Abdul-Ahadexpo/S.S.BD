@@ -323,7 +323,7 @@ For any queries, contact us at: spinstrike@gmail.com
                     <img
                       src={container.imageUrl}
                       alt={container.name}
-                      className="w-full h-24 object-cover rounded mb-2"
+                      className="w-full h-40 object-cover rounded mb-2"
                     />
                   )}
                   <h3 className="font-semibold text-gray-800 dark:text-white">{container.name}</h3>
@@ -353,7 +353,7 @@ For any queries, contact us at: spinstrike@gmail.com
                     <img
                       src={wick.imageUrl}
                       alt={wick.name}
-                      className="w-full h-24 object-cover rounded mb-2"
+                      className="w-full h-40 object-cover rounded mb-2"
                     />
                   )}
                   <h3 className="font-semibold text-gray-800 dark:text-white">{wick.name}</h3>
@@ -383,7 +383,7 @@ For any queries, contact us at: spinstrike@gmail.com
                     <img
                       src={wax.imageUrl}
                       alt={wax.name}
-                      className="w-full h-24 object-cover rounded mb-2"
+                      className="w-full h-40 object-cover rounded mb-2"
                     />
                   )}
                   <h3 className="font-semibold text-gray-800 dark:text-white">{wax.name}</h3>
@@ -413,7 +413,7 @@ For any queries, contact us at: spinstrike@gmail.com
                     <img
                       src={addon.imageUrl}
                       alt={addon.name}
-                      className="w-full h-24 object-cover rounded mb-2"
+                      className="w-full h-40 object-cover rounded mb-2"
                     />
                   )}
                   <h3 className="font-semibold text-gray-800 dark:text-white">{addon.name}</h3>
