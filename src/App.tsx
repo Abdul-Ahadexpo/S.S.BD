@@ -15,6 +15,7 @@ import Reviews from './pages/Reviews';
 import ProductDetails from './pages/ProductDetails';
 import Profile from './pages/Profile';
 import CustomPreOrder from './pages/CustomPreOrder';
+import CandleCustomizer from './pages/CandleCustomizer';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
               <Route path="/product/:id" element={<ProductDetails />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/custom-preorder" element={<CustomPreOrder />} />
+              <Route path="/candle-customizer" element={<CandleCustomizer />} />
             </Routes>
           </div>
           <Footer />

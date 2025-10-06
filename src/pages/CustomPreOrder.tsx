@@ -6,6 +6,15 @@ import { Plus, Upload, X, ShoppingCart, ArrowLeft, Package, Clock, Star, User, S
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'framer-motion';
 
+interface CandleMaterial {
+  id: string;
+  name: string;
+  price: number;
+  category: 'containers' | 'wicks' | 'wax' | 'addons';
+  imageUrl?: string;
+  isActive: boolean;
+}
+
 interface CustomProduct {
   id: string;
   name: string;
@@ -25,10 +34,13 @@ interface CustomProduct {
 function CustomPreOrder() {
   const navigate = useNavigate();
   const [customProducts, setCustomProducts] = useState<CustomProduct[]>([]);
+  const [candleMaterials, setCandleMaterials] = useState<CandleMaterial[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [showCandleMaterialForm, setShowCandleMaterialForm] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [editingProduct, setEditingProduct] = useState<CustomProduct | null>(null);
+  const [editingMaterial, setEditingMaterial] = useState<CandleMaterial | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -38,6 +50,13 @@ function CustomPreOrder() {
     customerPhone: '',
     customerLocation: '',
     images: [] as string[]
+  });
+  const [materialFormData, setMaterialFormData] = useState({
+    name: '',
+    price: 0,
+    category: 'containers' as 'containers' | 'wicks' | 'wax' | 'addons',
+    imageUrl: '',
+    isActive: true
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,7 +77,25 @@ function CustomPreOrder() {
       }
     });
 
-    return () => unsubscribe();
+    // Fetch candle materials
+    const candleMaterialsRef = ref(db, 'candleMaterials');
+    const unsubscribeMaterials = onValue(candleMaterialsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const materialsList = Object.entries(data)
+          .map(([id, material]) => ({
+            id,
+            ...(material as Omit<CandleMaterial, 'id'>)
+          }))
+          .sort((a, b) => a.category.localeCompare(b.category));
+        setCandleMaterials(materialsList);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeMaterials();
+    };
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -203,6 +240,62 @@ Time: ${new Date().toLocaleString()}
     }
   };
 
+  const handleMaterialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    setIsSubmitting(true);
+
+    try {
+      let materialId;
+      let materialRef;
+
+      if (editingMaterial) {
+        // Update existing material
+        materialId = editingMaterial.id;
+        materialRef = ref(db, `candleMaterials/${materialId}`);
+      } else {
+        // Create new material
+        const materialsRef = ref(db, 'candleMaterials');
+        const newMaterialRef = push(materialsRef);
+        materialId = newMaterialRef.key;
+        materialRef = newMaterialRef;
+      }
+
+      const materialData = {
+        ...materialFormData,
+        id: materialId
+      };
+
+      await set(materialRef, materialData);
+
+      Swal.fire({
+        title: editingMaterial ? 'Material Updated!' : 'Material Added!',
+        text: editingMaterial ? 'Candle material has been updated successfully!' : 'New candle material has been added successfully!',
+        icon: 'success',
+        confirmButtonText: 'Great!'
+      });
+
+      // Reset form
+      setMaterialFormData({
+        name: '',
+        price: 0,
+        category: 'containers',
+        imageUrl: '',
+        isActive: true
+      });
+      setEditingMaterial(null);
+      setShowCandleMaterialForm(false);
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: editingMaterial ? 'Failed to update material. Please try again.' : 'Failed to add material. Please try again.',
+        icon: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const addToCart = (product: CustomProduct) => {
     const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
     const cartItem = {
@@ -287,6 +380,18 @@ Time: ${new Date().toLocaleString()}
     setShowForm(true);
   };
 
+  const handleEditMaterial = (material: CandleMaterial) => {
+    setEditingMaterial(material);
+    setMaterialFormData({
+      name: material.name,
+      price: material.price,
+      category: material.category,
+      imageUrl: material.imageUrl || '',
+      isActive: material.isActive
+    });
+    setShowCandleMaterialForm(true);
+  };
+
   const handleDeleteProduct = async (productId: string, productName: string) => {
     const result = await Swal.fire({
       title: 'Delete Product',
@@ -313,6 +418,38 @@ Time: ${new Date().toLocaleString()}
         Swal.fire({
           title: 'Error',
           text: 'Failed to delete product',
+          icon: 'error'
+        });
+      }
+    }
+  };
+
+  const handleDeleteMaterial = async (materialId: string, materialName: string) => {
+    const result = await Swal.fire({
+      title: 'Delete Material',
+      text: `Are you sure you want to delete "${materialName}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#ef4444'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const materialRef = ref(db, `candleMaterials/${materialId}`);
+        await remove(materialRef);
+        
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Material has been deleted successfully',
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to delete material',
           icon: 'error'
         });
       }
@@ -357,6 +494,17 @@ Time: ${new Date().toLocaleString()}
           Can't find what you're looking for? Request a custom product by using the blue + button!
         </p>
         
+        {/* Candle Customizer Link */}
+        <div className="mt-6">
+          <button
+            onClick={() => navigate('/candle-customizer')}
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors text-lg font-semibold"
+          >
+            <span>🕯️</span>
+            <span>Design Custom Candles</span>
+          </button>
+        </div>
+        
         {/* Admin Button */}
         <div className="mt-4">
           <button
@@ -368,6 +516,64 @@ Time: ${new Date().toLocaleString()}
           </button>
         </div>
       </div>
+
+      {/* Admin Candle Materials Management */}
+      {isAdminAuthenticated && (
+        <div className="max-w-4xl mx-auto mb-8 bg-gray-100 dark:bg-gray-800 rounded-lg p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Candle Materials Management</h2>
+            <button
+              onClick={() => setShowCandleMaterialForm(true)}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add Material</span>
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {candleMaterials.map((material) => (
+              <div key={material.id} className="bg-white dark:bg-gray-700 rounded-lg p-4 border">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-semibold text-gray-800 dark:text-white">{material.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 capitalize">{material.category}</p>
+                    <p className="text-blue-600 dark:text-blue-400 font-bold">{material.price} TK</p>
+                  </div>
+                  <div className="flex space-x-1">
+                    <button
+                      onClick={() => handleEditMaterial(material)}
+                      className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMaterial(material.id, material.name)}
+                      className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                {material.imageUrl && (
+                  <img
+                    src={material.imageUrl}
+                    alt={material.name}
+                    className="w-full h-20 object-cover rounded mb-2"
+                  />
+                )}
+                <div className={`text-xs px-2 py-1 rounded ${
+                  material.isActive 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                }`}>
+                  {material.isActive ? 'Active' : 'Inactive'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Floating Add Button */}
       <motion.button
@@ -731,6 +937,157 @@ Time: ${new Date().toLocaleString()}
                         </>
                       ) : (
                         <span>{editingProduct ? 'Update Product' : 'Submit Request'}</span>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Candle Material Form Modal */}
+      <AnimatePresence>
+        {showCandleMaterialForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowCandleMaterialForm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                    {editingMaterial ? 'Edit Material' : 'Add Candle Material'}
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setShowCandleMaterialForm(false);
+                      setEditingMaterial(null);
+                      setMaterialFormData({
+                        name: '',
+                        price: 0,
+                        category: 'containers',
+                        imageUrl: '',
+                        isActive: true
+                      });
+                    }}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                  >
+                    <X className="h-6 w-6 text-gray-600 dark:text-gray-300" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleMaterialSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Material Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={materialFormData.name}
+                      onChange={(e) => setMaterialFormData({ ...materialFormData, name: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                      required
+                      placeholder="e.g., Glass jar, Wooden wick, Soy wax"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Category *
+                    </label>
+                    <select
+                      value={materialFormData.category}
+                      onChange={(e) => setMaterialFormData({ ...materialFormData, category: e.target.value as any })}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="containers">Containers</option>
+                      <option value="wicks">Wicks</option>
+                      <option value="wax">Main Body Wax</option>
+                      <option value="addons">Add-ons</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Price (TK) *
+                    </label>
+                    <input
+                      type="number"
+                      value={materialFormData.price}
+                      onChange={(e) => setMaterialFormData({ ...materialFormData, price: parseInt(e.target.value) || 0 })}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                      required
+                      min="0"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                      Image URL (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      value={materialFormData.imageUrl}
+                      onChange={(e) => setMaterialFormData({ ...materialFormData, imageUrl: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={materialFormData.isActive}
+                        onChange={(e) => setMaterialFormData({ ...materialFormData, isActive: e.target.checked })}
+                        className="form-checkbox h-5 w-5 text-blue-500"
+                      />
+                      <span className="text-gray-700 dark:text-gray-200">Active (visible to customers)</span>
+                    </label>
+                  </div>
+
+                  <div className="flex space-x-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowCandleMaterialForm(false);
+                        setEditingMaterial(null);
+                        setMaterialFormData({
+                          name: '',
+                          price: 0,
+                          category: 'containers',
+                          imageUrl: '',
+                          isActive: true
+                        });
+                      }}
+                      className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 disabled:bg-blue-400 flex items-center justify-center space-x-2"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>{editingMaterial ? 'Updating...' : 'Adding...'}</span>
+                        </>
+                      ) : (
+                        <span>{editingMaterial ? 'Update Material' : 'Add Material'}</span>
                       )}
                     </button>
                   </div>

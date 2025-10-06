@@ -47,6 +47,7 @@ function Navbar() {
   const menuItems = [
     { to: '/', icon: Home, label: 'Home' },
     { to: '/custom-preorder', icon: Package, label: 'Custom Orders' },
+    { to: '/candle-customizer', icon: Package, label: 'Custom Candles' },
     { to: '/reviews', icon: Star, label: 'Reviews' },
     { to: '/profile', icon: User, label: 'Profile' },
     { to: '/admin-ep', icon: Settings, label: 'Admin/Ep' },
@@ -72,6 +73,13 @@ function Navbar() {
             >
               <Package className="h-6 w-6" />
               <span>Custom Orders</span>
+            </Link>
+            <Link 
+              to="/candle-customizer" 
+              className="flex items-center space-x-1 text-gray-800 dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
+              <Package className="h-6 w-6" />
+              <span>Custom Candles</span>
             </Link>
             <Link 
               to="/reviews" 

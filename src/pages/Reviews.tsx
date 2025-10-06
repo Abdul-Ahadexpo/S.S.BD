@@ -22,16 +22,41 @@ function Reviews() {
   const [showForm, setShowForm] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [userOrderedProducts, setUserOrderedProducts] = useState<string[]>([]);
+  const [isCustomProductName, setIsCustomProductName] = useState(false);
   const [formData, setFormData] = useState({
     buyerName: '',
     productName: '',
     reviewText: '',
-    purchaseDate: '',
+    purchaseDate: new Date().toISOString().split('T')[0], // Auto-set to today
     images: [] as string[]
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    // Load user's ordered products from local storage
+    const loadUserOrderedProducts = () => {
+      const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+      const orderHistory = profileData.orderHistory || [];
+      
+      // Extract unique product names from order history
+      const productNames = new Set<string>();
+      orderHistory.forEach((order: any) => {
+        if (order.items && Array.isArray(order.items)) {
+          order.items.forEach((item: any) => {
+            if (item.name) {
+              productNames.add(item.name);
+            }
+          });
+        }
+      });
+      
+      // Check if the product name is in the user's order history
+      setUserOrderedProducts(Array.from(productNames));
+    };
+
+    loadUserOrderedProducts();
+
     const reviewsRef = ref(db, 'reviews');
     const unsubscribe = onValue(reviewsRef, (snapshot) => {
       const data = snapshot.val();
@@ -207,6 +232,21 @@ Time: ${new Date().toLocaleString()}
 
   const handleEditReview = (review: Review) => {
     setEditingReview(review);
+    // Check if the product name is in the user's order history
+    const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+    const orderHistory = profileData.orderHistory || [];
+    const productNames = new Set<string>();
+    orderHistory.forEach((order: any) => {
+      if (order.items && Array.isArray(order.items)) {
+        order.items.forEach((item: any) => {
+          if (item.name) {
+            productNames.add(item.name);
+          }
+        });
+      }
+    });
+    const orderedProducts = Array.from(productNames);
+    setIsCustomProductName(!orderedProducts.includes(review.productName));
     setFormData({
       buyerName: review.buyerName,
       productName: review.productName,
@@ -433,11 +473,12 @@ Time: ${new Date().toLocaleString()}
                     onClick={() => {
                       setShowForm(false);
                       setEditingReview(null);
+                      setIsCustomProductName(false);
                       setFormData({
                         buyerName: '',
                         productName: '',
                         reviewText: '',
-                        purchaseDate: '',
+                        purchaseDate: new Date().toISOString().split('T')[0],
                         images: []
                       });
                     }}
@@ -466,20 +507,67 @@ Time: ${new Date().toLocaleString()}
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                         Product Name *
                       </label>
-                      <input
-                        type="text"
-                        value={formData.productName}
-                        onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        required
-                        placeholder="Which product are you reviewing?"
-                      />
+                      {userOrderedProducts.length > 0 && !isCustomProductName ? (
+                        <div className="space-y-2">
+                          <select
+                            value={formData.productName}
+                            onChange={(e) => {
+                              if (e.target.value === 'custom') {
+                                setIsCustomProductName(true);
+                                setFormData({ ...formData, productName: '' });
+                              } else {
+                                setFormData({ ...formData, productName: e.target.value });
+                              }
+                            }}
+                            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                            required
+                          >
+                            <option value="">Select a product you've ordered</option>
+                            {userOrderedProducts.map((productName, index) => (
+                              <option key={index} value={productName}>
+                                {productName}
+                              </option>
+                            ))}
+                            <option value="custom">Other product (type manually)</option>
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => setIsCustomProductName(true)}
+                            className="text-sm text-blue-500 hover:text-blue-600 underline"
+                          >
+                            Can't find your product? Click here to type manually
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={formData.productName}
+                            onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
+                            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                            required
+                            placeholder="Enter the product name"
+                          />
+                          {userOrderedProducts.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCustomProductName(false);
+                                setFormData({ ...formData, productName: '' });
+                              }}
+                              className="text-sm text-blue-500 hover:text-blue-600 underline"
+                            >
+                              Select from your ordered products instead
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                      Purchase Date *
+                      Purchase Date * (Auto-set to today)
                     </label>
                     <input
                       type="date"
@@ -488,6 +576,9 @@ Time: ${new Date().toLocaleString()}
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                       required
                     />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Date is automatically set to today. You can change it if needed.
+                    </p>
                   </div>
 
                   <div>
@@ -559,11 +650,13 @@ Time: ${new Date().toLocaleString()}
                       onClick={() => {
                         setShowForm(false);
                         setEditingReview(null);
+                        setIsCustomProductName(false);
+                        setIsCustomProductName(false);
                         setFormData({
                           buyerName: '',
                           productName: '',
                           reviewText: '',
-                          purchaseDate: '',
+                          purchaseDate: new Date().toISOString().split('T')[0],
                           images: []
                         });
                       }}
