@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ref, onValue, push, set, remove, update } from 'firebase/database';
 import { db } from '../firebase';
-import { Plus, Upload, X, ShoppingCart, ArrowLeft, Package, Clock, Star, User, Settings, CreditCard as Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Upload, X, ShoppingCart, ArrowLeft, Package, Clock, Star, User, Settings, CreditCard as Edit, Trash2, Eye, EyeOff, Flame } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -487,8 +487,10 @@ Time: ${new Date().toLocaleString()}
       </button>
 
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
-          Custom Pre-Orders
+        <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4 flex items-center justify-center">
+            <Flame className="mr-3 text-orange-500" size={40} />
+          <i className="text-[#fa8a3b]">~<span className="text-white">Candarial</span>~</i>
+           <Flame className="ml-3 text-orange-500" size={40} />
         </h1>
         <p className="text-lg text-gray-600 font-bold dark:text-gray-300">
           Can't find what you're looking for? Request a custom product by using the blue + button!
