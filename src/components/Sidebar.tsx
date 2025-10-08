@@ -25,6 +25,12 @@ export function Sidebar({
   onToggle 
 }: SidebarProps) {
   const [hoveredChat, setHoveredChat] = useState<string | null>(null);
+  const [isInIframe, setIsInIframe] = useState(false);
+
+  useEffect(() => {
+    // Check if the site is being used in an iframe
+    setIsInIframe(window.self !== window.top);
+  }, []);
 
   const handleDeleteChat = (e: React.MouseEvent, chatId: string) => {
     e.stopPropagation();
@@ -68,33 +74,37 @@ export function Sidebar({
             </button>
           </div>
           
-          {/* New Chat Button */}
-          <button
-            onClick={onNewChat}
-            disabled={chats.length >= 4}
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-700 disabled:cursor-not-allowed text-white py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-all duration-200 hover:shadow-lg"
-          >
-            <Plus size={18} />
-            <span className="font-medium">New Chat</span>
-            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-              {chats.length}/4
-            </span>
-          </button>
+          {/* New Chat Button - Hidden in iframe */}
+          {!isInIframe && (
+            <button
+              onClick={onNewChat}
+              disabled={chats.length >= 4}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-700 disabled:cursor-not-allowed text-white py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-all duration-200 hover:shadow-lg"
+            >
+              <Plus size={18} />
+              <span className="font-medium">New Chat</span>
+              <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                {chats.length}/4
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Chat List */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">
-            Recent Chats
-          </h3>
+          {!isInIframe && (
+            <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">
+              Recent Chats
+            </h3>
+          )}
           
-          {chats.length === 0 ? (
+          {chats.length === 0 && !isInIframe ? (
             <div className="text-center py-8">
               <MessageSquare size={32} className="text-slate-600 mx-auto mb-3" />
               <p className="text-slate-500 text-sm">No chats yet</p>
               <p className="text-slate-600 text-xs">Start a new conversation</p>
             </div>
-          ) : (
+          ) : !isInIframe ? (
             chats.map((chat) => (
               <div
                 key={chat.id}
@@ -135,7 +145,7 @@ export function Sidebar({
                 </div>
               </div>
             ))
-          )}
+          ) : null}
         </div>
 
         {/* Footer */}
