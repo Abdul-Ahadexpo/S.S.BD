@@ -744,9 +744,75 @@ For any queries, contact us at: spinstrike@gmail.com
             </div>
           </div>
 
+          {/* Scents Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Scents (Optional)</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {getMaterialsByCategory('scents').map((scent) => (
+                <motion.div
+                  key={scent.id}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleMaterialSelect(scent, 'addons')}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    candleOrder.addons.find(a => a.id === scent.id)
+                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {scent.imageUrl && (
+                    <img
+                      src={scent.imageUrl}
+                      alt={scent.name}
+                      className="w-full h-40 object-cover rounded mb-2"
+                    />
+                  )}
+                  <h3 className="font-semibold text-gray-800 dark:text-white">{scent.name}</h3>
+                  <p className="text-blue-600 dark:text-blue-400 font-bold">{scent.price} TK</p>
+                  {candleOrder.addons.find(a => a.id === scent.id) && (
+                    <p className="text-green-600 text-sm font-medium">✓ Selected</p>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Colors Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Colors (Optional)</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {getMaterialsByCategory('colors').map((color) => (
+                <motion.div
+                  key={color.id}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleMaterialSelect(color, 'addons')}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    candleOrder.addons.find(a => a.id === color.id)
+                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {color.imageUrl && (
+                    <img
+                      src={color.imageUrl}
+                      alt={color.name}
+                      className="w-full h-40 object-cover rounded mb-2"
+                    />
+                  )}
+                  <h3 className="font-semibold text-gray-800 dark:text-white">{color.name}</h3>
+                  <p className="text-blue-600 dark:text-blue-400 font-bold">{color.price} TK</p>
+                  {candleOrder.addons.find(a => a.id === color.id) && (
+                    <p className="text-green-600 text-sm font-medium">✓ Selected</p>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
           {/* Add-ons Section */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Add-ons (Optional)</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Other Add-ons (Optional)</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {getMaterialsByCategory('addons').map((addon) => (
                 <motion.div

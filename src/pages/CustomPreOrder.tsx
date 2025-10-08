@@ -1,84 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ref, onValue, push, set, remove, update } from 'firebase/database';
+import { ref, onValue, push, set, remove, update, get } from 'firebase/database';
 import { db } from '../firebase';
-import { Plus, Upload, X, ShoppingCart, ArrowLeft, Package, Clock, Star, User, Settings, CreditCard as Edit, Trash2, Eye, EyeOff, Flame } from 'lucide-react';
+import { Plus, Upload, X, ShoppingCart, ArrowLeft, Package, Clock, Star, User, Settings, CreditCard as Edit, Trash2, Eye, EyeOff, Flame, Image as ImageIcon } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Firebase reference for candle products
+const customProductsRef = ref(db, 'candleProducts');
+const candleMaterialsRef = ref(db, 'candleMaterials');
+
+interface CandleProduct {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  imageUrl: string;
+  additionalImages: string[];
+  createdAt: number;
+  isActive: boolean;
+}
 
 interface CandleMaterial {
   id: string;
   name: string;
   price: number;
-  category: 'containers' | 'wicks' | 'wax' | 'addons';
+  category: 'containers' | 'wicks' | 'wax' | 'addons' | 'scents' | 'colors';
   imageUrl?: string;
   isActive: boolean;
 }
 
-interface CustomProduct {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  additionalImages?: string[];
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  customerLocation: string;
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: number;
-  estimatedPrice?: number;
-}
-
 function CustomPreOrder() {
   const navigate = useNavigate();
-  const [customProducts, setCustomProducts] = useState<CustomProduct[]>([]);
+  const [candleProducts, setCandleProducts] = useState<CandleProduct[]>([]);
   const [candleMaterials, setCandleMaterials] = useState<CandleMaterial[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [showCandleMaterialForm, setShowCandleMaterialForm] = useState(false);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showMaterialForm, setShowMaterialForm] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<CustomProduct | null>(null);
+  const [editingProduct, setEditingProduct] = useState<CandleProduct | null>(null);
   const [editingMaterial, setEditingMaterial] = useState<CandleMaterial | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: 0,
-    customerName: '',
-    customerEmail: '',
-    customerPhone: '',
-    customerLocation: '',
+    quantity: 0,
     images: [] as string[]
   });
   const [materialFormData, setMaterialFormData] = useState({
     name: '',
     price: 0,
-    category: 'containers' as 'containers' | 'wicks' | 'wax' | 'addons',
-    imageUrl: '',
-    isActive: true
+    category: 'containers' as 'containers' | 'wicks' | 'wax' | 'addons' | 'scents' | 'colors',
+    imageUrl: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Fetch custom pre-order products
-    const customProductsRef = ref(db, 'customPreOrders');
+    // Fetch candle products
+    const candleProductsRef = ref(db, 'candleProducts');
     const unsubscribe = onValue(customProductsRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
         const productsList = Object.entries(data)
           .map(([id, product]) => ({
             id,
-            ...(product as Omit<CustomProduct, 'id'>)
+            ...(product as Omit<CandleProduct, 'id'>)
           }))
-          .filter(product => product.status === 'approved' || product.status === 'pending')
+          .filter(product => product.isActive)
           .sort((a, b) => b.createdAt - a.createdAt);
-        setCustomProducts(productsList);
+        setCandleProducts(productsList);
       }
     });
 
     // Fetch candle materials
-    const candleMaterialsRef = ref(db, 'candleMaterials');
     const unsubscribeMaterials = onValue(candleMaterialsRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
@@ -87,7 +81,7 @@ function CustomPreOrder() {
             id,
             ...(material as Omit<CandleMaterial, 'id'>)
           }))
-          .sort((a, b) => a.category.localeCompare(b.category));
+          .filter(material => material.isActive);
         setCandleMaterials(materialsList);
       }
     });
@@ -122,13 +116,28 @@ function CustomPreOrder() {
     }));
   };
 
+  const handleMaterialImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const imageUrl = event.target?.result as string;
+        setMaterialFormData(prev => ({
+          ...prev,
+          imageUrl
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formData.images.length === 0) {
       Swal.fire({
         title: 'Images Required',
-        text: 'Please upload at least one image of the product you want to pre-order',
+        text: 'Please upload at least one image of the candle product',
         icon: 'warning'
       });
       return;
@@ -143,10 +152,10 @@ function CustomPreOrder() {
       if (editingProduct) {
         // Update existing product
         productId = editingProduct.id;
-        productRef = ref(db, `customPreOrders/${productId}`);
+        productRef = ref(db, `candleProducts/${productId}`);
       } else {
         // Create new product
-        const customProductsRef = ref(db, 'customPreOrders');
+        const candleProductsRef = ref(db, 'candleProducts');
         const newProductRef = push(customProductsRef);
         productId = newProductRef.key;
         productRef = newProductRef;
@@ -155,76 +164,27 @@ function CustomPreOrder() {
       const productData = {
         ...formData,
         id: productId,
-        status: editingProduct ? editingProduct.status : 'pending',
         createdAt: editingProduct ? editingProduct.createdAt : Date.now(),
-        price: formData.price || 0, // Will be set by admin
+        isActive: editingProduct ? editingProduct.isActive : true,
         imageUrl: formData.images[0],
         additionalImages: formData.images.slice(1)
       };
 
       await set(productRef, productData);
 
-      // Send email notification only for new products
-      if (!editingProduct) {
-        const emailData = {
-          access_key: "78bafe1f-05fd-4f4a-bd3b-c12ec189a7e7",
-          subject: `New Custom Pre-Order Request - ${formData.name}`,
-          from_name: "SenTorial Custom Orders",
-          message: `
-NEW CUSTOM PRE-ORDER REQUEST
-
-Product Details:
-- Product Name: ${formData.name}
-- Description: ${formData.description}
-
-Customer Information:
-- Name: ${formData.customerName}
-- Email: ${formData.customerEmail}
-- Phone: ${formData.customerPhone}
-- Location: ${formData.customerLocation}
-
-Images: ${formData.images.length} image(s) uploaded
-Product ID: ${productId}
-
-Please review this request in the admin panel and set the price and approval status.
-
-Time: ${new Date().toLocaleString()}
-        `
-        };
-
-        const response = await fetch("https://api.web3forms.com/submit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(emailData),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to send email');
-        }
-      }
-
-        Swal.fire({
-          title: editingProduct ? 'Product Updated!' : 'Request Submitted!',
-          html: `
-            <p>Your custom pre-order ${editingProduct ? 'has been updated' : 'request has been submitted'} successfully!</p>
-            <p class="mt-4"><strong>Request ID:</strong> ${productId}</p>
-            ${!editingProduct ? '<p class="mt-2 text-sm">We will review your request and contact you within 24-48 hours with pricing and availability.</p>' : ''}
-          `,
-          icon: 'success',
-          confirmButtonText: 'Great!'
-        });
+      Swal.fire({
+        title: editingProduct ? 'Candle Updated!' : 'Candle Added!',
+        text: editingProduct ? 'Candle product has been updated successfully!' : 'New candle product has been added successfully!',
+        icon: 'success',
+        confirmButtonText: 'Great!'
+      });
 
         // Reset form
         setFormData({
           name: '',
           description: '',
           price: 0,
-          customerName: '',
-          customerEmail: '',
-          customerPhone: '',
-          customerLocation: '',
+          quantity: 0,
           images: []
         });
         setEditingProduct(null);
@@ -232,7 +192,7 @@ Time: ${new Date().toLocaleString()}
     } catch (error) {
       Swal.fire({
         title: 'Error',
-        text: editingProduct ? 'Failed to update product. Please try again.' : 'Failed to submit your request. Please try again.',
+        text: editingProduct ? 'Failed to update candle. Please try again.' : 'Failed to add candle. Please try again.',
         icon: 'error'
       });
     } finally {
@@ -255,15 +215,15 @@ Time: ${new Date().toLocaleString()}
         materialRef = ref(db, `candleMaterials/${materialId}`);
       } else {
         // Create new material
-        const materialsRef = ref(db, 'candleMaterials');
-        const newMaterialRef = push(materialsRef);
+        const newMaterialRef = push(candleMaterialsRef);
         materialId = newMaterialRef.key;
         materialRef = newMaterialRef;
       }
 
       const materialData = {
         ...materialFormData,
-        id: materialId
+        id: materialId,
+        isActive: editingMaterial ? editingMaterial.isActive : true
       };
 
       await set(materialRef, materialData);
@@ -280,11 +240,10 @@ Time: ${new Date().toLocaleString()}
         name: '',
         price: 0,
         category: 'containers',
-        imageUrl: '',
-        isActive: true
+        imageUrl: ''
       });
       setEditingMaterial(null);
-      setShowCandleMaterialForm(false);
+      setShowMaterialForm(false);
     } catch (error) {
       Swal.fire({
         title: 'Error',
@@ -296,18 +255,13 @@ Time: ${new Date().toLocaleString()}
     }
   };
 
-  const addToCart = (product: CustomProduct) => {
+  const addToCart = (product: CandleProduct) => {
     const existingCart = JSON.parse(localStorage.getItem('cart') || '[]');
     const cartItem = {
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      imageUrl: product.imageUrl,
-      quantity: 'Pre-order',
-      category: 'Custom Pre-order',
+      ...product,
+      quantity: 1,
       selected: true,
-      quantity: 1
+      category: 'Candles'
     };
 
     const isProductInCart = existingCart.some((item: any) => item.id === product.id);
@@ -315,7 +269,7 @@ Time: ${new Date().toLocaleString()}
     if (isProductInCart) {
       Swal.fire({
         title: 'Already in Cart',
-        text: 'This custom product is already in your cart',
+        text: 'This candle is already in your cart',
         icon: 'warning'
       });
       return;
@@ -325,14 +279,10 @@ Time: ${new Date().toLocaleString()}
     localStorage.setItem('cart', JSON.stringify(newCart));
     
     Swal.fire({
-      title: 'Pre-order Payment Required',
-      html: `
-        <p>To confirm your custom pre-order, please send 25% advance payment to:</p>
-        <p class="text-xl font-bold mt-4">bKash: 01722786111</p>
-        <p class="mt-2 text-sm">Include your order number as reference when sending payment.</p>
-      `,
-      icon: 'info',
-      confirmButtonText: 'Got it!'
+      title: 'Success!',
+      text: 'Candle added to cart',
+      icon: 'success',
+      timer: 1500
     });
   };
 
@@ -349,7 +299,6 @@ Time: ${new Date().toLocaleString()}
 
     if (password === '69') {
       setIsAdminAuthenticated(true);
-      setShowAdminPanel(true);
       Swal.fire({
         title: 'Access Granted',
         text: 'You can now manage custom products',
@@ -365,31 +314,16 @@ Time: ${new Date().toLocaleString()}
     }
   };
 
-  const handleEditProduct = (product: CustomProduct) => {
+  const handleEditProduct = (product: CandleProduct) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
       description: product.description,
       price: product.price,
-      customerName: product.customerName,
-      customerEmail: product.customerEmail,
-      customerPhone: product.customerPhone,
-      customerLocation: product.customerLocation,
+      quantity: product.quantity,
       images: [product.imageUrl, ...(product.additionalImages || [])]
     });
     setShowForm(true);
-  };
-
-  const handleEditMaterial = (material: CandleMaterial) => {
-    setEditingMaterial(material);
-    setMaterialFormData({
-      name: material.name,
-      price: material.price,
-      category: material.category,
-      imageUrl: material.imageUrl || '',
-      isActive: material.isActive
-    });
-    setShowCandleMaterialForm(true);
   };
 
   const handleDeleteProduct = async (productId: string, productName: string) => {
@@ -405,7 +339,7 @@ Time: ${new Date().toLocaleString()}
 
     if (result.isConfirmed) {
       try {
-        const productRef = ref(db, `customPreOrders/${productId}`);
+        const productRef = ref(db, `candleProducts/${productId}`);
         await remove(productRef);
         
         Swal.fire({
@@ -422,6 +356,17 @@ Time: ${new Date().toLocaleString()}
         });
       }
     }
+  };
+
+  const handleEditMaterial = (material: CandleMaterial) => {
+    setEditingMaterial(material);
+    setMaterialFormData({
+      name: material.name,
+      price: material.price,
+      category: material.category,
+      imageUrl: material.imageUrl || ''
+    });
+    setShowMaterialForm(true);
   };
 
   const handleDeleteMaterial = async (materialId: string, materialName: string) => {
@@ -456,24 +401,40 @@ Time: ${new Date().toLocaleString()}
     }
   };
 
-  const handleUpdateProductStatus = async (productId: string, newStatus: 'approved' | 'rejected') => {
-    try {
-      const productRef = ref(db, `customPreOrders/${productId}`);
-      await update(productRef, { status: newStatus });
-      
-      Swal.fire({
-        title: 'Status Updated',
-        text: `Product has been ${newStatus}`,
-        icon: 'success',
-        timer: 1500
-      });
-    } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Failed to update product status',
-        icon: 'error'
-      });
+  const toggleProductStatus = async (productId: string, currentStatus: boolean) => {
+    const result = await Swal.fire({
+      title: currentStatus ? 'Hide Product' : 'Show Product',
+      text: `Are you sure you want to ${currentStatus ? 'hide' : 'show'} this product?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${currentStatus ? 'hide' : 'show'} it`,
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: currentStatus ? '#ef4444' : '#10b981'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const productRef = ref(db, `candleProducts/${productId}`);
+        await update(productRef, { isActive: !currentStatus });
+        
+        Swal.fire({
+          title: 'Updated!',
+          text: `Product has been ${currentStatus ? 'hidden' : 'shown'} successfully`,
+          icon: 'success',
+          timer: 1500
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to update product status',
+          icon: 'error'
+        });
+      }
     }
+  };
+
+  const getMaterialsByCategory = (category: string) => {
+    return candleMaterials.filter(material => material.category === category);
   };
 
   return (
@@ -493,7 +454,7 @@ Time: ${new Date().toLocaleString()}
            <Flame className="ml-3 text-orange-500" size={40} />
         </h1>
         <p className="text-lg text-gray-600 font-bold dark:text-gray-300">
-          Can't find what you're looking for? Request a custom product by using the blue + button!
+          Premium handcrafted candles for every occasion
         </p>
         
         {/* Candle Customizer Link */}
@@ -519,13 +480,37 @@ Time: ${new Date().toLocaleString()}
         </div>
       </div>
 
-      {/* Admin Candle Materials Management */}
+      {/* Admin Buttons */}
       {isAdminAuthenticated && (
-        <div className="max-w-4xl mx-auto mb-8 bg-gray-100 dark:bg-gray-800 rounded-lg p-6">
+        <div className="fixed bottom-32 right-4 z-40 flex flex-col space-y-2">
+          <motion.button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all duration-300"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Add Candle Product"
+          >
+            <Plus className="h-6 w-6" />
+          </motion.button>
+          <motion.button
+            onClick={() => setShowMaterialForm(true)}
+            className="bg-green-500 hover:bg-green-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all duration-300"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Add Material"
+          >
+            <Settings className="h-6 w-6" />
+          </motion.button>
+        </div>
+      )}
+
+      {/* Admin Materials Management */}
+      {isAdminAuthenticated && (
+        <div className="max-w-6xl mx-auto mb-8 bg-gray-100 dark:bg-gray-800 rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-800 dark:text-white">Candle Materials Management</h2>
             <button
-              onClick={() => setShowCandleMaterialForm(true)}
+              onClick={() => setShowMaterialForm(true)}
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2"
             >
               <Plus className="h-4 w-4" />
@@ -537,12 +522,25 @@ Time: ${new Date().toLocaleString()}
             {candleMaterials.map((material) => (
               <div key={material.id} className="bg-white dark:bg-gray-700 rounded-lg p-4 border">
                 <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="font-semibold text-gray-800 dark:text-white">{material.name}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 capitalize">{material.category}</p>
-                    <p className="text-blue-600 dark:text-blue-400 font-bold">{material.price} TK</p>
+                  <div className="flex-1">
+                    {material.imageUrl && (
+                      <img
+                        src={material.imageUrl}
+                        alt={material.name}
+                        className="w-16 h-16 object-cover rounded mb-2"
+                      />
+                    )}
+                    <h3 className="font-semibold text-gray-800 dark:text-white text-sm">
+                      {material.name}
+                    </h3>
+                    <p className="text-blue-600 dark:text-blue-400 font-bold text-sm">
+                      {material.price} TK
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 capitalize">
+                      {material.category}
+                    </p>
                   </div>
-                  <div className="flex space-x-1">
+                  <div className="flex space-x-1 ml-2">
                     <button
                       onClick={() => handleEditMaterial(material)}
                       className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
@@ -557,45 +555,21 @@ Time: ${new Date().toLocaleString()}
                     </button>
                   </div>
                 </div>
-                {material.imageUrl && (
-                  <img
-                    src={material.imageUrl}
-                    alt={material.name}
-                    className="w-full h-20 object-cover rounded mb-2"
-                  />
-                )}
-                <div className={`text-xs px-2 py-1 rounded ${
-                  material.isActive 
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                }`}>
-                  {material.isActive ? 'Active' : 'Inactive'}
-                </div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Floating Add Button */}
-      <motion.button
-        onClick={() => setShowForm(true)}
-        className="fixed bottom-32 right-4 z-40 bg-blue-500 hover:bg-blue-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all duration-300"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        aria-label="Add Custom Pre-order"
-      >
-        <Plus className="h-6 w-6" />
-      </motion.button>
-
-      {/* Custom Products Grid */}
-      {customProducts.length > 0 ? (
+      {/* Candle Products Grid */}
+      {candleProducts.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {customProducts.map((product) => (
+          {candleProducts.map((product) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              onClick={() => navigate(`/product/${product.id}`)}
               className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-2xl hover:scale-105 relative cursor-pointer border border-gray-200/50 dark:border-gray-700/50"
             >
               <div className="relative pb-[100%]">
@@ -604,11 +578,15 @@ Time: ${new Date().toLocaleString()}
                   alt={product.name}
                   className="absolute inset-0 w-full h-full object-cover"
                 />
-                <div className="absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                  Pre-order
+                <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${
+                  product.quantity > 0
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                }`}>
+                  {product.quantity > 0 ? `${product.quantity} in stock` : 'Out of stock'}
                 </div>
-                <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
-                  Custom
+                <div className="absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                  Candle
                 </div>
               </div>
 
@@ -620,21 +598,12 @@ Time: ${new Date().toLocaleString()}
                 <div className="flex flex-col space-y-2">
                   <div className="flex justify-between items-center">
                     <div className="flex items-baseline space-x-1">
-                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                        {product.price > 0 ? `${product.price}` : 'TBD'}
-                      </span>
-                      {product.price > 0 && <span className="text-sm text-blue-600 dark:text-blue-400">TK</span>}
+                      <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{product.price}</span>
+                      <span className="text-sm text-blue-600 dark:text-blue-400">TK</span>
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      Custom
+                      Candles
                     </span>
-                  </div>
-
-                  <div className="text-xs text-gray-600 dark:text-gray-300 mb-2">
-                    <div className="flex items-center space-x-1">
-                      <User className="h-3 w-3" />
-                      <span>Requested by {product.customerName}</span>
-                    </div>
                   </div>
 
                   {/* Admin Controls */}
@@ -653,47 +622,39 @@ Time: ${new Date().toLocaleString()}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          toggleProductStatus(product.id, product.isActive);
+                        }}
+                        className={`flex-1 text-white px-2 py-1 text-xs rounded flex items-center justify-center space-x-1 ${
+                          product.isActive 
+                            ? 'bg-yellow-500 hover:bg-yellow-600' 
+                            : 'bg-green-500 hover:bg-green-600'
+                        }`}
+                      >
+                        {product.isActive ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                        <span>{product.isActive ? 'Hide' : 'Show'}</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
                           handleDeleteProduct(product.id, product.name);
                         }}
-                        className="flex-1 bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 flex items-center justify-center space-x-1"
+                        className="bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600 flex items-center justify-center"
                       >
                         <Trash2 className="h-3 w-3" />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Status Controls for Admin */}
-                  {isAdminAuthenticated && product.status === 'pending' && (
-                    <div className="flex space-x-1 mb-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleUpdateProductStatus(product.id, 'approved');
-                        }}
-                        className="flex-1 bg-green-500 text-white px-2 py-1 text-xs rounded hover:bg-green-600"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleUpdateProductStatus(product.id, 'rejected');
-                        }}
-                        className="flex-1 bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600"
-                      >
-                        Reject
                       </button>
                     </div>
                   )}
 
                   <button
-                    onClick={() => addToCart(product)}
-                    disabled={product.status === 'pending'}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                    }}
+                    disabled={product.quantity === 0}
                     className="w-full bg-blue-500 text-white px-3 py-2 text-xs rounded-lg hover:bg-blue-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 flex items-center justify-center space-x-1"
                   >
                     <ShoppingCart className="h-3 w-3" />
-                    <span>{product.status === 'approved' ? 'Pre-order Now' : 'Under Review'}</span>
+                    <span>{product.quantity > 0 ? 'Add to Cart' : 'Out of Stock'}</span>
                   </button>
                 </div>
               </div>
@@ -704,15 +665,17 @@ Time: ${new Date().toLocaleString()}
         <div className="text-center py-12">
           <Package className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">
-            No custom products available yet
+            No candles available yet
           </p>
-          <p className="text-gray-500 dark:text-gray-500">
-            Be the first to request a custom product!
-          </p>
+          {isAdminAuthenticated && (
+            <p className="text-gray-500 dark:text-gray-500">
+              Add your first candle product using the + button!
+            </p>
+          )}
         </div>
       )}
 
-      {/* Request Form Modal */}
+      {/* Product Form Modal */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -732,7 +695,7 @@ Time: ${new Date().toLocaleString()}
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                    Request Custom Product
+                    {editingProduct ? 'Edit Candle Product' : 'Add Candle Product'}
                   </h2>
                   <button
                     onClick={() => setShowForm(false)}
@@ -745,7 +708,7 @@ Time: ${new Date().toLocaleString()}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                      Product Name *
+                      Candle Name *
                     </label>
                     <input
                       type="text"
@@ -753,7 +716,7 @@ Time: ${new Date().toLocaleString()}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                       required
-                      placeholder="What product do you want?"
+                      placeholder="Enter candle name"
                     />
                   </div>
 
@@ -767,15 +730,14 @@ Time: ${new Date().toLocaleString()}
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                       rows={4}
                       required
-                      placeholder="Describe the product in detail (size, color, material, etc.)"
+                      placeholder="Describe the candle (scent, size, burn time, etc.)"
                     />
                   </div>
 
-                  {/* Price field for admin editing */}
-                  {isAdminAuthenticated && editingProduct && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                        Product Price (TK) *
+                        Price (TK) *
                       </label>
                       <input
                         type="number"
@@ -784,63 +746,22 @@ Time: ${new Date().toLocaleString()}
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                         required
                         min="0"
-                      />
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                        Your Name *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.customerName}
-                        onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        required
+                        placeholder="0"
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                        Email *
+                        Quantity *
                       </label>
                       <input
-                        type="email"
-                        value={formData.customerEmail}
-                        onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
+                        type="number"
+                        value={formData.quantity}
+                        onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
                         className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                         required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                        Phone Number *
-                      </label>
-                      <input
-                        type="tel"
-                        value={formData.customerPhone}
-                        onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                        Location *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.customerLocation}
-                        onChange={(e) => setFormData({ ...formData, customerLocation: e.target.value })}
-                        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                        required
-                        placeholder="City, Country"
+                        min="0"
+                        placeholder="0"
                       />
                     </div>
                   </div>
@@ -862,7 +783,7 @@ Time: ${new Date().toLocaleString()}
                         htmlFor="image-upload"
                         className="cursor-pointer flex flex-col items-center space-y-2"
                       >
-                        <Upload className="h-8 w-8 text-gray-400" />
+                        <ImageIcon className="h-8 w-8 text-gray-400" />
                         <span className="text-gray-600 dark:text-gray-300">
                           Click to upload images or drag and drop
                         </span>
@@ -894,18 +815,6 @@ Time: ${new Date().toLocaleString()}
                     )}
                   </div>
 
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                    <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                      What happens next?
-                    </h3>
-                    <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                      <li>• We'll review your request within 24-48 hours</li>
-                      <li>• You'll receive pricing and availability via email</li>
-                      <li>• Once approved, the product will appear on this page</li>
-                      <li>• You can then place a pre-order with 25% advance payment</li>
-                    </ul>
-                  </div>
-
                   <div className="flex space-x-4">
                     <button
                       type="button"
@@ -916,10 +825,7 @@ Time: ${new Date().toLocaleString()}
                           name: '',
                           description: '',
                           price: 0,
-                          customerName: '',
-                          customerEmail: '',
-                          customerPhone: '',
-                          customerLocation: '',
+                          quantity: 0,
                           images: []
                         });
                       }}
@@ -938,7 +844,7 @@ Time: ${new Date().toLocaleString()}
                           <span>{editingProduct ? 'Updating...' : 'Submitting...'}</span>
                         </>
                       ) : (
-                        <span>{editingProduct ? 'Update Product' : 'Submit Request'}</span>
+                        <span>{editingProduct ? 'Update Candle' : 'Add Candle'}</span>
                       )}
                     </button>
                   </div>
@@ -949,15 +855,15 @@ Time: ${new Date().toLocaleString()}
         )}
       </AnimatePresence>
 
-      {/* Candle Material Form Modal */}
+      {/* Material Form Modal */}
       <AnimatePresence>
-        {showCandleMaterialForm && (
+        {showMaterialForm && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-            onClick={() => setShowCandleMaterialForm(false)}
+            onClick={() => setShowMaterialForm(false)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -973,14 +879,13 @@ Time: ${new Date().toLocaleString()}
                   </h2>
                   <button
                     onClick={() => {
-                      setShowCandleMaterialForm(false);
+                      setShowMaterialForm(false);
                       setEditingMaterial(null);
                       setMaterialFormData({
                         name: '',
                         price: 0,
                         category: 'containers',
-                        imageUrl: '',
-                        isActive: true
+                        imageUrl: ''
                       });
                     }}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
@@ -1000,7 +905,7 @@ Time: ${new Date().toLocaleString()}
                       onChange={(e) => setMaterialFormData({ ...materialFormData, name: e.target.value })}
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                       required
-                      placeholder="e.g., Glass jar, Wooden wick, Soy wax"
+                      placeholder="Enter material name"
                     />
                   </div>
 
@@ -1018,6 +923,8 @@ Time: ${new Date().toLocaleString()}
                       <option value="wicks">Wicks</option>
                       <option value="wax">Main Body Wax</option>
                       <option value="addons">Add-ons</option>
+                      <option value="scents">Scents</option>
+                      <option value="colors">Colors</option>
                     </select>
                   </div>
 
@@ -1032,46 +939,62 @@ Time: ${new Date().toLocaleString()}
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                       required
                       min="0"
+                      placeholder="0"
                     />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                      Image URL (Optional)
+                      Material Image (Optional)
                     </label>
-                    <input
-                      type="url"
-                      value={materialFormData.imageUrl}
-                      onChange={(e) => setMaterialFormData({ ...materialFormData, imageUrl: e.target.value })}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="flex items-center space-x-2 cursor-pointer">
+                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center">
                       <input
-                        type="checkbox"
-                        checked={materialFormData.isActive}
-                        onChange={(e) => setMaterialFormData({ ...materialFormData, isActive: e.target.checked })}
-                        className="form-checkbox h-5 w-5 text-blue-500"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleMaterialImageUpload}
+                        className="hidden"
+                        id="material-image-upload"
                       />
-                      <span className="text-gray-700 dark:text-gray-200">Active (visible to customers)</span>
-                    </label>
+                      <label
+                        htmlFor="material-image-upload"
+                        className="cursor-pointer flex flex-col items-center space-y-2"
+                      >
+                        <Upload className="h-6 w-6 text-gray-400" />
+                        <span className="text-gray-600 dark:text-gray-300 text-sm">
+                          Click to upload image
+                        </span>
+                      </label>
+                    </div>
+
+                    {materialFormData.imageUrl && (
+                      <div className="mt-4 relative inline-block">
+                        <img
+                          src={materialFormData.imageUrl}
+                          alt="Material preview"
+                          className="w-24 h-24 object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setMaterialFormData({ ...materialFormData, imageUrl: '' })}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex space-x-4">
                     <button
                       type="button"
                       onClick={() => {
-                        setShowCandleMaterialForm(false);
+                        setShowMaterialForm(false);
                         setEditingMaterial(null);
                         setMaterialFormData({
                           name: '',
                           price: 0,
                           category: 'containers',
-                          imageUrl: '',
-                          isActive: true
+                          imageUrl: ''
                         });
                       }}
                       className="flex-1 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
@@ -1081,7 +1004,7 @@ Time: ${new Date().toLocaleString()}
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 disabled:bg-blue-400 flex items-center justify-center space-x-2"
+                      className="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 disabled:bg-green-400 flex items-center justify-center space-x-2"
                     >
                       {isSubmitting ? (
                         <>
