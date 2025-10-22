@@ -413,10 +413,26 @@ function Home() {
 
 
 
+
           
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 font-light">
-            Discover Premium Quality Products
-          </p>
+          
+            <p className="text-lg md:text-xl font-semibold text-center leading-relaxed text-gray-800 dark:text-gray-100">
+  Every <span className="text-blue-500 font-bold underline decoration-blue-400">product</span> you buy 
+  brings <span className="text-green-600 font-bold">hope</span> — we donate 
+  <span className="mx-1 bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text text-transparent font-extrabold animate-pulse">
+    10 ৳
+  </span>
+  to <span className="text-green-700 dark:text-green-400 font-bold italic">Palestinian children</span> in need.
+  <span className="block mt-2 text-sm text-gray-500 dark:text-gray-400">
+    Small act. Big change.
+  </span>
+</p>
+
+          
+
+
+
+          
         </div>
         
         <div className="flex flex-col space-y-3">
